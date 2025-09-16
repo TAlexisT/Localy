@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
   async function loginUsuario() {
     const url = "http://localhost:3000/api/usuarios/login";
@@ -36,59 +38,108 @@ export default function Login() {
     }
   }
 
+  // Función para redirigir a registro de usuario
+  const redirectToUserRegister = () => {
+    navigate('/registro_usuario');
+  };
+
+  // Función para redirigir a registro de anunciante
+  const redirectToAdvertiserRegister = () => {
+    navigate('/registro_anunciante');
+  };
+
   return (
-    <div
-      className="relative min-h-screen flex flex-col items-center justify-center bg-cover bg-center px-6"
-      style={{
-        backgroundImage: "url('/images/fondoLogin.jpg')"
-      }}
-    >
-      {/* Overlay oscuro */}
-      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-
+    <div className="relative min-h-screen flex items-center justify-center bg-cover bg-center px-4 py-8">
+      {/* Imagen de fondo con capa de oscurecimiento */}
+      <div className="absolute inset-0">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: "url('/images/fondoLogin.jpg')"
+          }}
+        ></div>
+        {/* Capa oscura superpuesta */}
+        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+      </div>
+      
       {/* Contenido */}
-      <div className="relative flex flex-col items-center text-white">
-        <h1 className="text-5xl font-bold">LOCALY</h1>
-        <h2 className="mt-2 text-2xl font-semibold">Iniciar sesión</h2>
-
-        {/* Inputs */}
-        <input
-          type="text"
-          placeholder="Nombre de usuario"
-          value={correo}
-          onChange={(e) => setCorreo(e.target.value)}
-          className="mt-6 w-72 px-4 py-2 rounded-full outline-none text-black"
-        />
-        <input
-          type="password"
-          placeholder="Contraseña"
-          value={contrasena}
-          onChange={(e) => setContrasena(e.target.value)}
-          className="mt-4 w-72 px-4 py-2 rounded-full outline-none text-black"
-        />
-
-        {/* Mensaje de error */}
-        {errorMessage && (
-          <p className="mt-4">{errorMessage}</p>
-        )}
-
-        {/* Botón iniciar sesión */}
-        <button
-          onClick={loginUsuario}
-          className="mt-4 w-72 bg-green-600 text-white py-2 rounded-full font-semibold hover:bg-green-700 transition"
-        >
+      <div className="relative w-full max-w-md p-6 md:p-8 rounded-2xl shadow-lg z-10 bg-white bg-opacity-90">
+        {/* Título */}
+        <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-800">
+          LOCALY
+        </h1>
+        <h2 className="text-xl md:text-2xl font-bold text-center mb-6 text-gray-800">
           Iniciar sesión
-        </button>
+        </h2>
+
+        {/* Formulario */}
+        <div className="flex flex-col gap-4">
+          {/* Input Correo electrónico */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Correo electrónico
+            </label>
+            <input
+              type="text"
+              placeholder="Ingresa tu correo electrónico"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 text-black"
+            />
+          </div>
+
+          {/* Input Contraseña */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Contraseña
+            </label>
+            <input
+              type="password"
+              placeholder="Ingresa tu contraseña"
+              value={contrasena}
+              onChange={(e) => setContrasena(e.target.value)}
+              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 text-black"
+            />
+          </div>
+
+          {/* Mensaje de error */}
+          {errorMessage && (
+            <p className="mt-2 text-red-600 text-sm font-medium text-center">{errorMessage}</p>
+          )}
+
+          {/* Botón iniciar sesión */}
+          <button
+            onClick={loginUsuario}
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-full transition mt-2"
+          >
+            Iniciar sesión
+          </button>
+        </div>
+
+        {/* Separador */}
+        <div className="relative flex items-center my-6">
+          <div className="flex-grow border-t border-gray-300"></div>
+          <span className="flex-shrink mx-4 text-gray-600 text-sm">o</span>
+          <div className="flex-grow border-t border-gray-300"></div>
+        </div>
 
         {/* Botones registro */}
-        <p className="mt-6">Registrarse como:</p>
-        <div className="flex gap-4 mt-2">
-          <button className="bg-red-700 text-white px-6 py-2 rounded-full hover:bg-red-800 transition">
-            Anunciante
-          </button>
-          <button className="bg-red-700 text-white px-6 py-2 rounded-full hover:bg-red-800 transition">
-            Usuario
-          </button>
+        <div className="text-center">
+          <p className="text-gray-700 mb-4">¿No tienes cuenta? Regístrate como:</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button 
+              onClick={redirectToAdvertiserRegister}
+              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition flex-1"
+            >
+              Anunciante
+            </button>
+            <button 
+              onClick={redirectToUserRegister}
+              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition flex-1"
+            >
+              Usuario
+            </button>
+          </div>
         </div>
       </div>
     </div>

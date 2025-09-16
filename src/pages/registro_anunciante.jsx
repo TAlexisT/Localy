@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function RegistroUsuario() {
+export default function RegistroAnunciante() {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-    email: ""
+    email: "",
+    phone: "",
+    businessType: ""
   });
   
   const navigate = useNavigate();
@@ -45,9 +47,16 @@ export default function RegistroUsuario() {
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-800">
           LOCALY
         </h1>
-        <h2 className="text-xl md:text-2xl font-bold text-center mb-6 text-gray-800">
-          Regístrate
-        </h2>
+        
+        {/* Subtítulo */}
+        <div className="text-center mb-6">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+            Regístrate y anuncia tu
+          </h2>
+          <h2 className="text-xl md:text-2xl font-bold text-green-600">
+            Restaurante
+          </h2>
+        </div>
 
         {/* Formulario */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -59,7 +68,6 @@ export default function RegistroUsuario() {
             <input
               type="text"
               name="username"
-              placeholder="Ingresa tu nombre de usuario"
               value={formData.username}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
@@ -75,7 +83,6 @@ export default function RegistroUsuario() {
             <input
               type="password"
               name="password"
-              placeholder="Crea una contraseña segura"
               value={formData.password}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
@@ -91,7 +98,6 @@ export default function RegistroUsuario() {
             <input
               type="email"
               name="email"
-              placeholder="Ingresa tu correo electrónico"
               value={formData.email}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
@@ -99,12 +105,58 @@ export default function RegistroUsuario() {
             />
           </div>
 
+          {/* Número de teléfono */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Número de teléfono
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+              required
+            />
+          </div>
+
+          {/* Tamaño del local */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              <strong>Tamaño del local / restaurante</strong>
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="businessType"
+                  value="ambulante"
+                  checked={formData.businessType === "ambulante"}
+                  onChange={handleChange}
+                  className="text-green-600 focus:ring-green-400"
+                />
+                <span className="text-sm text-gray-700">Ambulante (horario limitado)</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  name="businessType"
+                  value="restaurante"
+                  checked={formData.businessType === "restaurante"}
+                  onChange={handleChange}
+                  className="text-green-600 focus:ring-green-400"
+                />
+                <span className="text-sm text-gray-700">Restaurante</span>
+              </label>
+            </div>
+          </div>
+
           {/* Botón de registro */}
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-full transition mt-2"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-full transition mt-4"
           >
-            Regístrate
+            Registrate
           </button>
         </form>
 
@@ -119,4 +171,5 @@ export default function RegistroUsuario() {
         </div>
       </div>
     </div>
-  );}
+  );
+}

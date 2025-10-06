@@ -94,7 +94,7 @@ const Favoritos = () => {
       if (response.ok && resultado.exito) {
         // Actualizar lista localmente según el tipo
         if (tipo === 'producto') {
-          setProductosFavoritos(prev => prev.filter(producto => producto.favorito_id !== favoritoId));
+          setProductosFavoritos(prev => prev.filter(producto => producto.producto_id !== favoritoId));
         } else if (tipo === 'negocio') {
           setRestaurantesFavoritos(prev => prev.filter(restaurante => restaurante.favorito_id !== favoritoId));
         }
@@ -218,18 +218,18 @@ const Favoritos = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {productosFavoritos.map((producto) => (
-                    <div key={`producto-${producto.favorito_id}`} className="relative">
+                    <div key={`producto-${producto.producto_id}`} className="relative">
                       {/* Botón para eliminar favorito */}
                       <div className="absolute top-3 right-3 z-10">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            eliminarFavorito(producto.favorito_id, 'producto');
+                            eliminarFavorito(producto.producto_id, 'producto');
                           }}
-                          disabled={eliminandoId === producto.favorito_id}
+                          disabled={eliminandoId === producto.producto_id}
                           className="bg-white p-2 rounded-full shadow-md hover:bg-red-50 transition-colors duration-200"
                         >
-                          {eliminandoId === producto.favorito_id ? (
+                          {eliminandoId === producto.producto_id ? (
                             <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
                           ) : (
                             <Heart className="w-4 h-4 text-red-600 fill-current" />
@@ -244,7 +244,7 @@ const Favoritos = () => {
                         nombreRestaurante={producto.negocio_nombre}
                         categoria={producto.categoria}
                         precio={producto.precio}
-                        productoId={producto.favorito_id}
+                        productoId={producto.producto_id}
                         negocioId={producto.negocio_id}
                         negocioNombre={producto.negocio_nombre}
                       />

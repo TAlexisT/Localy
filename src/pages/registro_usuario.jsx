@@ -8,6 +8,10 @@ export default function RegistroUsuario() {
     email: ""
   });
   
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState(""); // "success" o "error"
+  
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -18,11 +22,56 @@ export default function RegistroUsuario() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí iría la lógica para enviar los datos del formulario
-    console.log("Datos del formulario:", formData);
-    // navigate('/'); // Redirigir después del registro exitoso
+    
+    // Iniciar estado de carga
+    setIsLoading(true);
+    setMessage("");
+    
+    try {
+      // Realizar petición fetch al endpoint
+      const response = await fetch('http://localhost:3000/api/usuarios/registro', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials:"include",
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Registro exitoso
+        setMessage("¡Registro exitoso! Bienvenido/a.");
+        setMessageType("success");
+        
+        // Limpiar formulario
+        setFormData({
+          username: "",
+          password: "",
+          email: ""
+        });
+        
+        // Redirigir después de 2 segundos
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      } else {
+        // Error del servidor
+        setMessage(data.message || "Error en el registro. Intenta nuevamente.");
+        setMessageType("error");
+      }
+    } catch (error) {
+      // Error de conexión
+      setMessage("Error de conexión. Verifica tu internet o intenta más tarde.");
+      setMessageType("error");
+      console.error("Error:", error);
+    } finally {
+      // Finalizar estado de carga
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -58,12 +107,13 @@ export default function RegistroUsuario() {
             </label>
             <input
               type="text"
-              name="username"
+              name="usuario"
               placeholder="Ingresa tu nombre de usuario"
-              value={formData.username}
+              value={formData.usuario}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -74,12 +124,13 @@ export default function RegistroUsuario() {
             </label>
             <input
               type="password"
-              name="password"
+              name="contrasena"
               placeholder="Crea una contraseña segura"
-              value={formData.password}
+              value={formData.contrasena}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -90,33 +141,52 @@ export default function RegistroUsuario() {
             </label>
             <input
               type="email"
-              name="email"
+              name="correo"
               placeholder="Ingresa tu correo electrónico"
-              value={formData.email}
+              value={formData.correo}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
               required
+              disabled={isLoading}
             />
           </div>
 
           {/* Botón de registro */}
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-full transition mt-2"
+            disabled={isLoading}
+            className={`w-full text-white font-semibold py-3 rounded-full transition mt-2 ${
+              isLoading 
+                ? "bg-green-400 cursor-not-allowed" 
+                : "bg-green-600 hover:bg-green-700"
+            }`}
           >
-            Regístrate
+            {isLoading ? "Registrando..." : "Regístrate"}
           </button>
         </form>
+
+        {/* Mensaje de retroalimentación */}
+        {message && (
+          <div className={`mt-4 p-3 rounded-lg text-center ${
+            messageType === "success" 
+              ? "bg-green-100 text-green-700" 
+              : "bg-red-100 text-red-700"
+          }`}>
+            {message}
+          </div>
+        )}
 
         {/* Enlace para volver al login */}
         <div className="text-center mt-4">
           <button 
             onClick={() => navigate('/')}
             className="text-sm text-green-600 hover:text-green-700 underline"
+            disabled={isLoading}
           >
-            Volver al inicio de sesión
+            Volver a la página principal
           </button>
         </div>
       </div>
     </div>
-  );}
+  );
+}

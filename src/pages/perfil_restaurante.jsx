@@ -1,0 +1,992 @@
+// src/pages/PerfilRestaurante.jsx
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { 
+  LogOut, 
+  Phone, 
+  MapPin, 
+  Instagram, 
+  Facebook, 
+  Twitter,
+  MessageCircle,
+  Clock,
+  Edit,
+  Loader,
+  ArrowLeft,
+  Shield,
+  Globe,
+  Mail,
+  User,
+  Plus,
+  Image as ImageIcon,
+  Utensils,
+  Trash2,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn
+} from "lucide-react";
+
+export default function PerfilRestaurante() {
+  const [perfil, setPerfil] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [usuario, setUsuario] = useState(null);
+  const [verificandoSesion, setVerificandoSesion] = useState(true);
+  const [menuImages, setMenuImages] = useState([]);
+  const [productos, setProductos] = useState([]);
+  const [cargandoProductos, setCargandoProductos] = useState(true);
+  const [uploadingMenu, setUploadingMenu] = useState(false);
+  const [cargandoMenu, setCargandoMenu] = useState(true);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [previewLogo, setPreviewLogo] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { negocioId } = useParams();
+
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        setLoading(true);
+        setVerificandoSesion(true);
+
+        if (!negocioId) {
+          throw new Error("No se proporcionó un ID de negocio");
+        }
+
+        // 1. Primero verificar sesión del usuario
+        try {
+          const sesionRes = await fetch("http://localhost:3000/api/usuarios/autenticar-sesion", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (sesionRes.ok) {
+            const sesionData = await sesionRes.json();
+            if (sesionData.exito) {
+              setUsuario(sesionData.datos);
+            }
+          }
+        } catch (err) {
+          console.log("No hay sesión activa o error al verificar sesión:", err);
+        } finally {
+          setVerificandoSesion(false);
+        }
+
+        // 2. Cargar perfil del negocio
+        await cargarPerfilYMenu();
+
+        // 3. Cargar productos desde el endpoint real
+        await cargarProductos();
+
+      } catch (err) {
+        console.error("Error al cargar datos:", err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+        setCargandoMenu(false);
+      }
+    };
+
+    cargarDatos();
+  }, [negocioId]);
+
+  // Función para cargar perfil y extraer imágenes del menú
+  const cargarPerfilYMenu = async () => {
+    try {
+      const perfilRes = await fetch(`http://localhost:3000/api/negocios/perfil/${negocioId}`, {
+        credentials: "include",
+      });
+
+      if (!perfilRes.ok) {
+        if (perfilRes.status === 404) {
+          throw new Error("Negocio no encontrado");
+        } else if (perfilRes.status === 403) {
+          throw new Error("No tienes permisos para ver este perfil");
+        } else {
+          throw new Error(`Error ${perfilRes.status} al cargar el perfil`);
+        }
+      }
+
+      const perfilData = await perfilRes.json();
+      
+      if (!perfilData.exito) {
+        throw new Error(perfilData.mensaje || "Error al cargar los datos del negocio");
+      }
+
+      setPerfil(perfilData.datos);
+
+      // Extraer imágenes del menú del objeto "menus"
+      if (perfilData.datos.menus && typeof perfilData.datos.menus === 'object') {
+        const imagenesMenu = Object.entries(perfilData.datos.menus).map(([id, url]) => ({
+          id: id,
+          url: url
+        }));
+        setMenuImages(imagenesMenu);
+      } else {
+        setMenuImages([]);
+      }
+
+    } catch (error) {
+      console.error('Error al cargar perfil y menú:', error);
+      throw error;
+    }
+  };
+
+  // Función para cargar imágenes del menú desde el perfil
+  const cargarImagenesMenu = async () => {
+    try {
+      setCargandoMenu(true);
+      
+      // Recargar el perfil para obtener las imágenes actualizadas del menú
+      await cargarPerfilYMenu();
+
+    } catch (error) {
+      console.error('Error al cargar imágenes del menú:', error);
+      setMenuImages([]);
+    } finally {
+      setCargandoMenu(false);
+    }
+  };
+
+  // Función REAL para cargar productos desde el endpoint
+  const cargarProductos = async () => {
+    try {
+      setCargandoProductos(true);
+      const response = await fetch(`http://localhost:3000/api/productos/obtener-productos/${negocioId}`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          // No hay productos, es normal
+          setProductos([]);
+          return;
+        }
+        throw new Error(`Error ${response.status} al cargar los productos`);
+      }
+
+      const result = await response.json();
+      
+      if (result.exito) {
+        setProductos(result.datos || []);
+      } else {
+        // Si no hay éxito pero tampoco error crítico, mostrar array vacío
+        setProductos([]);
+        console.warn('Respuesta del servidor:', result.mensaje);
+      }
+
+    } catch (error) {
+      console.error('Error al cargar productos:', error);
+      // En caso de error, mostrar array vacío para no romper la UI
+      setProductos([]);
+    } finally {
+      setCargandoProductos(false);
+    }
+  };
+
+  // Función para abrir preview de imagen del menú
+  const openImagePreview = (image, index) => {
+    setPreviewImage(image);
+    setCurrentImageIndex(index);
+  };
+
+  // Función para abrir preview del logo
+  const openLogoPreview = () => {
+    if (perfil?.logo) {
+      setPreviewLogo(true);
+    }
+  };
+
+  // Función para cerrar preview del logo
+  const closeLogoPreview = () => {
+    setPreviewLogo(false);
+  };
+
+  // Función para cerrar preview de menú
+  const closeImagePreview = () => {
+    setPreviewImage(null);
+    setCurrentImageIndex(0);
+  };
+
+  // Función para navegar entre imágenes en el preview del menú
+  const goToNextImage = () => {
+    if (currentImageIndex < menuImages.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+      setPreviewImage(menuImages[currentImageIndex + 1]);
+    }
+  };
+
+  const goToPrevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+      setPreviewImage(menuImages[currentImageIndex - 1]);
+    }
+  };
+
+  // Manejar teclado en los previews
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (previewImage) {
+        if (e.key === 'Escape') {
+          closeImagePreview();
+        } else if (e.key === 'ArrowRight') {
+          goToNextImage();
+        } else if (e.key === 'ArrowLeft') {
+          goToPrevImage();
+        }
+      } else if (previewLogo) {
+        if (e.key === 'Escape') {
+          closeLogoPreview();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [previewImage, previewLogo, currentImageIndex]);
+
+  const handleEditarPerfil = () => {
+    if (perfil && usuario) {
+      navigate("/configura_perfil", { 
+        state: { 
+          negocio: perfil,
+          negocioId: negocioId 
+        } 
+      });
+    }
+  };
+
+  const handleAgregarProducto = () => {
+    if (usuario && perfil) {
+      navigate("/agregar_producto", { 
+        state: { 
+          negocioId: negocioId,
+          negocioNombre: perfil.nombre
+        } 
+      });
+    }
+  };
+
+  // Función REAL para subir imagen del menú
+  const handleUploadMenu = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validar que sea una imagen
+    if (!file.type.startsWith('image/')) {
+      alert('Por favor selecciona un archivo de imagen válido');
+      return;
+    }
+
+    // Validar tamaño (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      alert('La imagen debe ser menor a 2MB');
+      return;
+    }
+
+    setUploadingMenu(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('imagen', file); // Campo debe llamarse "imagen"
+
+      const response = await fetch(`http://localhost:3000/api/negocios/subir-menu/${negocioId}`, {
+        method: 'POST',
+        credentials: 'include',
+        body: formData
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.exito) {
+        // Recargar las imágenes del menú después de subir
+        await cargarImagenesMenu();
+        alert('Imagen del menú agregada exitosamente');
+      } else {
+        throw new Error(result.mensaje || 'Error al subir la imagen');
+      }
+
+      // Limpiar input
+      event.target.value = '';
+
+    } catch (error) {
+      console.error('Error al subir imagen del menú:', error);
+      alert('Error al subir la imagen del menú: ' + error.message);
+    } finally {
+      setUploadingMenu(false);
+    }
+  };
+
+  // Función REAL para eliminar imagen del menú
+  const handleDeleteMenuImage = async (imageId) => {
+    if (!window.confirm('¿Estás seguro de que quieres eliminar esta imagen del menú?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/negocios/borrar-menu/${negocioId}/${imageId}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.exito) {
+        // Recargar las imágenes del menú después de eliminar
+        await cargarImagenesMenu();
+        alert('Imagen del menú eliminada exitosamente');
+      } else {
+        throw new Error(result.mensaje || 'Error al eliminar la imagen');
+      }
+
+    } catch (error) {
+      console.error('Error al eliminar imagen del menú:', error);
+      alert('Error al eliminar la imagen del menú: ' + error.message);
+    }
+  };
+
+  const handleCerrarSesion = async () => {
+    try {
+      const logoutRes = await fetch("http://localhost:3000/api/usuarios/logout", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (logoutRes.ok) {
+        const logoutData = await logoutRes.json();
+        if (logoutData.exito) {
+          console.log("Sesión cerrada exitosamente");
+        }
+      }
+      
+      setUsuario(null);
+      localStorage.removeItem("token");
+      localStorage.removeItem("usuario");
+      navigate("/login");
+      
+    } catch (err) {
+      console.error("Error al cerrar sesión:", err);
+      setUsuario(null);
+      navigate("/login");
+    }
+  };
+
+  const handleVolver = () => {
+    navigate(-1);
+  };
+
+  const handleLogin = () => {
+    navigate("/login");
+  };
+
+  const handleRegistrar = () => {
+    navigate("/login");
+  };
+
+  // Función para formatear horarios
+  const formatearHorario = (apertura, cierre) => {
+    if (!apertura || !cierre) return "Cerrado";
+    const formatHora = (hora) => {
+      const [horas, minutos] = hora.split(':');
+      const horaNum = parseInt(horas);
+      const periodo = horaNum >= 12 ? 'PM' : 'AM';
+      const hora12 = horaNum % 12 || 12;
+      return `${hora12}:${minutos} ${periodo}`;
+    };
+    return `${formatHora(apertura)} - ${formatHora(cierre)}`;
+  };
+
+  // Función para generar enlaces de redes sociales
+  const generarEnlaceRedSocial = (plataforma, valor) => {
+    if (!valor) return null;
+    
+    switch (plataforma) {
+      case 'WhatsApp':
+        return `https://wa.me/${valor.replace('+', '')}`;
+      case 'Facebook':
+        return valor.startsWith('http') ? valor : `https://facebook.com/${valor}`;
+      case 'Instagram':
+        return valor.startsWith('http') ? valor : `https://instagram.com/${valor}`;
+      case 'X':
+        return valor.startsWith('http') ? valor : `https://x.com/${valor}`;
+      case 'TikTok':
+        return valor.startsWith('http') ? valor : `https://tiktok.com/@${valor}`;
+      default:
+        return valor;
+    }
+  };
+
+  // Verificar si el usuario actual es el propietario del negocio
+  const esPropietario = usuario && perfil && usuario.correo === perfil.correo;
+
+  // Mostrar loading principal
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Cargando perfil del negocio...</p>
+          <p className="text-sm text-gray-500">ID: {negocioId}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar error
+  if (error || !perfil) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <strong className="font-bold">Error: </strong>
+            <span className="block sm:inline">{error || "No se pudieron cargar los datos del negocio"}</span>
+          </div>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <button
+              onClick={() => navigate("/")}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              Ir al Inicio
+            </button>
+            <button
+              onClick={handleVolver}
+              className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition"
+            >
+              Volver Atrás
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-6">
+      {/* Modal de Preview del Logo */}
+      {previewLogo && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+          <div className="relative max-w-6xl max-h-full w-full h-full flex items-center justify-center">
+            {/* Botón cerrar */}
+            <button
+              onClick={closeLogoPreview}
+              className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* Imagen del logo */}
+            <div className="flex items-center justify-center w-full h-full">
+              <img
+                src={perfil.logo}
+                alt={`Logo de ${perfil.nombre}`}
+                className="max-w-full max-h-full object-contain rounded-lg"
+              />
+            </div>
+
+            {/* Información del logo */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+              Logo de {perfil.nombre}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Preview de Imagen del Menú */}
+      {previewImage && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
+          <div className="relative max-w-6xl max-h-full w-full h-full flex items-center justify-center">
+            {/* Botón cerrar */}
+            <button
+              onClick={closeImagePreview}
+              className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {/* Botón anterior */}
+            {currentImageIndex > 0 && (
+              <button
+                onClick={goToPrevImage}
+                className="absolute left-4 z-10 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+            )}
+
+            {/* Imagen */}
+            <div className="flex items-center justify-center w-full h-full">
+              <img
+                src={previewImage.url}
+                alt="Vista previa del menú"
+                className="max-w-full max-h-full object-contain rounded-lg"
+              />
+            </div>
+
+            {/* Botón siguiente */}
+            {currentImageIndex < menuImages.length - 1 && (
+              <button
+                onClick={goToNextImage}
+                className="absolute right-4 z-10 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            )}
+
+            {/* Contador */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
+              {currentImageIndex + 1} / {menuImages.length}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-6xl mx-auto px-4">
+        {/* Header con información de usuario */}
+        <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Perfil del Negocio</h1>
+              {usuario && (
+                <p className="text-gray-600 flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  Sesión activa: {usuario.correo}
+                </p>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex gap-3 flex-wrap">
+            {verificandoSesion ? (
+              <div className="flex items-center gap-2 text-gray-500">
+                <Loader className="w-4 h-4 animate-spin" />
+                Verificando sesión...
+              </div>
+            ) : usuario ? (
+              <>
+                {esPropietario && (
+                  <button
+                    onClick={handleEditarPerfil}
+                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                  >
+                    <Edit className="w-4 h-4" />
+                    Editar Perfil
+                  </button>
+                )}
+                <button
+                  onClick={handleCerrarSesion}
+                  className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Cerrar Sesión
+                </button>
+              </>
+            ) : (
+              <div className="flex gap-3">
+                <button
+                  onClick={handleLogin}
+                  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+                >
+                  Iniciar Sesión
+                </button>
+                <button
+                  onClick={handleRegistrar}
+                  className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                >
+                  Registrarse
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Tarjeta principal del negocio */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+          {/* Header con imagen y información básica */}
+          <div className="relative">
+            {perfil.logo && (
+              <div className="h-64 bg-gray-200 overflow-hidden group cursor-pointer" onClick={openLogoPreview}>
+                <img 
+                  src={perfil.logo} 
+                  alt={`Logo de ${perfil.nombre}`}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-100', 'to-purple-100');
+                  }}
+                />
+                {/* Overlay con efecto hover para el logo */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2 bg-white bg-opacity-90 px-4 py-2 rounded-full shadow-lg">
+                    <ZoomIn className="w-5 h-5 text-gray-700" />
+                    <span className="text-gray-700 font-medium text-sm">Ver imagen</span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className={`p-6 ${perfil.logo ? 'absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-br from-blue-100 to-purple-100'}`}>
+              <div className={`${perfil.logo ? 'text-white' : 'text-gray-900'}`}>
+                <h2 className="text-4xl font-bold mb-2">{perfil.nombre}</h2>
+                {perfil.descripcion && (
+                  <p className="text-lg opacity-90">{perfil.descripcion}</p>
+                )}
+                {!perfil.activo && (
+                  <div className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm mt-2">
+                    <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                    Negocio inactivo
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Información detallada */}
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Columna izquierda - Información de contacto */}
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <Phone className="w-5 h-5" />
+                    Información de Contacto
+                  </h3>
+                  <div className="space-y-3">
+                    {perfil.correo && (
+                      <div className="flex items-center gap-3">
+                        <Mail className="w-4 h-4 text-gray-500" />
+                        <a 
+                          href={`mailto:${perfil.correo}`}
+                          className="text-blue-600 hover:text-blue-800 break-all"
+                        >
+                          {perfil.correo}
+                        </a>
+                      </div>
+                    )}
+                    {perfil.telefono && (
+                      <div className="flex items-center gap-3">
+                        <Phone className="w-4 h-4 text-gray-500" />
+                        <a 
+                          href={`tel:${perfil.telefono}`}
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          {perfil.telefono}
+                        </a>
+                      </div>
+                    )}
+                    {perfil.ubicacion && (
+                      <div className="flex items-start gap-3">
+                        <MapPin className="w-4 h-4 text-gray-500 mt-1" />
+                        <div className="flex-1">
+                          <p className="font-medium mb-2">Ubicación</p>
+                          
+                          {/* Mapa interactivo que abre Google Maps */}
+                          <a
+                            href={`https://www.google.com/maps?q=${perfil.ubicacion.latitude},${perfil.ubicacion.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block"
+                          >
+                            <div className="relative h-32 rounded-lg overflow-hidden border border-gray-300 bg-gray-100 hover:border-blue-500 transition-all duration-300 hover:shadow-md hover:transform hover:translate-y-[-2px]">
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                                <div className="text-center">
+                                  <MapPin className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                                  <p className="text-sm text-gray-600 font-medium">Ver ubicación en mapa</p>
+                                  <p className="text-xs text-gray-500 mt-1">Presiona para abrir Google Maps</p>
+                                </div>
+                              </div>
+                            </div>
+                          </a>
+                          
+                          
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Redes Sociales */}
+                {perfil.redes && Object.values(perfil.redes).some(val => val) && (
+                  <div>
+                    <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                      <Globe className="w-5 h-5" />
+                      Redes Sociales
+                    </h3>
+                    <div className="flex flex-wrap gap-3">
+                      {Object.entries(perfil.redes).map(([plataforma, valor]) => {
+                        if (!valor) return null;
+                        
+                        const enlace = generarEnlaceRedSocial(plataforma, valor);
+                        const Icono = 
+                          plataforma === 'WhatsApp' ? MessageCircle :
+                          plataforma === 'Facebook' ? Facebook :
+                          plataforma === 'Instagram' ? Instagram :
+                          plataforma === 'X' ? Twitter : Globe;
+
+                        return (
+                          <a
+                            key={plataforma}
+                            href={enlace}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition"
+                          >
+                            <Icono className="w-4 h-4" />
+                            <span>{plataforma}</span>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Columna derecha - Horario */}
+              <div>
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Clock className="w-5 h-5" />
+                  Horario de Atención
+                </h3>
+                <div className="space-y-2">
+                  {perfil.horario && Object.entries(perfil.horario).map(([dia, horario]) => (
+                    <div key={dia} className="flex justify-between items-center py-2 border-b border-gray-100">
+                      <span className="font-medium capitalize">{dia}:</span>
+                      <span className="text-gray-600">
+                        {formatearHorario(horario.apertura, horario.cierre)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Información adicional */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className={`flex items-center gap-2 ${perfil.activo ? 'text-green-600' : 'text-red-600'}`}>
+                    <div className={`w-3 h-3 rounded-full ${perfil.activo ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                    <span>{perfil.activo ? 'Negocio activo' : 'Negocio inactivo'}</span>
+                  </div>
+                  
+                  {esPropietario && (
+                    <div className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                      <User className="w-3 h-3" />
+                      Eres el propietario
+                    </div>
+                  )}
+                </div>
+                
+                <div className="text-sm text-gray-500">
+                  <span>ID del negocio: {negocioId}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Sección de Menú */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold flex items-center gap-3">
+                <ImageIcon className="w-6 h-6 text-blue-600" />
+                Menú
+              </h3>
+              {esPropietario && (
+                <div className="flex items-center gap-3">
+                  <label className={`flex items-center gap-2 px-4 py-2 rounded-lg transition cursor-pointer ${
+                    uploadingMenu 
+                      ? 'bg-gray-400 text-white cursor-not-allowed' 
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}>
+                    {uploadingMenu ? (
+                      <>
+                        <Loader className="w-4 h-4 animate-spin" />
+                        Subiendo...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4" />
+                        Agregar Imagen
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUploadMenu}
+                      className="hidden"
+                      disabled={uploadingMenu}
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+            
+            <p className="text-gray-600 mb-6">Imágenes del menú del restaurante.</p>
+            
+            {cargandoMenu ? (
+              <div className="text-center py-12">
+                <Loader className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+                <p className="text-gray-500">Cargando menú...</p>
+              </div>
+            ) : menuImages.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {menuImages.map((image, index) => (
+                  <div key={image.id} className="relative group">
+                    <div 
+                      className="cursor-pointer"
+                      onClick={() => openImagePreview(image, index)}
+                    >
+                      <img
+                        src={image.url?.logo || image.url}
+                        alt={image.nombre || "Imagen del menú"}
+                        className="w-full h-64 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                      />
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
+                        <div className="opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg transition-opacity duration-300">
+                          <ImageIcon className="w-5 h-5" />
+                        </div>
+                      </div>
+                    </div>
+                    {esPropietario && (
+                      <div className="absolute top-2 right-2 bg-black bg-opacity-50 rounded-lg p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteMenuImage(image.id);
+                          }}
+                          className="text-white hover:text-red-300 transition"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
+                <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No hay imágenes del menú cargadas</p>
+                {esPropietario && (
+                  <p className="text-sm text-gray-400 mt-2">Haz clic en "Agregar Imagen" para comenzar</p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sección de Productos */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold flex items-center gap-3">
+                <Utensils className="w-6 h-6 text-green-600" />
+                Productos
+              </h3>
+              {esPropietario && (
+                <button
+                  onClick={handleAgregarProducto}
+                  className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                  <Plus className="w-4 h-4" />
+                  Agregar Producto
+                </button>
+              )}
+            </div>
+            
+            <p className="text-gray-600 mb-6">Agrega los productos y su información.</p>
+            
+            {cargandoProductos ? (
+              <div className="text-center py-12">
+                <Loader className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+                <p className="text-gray-500">Cargando productos...</p>
+              </div>
+            ) : productos.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {productos.map((producto) => (
+                  <div
+                    key={producto.producto_id}
+                    onClick={() =>
+                      navigate("/informacion_producto", {
+                        state: {
+                          producto_id: producto.producto_id,
+                          negocioId: negocioId,
+                          negocioNombre: perfil.nombre,
+                        },
+                      })
+                    }
+                    className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                  >
+                    {/* Imagen grande arriba */}
+                    {producto.imagen_URL && (
+                      <img
+                        src={producto.imagen_URL}
+                        alt={producto.nombre}
+                        className="w-full h-48 object-cover"
+                      />
+                    )}
+
+                    {/* Contenido debajo */}
+                    <div className="p-4">
+                      <h4 className="font-bold text-2xl mb-2">{producto.nombre}</h4>
+
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl font-semibold">
+                          ${producto.precio}
+                        </span>
+
+                        {producto.en_oferta && (
+                          <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">
+                            Oferta
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
+                <Utensils className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No hay productos cargados</p>
+                {esPropietario && (
+                  <p className="text-sm text-gray-400 mt-2">Haz clic en "Agregar Producto" para comenzar</p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Mensaje para no propietarios */}
+        {!esPropietario && usuario && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-3">
+              <Shield className="w-5 h-5 text-yellow-600" />
+              <div>
+                <p className="text-yellow-800 font-medium">Solo lectura</p>
+                <p className="text-yellow-700 text-sm">
+                  Estás viendo este perfil como visitante. Solo el propietario puede editarlo.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

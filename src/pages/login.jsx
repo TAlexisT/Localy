@@ -5,9 +5,19 @@ export default function Login() {
   const [correo, setCorreo] = useState("");
   const [contrasena, setContrasena] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   async function loginUsuario() {
+    // Validar campos
+    if (!correo || !contrasena) {
+      setErrorMessage("Por favor, completa todos los campos");
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage("");
+    
     const url = "http://localhost:3000/api/usuarios/login";
     const data = { correo, contrasena };
 
@@ -24,19 +34,94 @@ export default function Login() {
       const result = await response.json();
 
       if (!response.ok) {
-        // Mostrar mensaje si las credenciales no son correctas
-        setErrorMessage("Correo o contraseña incorrecto");
+        setErrorMessage(result.message || "Correo o contraseña incorrecto");
         return;
       }
 
-      setErrorMessage(""); // Limpiar mensaje si el login es exitoso
-      console.log("Respuesta del servidor:", result);
-      // Aquí podrías redirigir o guardar token en localStorage
+      setErrorMessage("");
+      console.log("Login exitoso:", result);
+      
+      // ✅ NUEVA LÓGICA DE REDIRECCIÓN
+      if (result.exito && result.datos) {
+        const usuario = result.datos;
+        
+        // Guardar datos del usuario en localStorage para uso posterior
+        localStorage.setItem('usuario', JSON.stringify(usuario));
+        
+        if (usuario.tipo === "negocio") {
+          // Usuario es un negocio - verificar si tiene perfil completo
+          await verificarPerfilNegocio(usuario);
+        } else if (usuario.tipo === "usuario") {
+          // Usuario normal - redirigir a página principal
+          navigate('/');
+        } else {
+          // Tipo no reconocido - redirigir a principal
+          navigate('/');
+        }
+      } else {
+        // Fallback si no hay datos
+        navigate('/');
+      }
+      
     } catch (error) {
       console.error("Error al hacer fetch:", error);
       setErrorMessage("Error al conectar con el servidor");
+    } finally {
+      setIsLoading(false);
     }
   }
+
+  // ✅ FUNCIÓN PARA VERIFICAR PERFIL DEL NEGOCIO
+  const verificarPerfilNegocio = async (usuario) => {
+    try {
+      // Verificar si el negocio ya tiene perfil configurado
+      const response = await fetch(`http://localhost:3000/api/negocios/perfil/${usuario.negocioId}`, {
+        credentials: "include"
+      });
+
+      if (response.ok) {
+        const perfil = await response.json();
+        
+        // Verificar si el perfil tiene información básica (nombre)
+        if (perfil.datos.nombre && perfil.datos.nombre.trim() !== "") {
+          // ✅ Perfil completo - redirigir a perfil_restaurante
+          navigate('/');
+        } else {
+          // ❌ Perfil incompleto - redirigir a configura_perfil
+          navigate('/configura_perfil', { 
+            state: { 
+              negocioId: usuario.negocioId,
+              usuario: usuario
+            } 
+          });
+        }
+      } else {
+        // Si no puede cargar el perfil, asumir que no existe
+        navigate('/configura_perfil', { 
+          state: { 
+            negocioId: usuario.negocioId,
+            usuario: usuario
+          } 
+        });
+      }
+    } catch (error) {
+      console.error("Error al verificar perfil:", error);
+      // En caso de error, redirigir a configura_perfil
+      navigate('/configura_perfil', { 
+        state: { 
+          negocioId: usuario.negocioId,
+          usuario: usuario
+        } 
+      });
+    }
+  };
+
+  // Manejar envío del formulario con Enter
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      loginUsuario();
+    }
+  };
 
   // Función para redirigir a registro de usuario
   const redirectToUserRegister = () => {
@@ -73,7 +158,7 @@ export default function Login() {
         </h2>
 
         {/* Formulario */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4" onKeyPress={handleKeyPress}>
           {/* Input Correo electrónico */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -85,6 +170,7 @@ export default function Login() {
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 text-black"
+              disabled={isLoading}
             />
           </div>
 
@@ -99,6 +185,7 @@ export default function Login() {
               value={contrasena}
               onChange={(e) => setContrasena(e.target.value)}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 text-black"
+              disabled={isLoading}
             />
           </div>
 
@@ -110,9 +197,14 @@ export default function Login() {
           {/* Botón iniciar sesión */}
           <button
             onClick={loginUsuario}
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-full transition mt-2"
+            disabled={isLoading}
+            className={`w-full text-white font-semibold py-3 rounded-full transition mt-2 ${
+              isLoading 
+                ? "bg-green-400 cursor-not-allowed" 
+                : "bg-green-600 hover:bg-green-700"
+            }`}
           >
-            Iniciar sesión
+            {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
           </button>
         </div>
 
@@ -129,17 +221,29 @@ export default function Login() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button 
               onClick={redirectToAdvertiserRegister}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition flex-1"
+              disabled={isLoading}
+              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition flex-1 disabled:bg-red-400 disabled:cursor-not-allowed"
             >
               Anunciante
             </button>
             <button 
               onClick={redirectToUserRegister}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition flex-1"
+              disabled={isLoading}
+              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition flex-1 disabled:bg-red-400 disabled:cursor-not-allowed"
             >
               Usuario
             </button>
           </div>
+        </div>
+
+        <div className="text-center mt-4">
+          <button 
+            onClick={() => navigate('/')}
+            className="text-sm text-green-600 hover:text-green-700 underline"
+            disabled={isLoading}
+          >
+            Volver a la página principal
+          </button>
         </div>
       </div>
     </div>

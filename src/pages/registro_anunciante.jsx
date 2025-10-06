@@ -3,52 +3,102 @@ import { useNavigate } from "react-router-dom";
 
 export default function RegistroAnunciante() {
   const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    email: "",
-    phone: "",
-    businessType: ""
+    usuario: "",
+    contrasena: "",
+    correo: "",
+    telefono: "",
+    price_id: "",
+    recurrente: false,
+    businessType: "" // 👈 guardamos el tipo para poder recalcular
   });
-  
+
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  // 🔹 Aquí defines tus price IDs de Stripe
+  const PRICE_IDS = {
+    ambulante: {
+      recurrente: "price_1S8W421rnZa5ePTMqg8QtLWm",
+      puntual: "price_1S8W4V1rnZa5ePTMuLtfNJXM"
+    },
+    restaurante: {
+      recurrente: "price_1S8W4q1rnZa5ePTMI7llDwgK",
+      puntual: "price_1S8W5A1rnZa5ePTM3nz80AnR"
+    }
   };
 
-  const handleSubmit = (e) => {
+  const updatePriceId = (tipo, recurrente) => {
+    if (!tipo) return "";
+    return recurrente ? PRICE_IDS[tipo].recurrente : PRICE_IDS[tipo].puntual;
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    setFormData((prev) => {
+      let updated = { ...prev };
+
+      if (name === "businessType") {
+        updated.businessType = value;
+        updated.price_id = updatePriceId(value, prev.recurrente);
+      } else if (name === "recurrente") {
+        updated.recurrente = checked;
+        updated.price_id = updatePriceId(prev.businessType, checked);
+      } else {
+        updated[name] = value;
+      }
+
+      return updated;
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí iría la lógica para enviar los datos del formulario
-    console.log("Datos del formulario:", formData);
-    // navigate('/'); // Redirigir después del registro exitoso
+
+    try {
+      const response = await fetch("http://localhost:3000/api/negocios/crear-sesion-pago", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData), // 👈 mandamos todo el formData
+      });
+
+      if (!response.ok) {
+        throw new Error("Error en la petición al servidor");
+      }
+
+      const data = await response.json();
+      console.log("Respuesta del backend:", data);
+
+      // 🔹 Si tu backend responde con la URL de Stripe Checkout:
+      if (data.url) {
+        window.location.href = data.url; // Redirigir a Stripe Checkout
+      } else {
+        alert("No se recibió una URL de pago");
+      }
+    } catch (error) {
+      console.error("Error al crear la sesión de pago:", error);
+      alert("Hubo un problema al procesar tu registro");
+    }
   };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-cover bg-center px-4 py-8">
-      {/* Imagen de fondo con capa de oscurecimiento */}
+      {/* Imagen de fondo */}
       <div className="absolute inset-0">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "url('/images/fondoLogin.jpg')"
-          }}
+          style={{ backgroundImage: "url('/images/fondoLogin.jpg')" }}
         ></div>
-        {/* Capa oscura superpuesta */}
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
-      
+
       {/* Contenido */}
       <div className="relative w-full max-w-md p-6 md:p-8 rounded-2xl shadow-lg z-10 bg-white bg-opacity-90">
-        {/* Título */}
         <h1 className="text-3xl md:text-4xl font-bold text-center mb-2 text-gray-800">
           LOCALY
         </h1>
-        
-        {/* Subtítulo */}
+
         <div className="text-center mb-6">
           <h2 className="text-xl md:text-2xl font-bold text-gray-800">
             Regístrate y anuncia tu
@@ -58,17 +108,16 @@ export default function RegistroAnunciante() {
           </h2>
         </div>
 
-        {/* Formulario */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          {/* Nombre de usuario */}
+          {/* Usuario */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nombre de usuario
             </label>
             <input
               type="text"
-              name="username"
-              value={formData.username}
+              name="usuario"
+              value={formData.usuario}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
               required
@@ -82,38 +131,38 @@ export default function RegistroAnunciante() {
             </label>
             <input
               type="password"
-              name="password"
-              value={formData.password}
+              name="contrasena"
+              value={formData.contrasena}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
               required
             />
           </div>
 
-          {/* Correo electrónico */}
+          {/* Correo */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Correo electrónico
             </label>
             <input
               type="email"
-              name="email"
-              value={formData.email}
+              name="correo"
+              value={formData.correo}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
               required
             />
           </div>
 
-          {/* Número de teléfono */}
+          {/* Teléfono */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Número de teléfono
             </label>
             <input
               type="tel"
-              name="phone"
-              value={formData.phone}
+              name="telefono"
+              value={formData.telefono}
               onChange={handleChange}
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
               required
@@ -135,7 +184,9 @@ export default function RegistroAnunciante() {
                   onChange={handleChange}
                   className="text-green-600 focus:ring-green-400"
                 />
-                <span className="text-sm text-gray-700">Ambulante (horario limitado)</span>
+                <span className="text-sm text-gray-700">
+                  Ambulante (horario limitado)
+                </span>
               </label>
               <label className="flex items-center space-x-2">
                 <input
@@ -151,6 +202,20 @@ export default function RegistroAnunciante() {
             </div>
           </div>
 
+          {/* Pago recurrente */}
+          <div className="flex items-center mt-4">
+            <label className="text-sm font-medium text-gray-700">
+              Pago recurrente
+            </label>
+            <input
+              type="checkbox"
+              name="recurrente"
+              checked={formData.recurrente}
+              onChange={handleChange}
+              className="w-5 h-5 text-green-600 focus:ring-green-400 ml-3"
+            />
+          </div>
+
           {/* Botón de registro */}
           <button
             type="submit"
@@ -160,13 +225,12 @@ export default function RegistroAnunciante() {
           </button>
         </form>
 
-        {/* Enlace para volver al login */}
         <div className="text-center mt-4">
-          <button 
-            onClick={() => navigate('/')}
+          <button
+            onClick={() => navigate("/")}
             className="text-sm text-green-600 hover:text-green-700 underline"
           >
-            Volver al inicio de sesión
+            Volver a la página principal
           </button>
         </div>
       </div>

@@ -23,7 +23,7 @@ function App() {
         <Route path="/perfil_restaurante/:negocioId" element={<PerfilRestaurante />} />
         <Route path="/agregar_producto" element={<AgregarProducto />} />
         <Route path="/informacion_producto" element={<InformacionProducto />} />
-        {<Route path="/favoritos" element={<Favoritos />} /> }
+        <Route path="/favoritos" element={<Favoritos />} /> 
 
 
 

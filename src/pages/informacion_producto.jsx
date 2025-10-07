@@ -146,11 +146,7 @@ const InformacionProducto = () => {
   // Función para navegar al perfil del restaurante
   const irAPerfilRestaurante = () => {
     if (negocioId) {
-      navigate("/perfil_restaurante", {
-        state: {
-          negocioId: negocioId,
-        },
-      });
+      navigate(`/perfil_restaurante/${negocioId}`);
     }
   };
 

@@ -61,7 +61,7 @@ const Favoritos = () => {
         const resultado = await response.json();
         if (resultado.exito) {
           setProductosFavoritos(resultado.datos.productos_favoritos || []);
-          setRestaurantesFavoritos(resultado.datos.restaurantes_favoritos || []);
+          setRestaurantesFavoritos(resultado.datos.negocios_favoritos || []);
         } else {
           setError('Error al cargar favoritos');
         }
@@ -96,7 +96,7 @@ const Favoritos = () => {
         if (tipo === 'producto') {
           setProductosFavoritos(prev => prev.filter(producto => producto.producto_id !== favoritoId));
         } else if (tipo === 'negocio') {
-          setRestaurantesFavoritos(prev => prev.filter(restaurante => restaurante.favorito_id !== favoritoId));
+          setRestaurantesFavoritos(prev => prev.filter(restaurante => restaurante.negocio_id !== favoritoId));
         }
       } else {
         setError('Error al eliminar de favoritos');
@@ -266,18 +266,18 @@ const Favoritos = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                   {restaurantesFavoritos.map((restaurante) => (
-                    <div key={`negocio-${restaurante.favorito_id}`} className="relative">
+                    <div key={`negocio-${restaurante.negocio_id}`} className="relative">
                       {/* Botón para eliminar favorito */}
                       <div className="absolute top-3 right-3 z-10">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            eliminarFavorito(restaurante.favorito_id, 'negocio');
+                            eliminarFavorito(restaurante.negocio_id, 'negocio');
                           }}
-                          disabled={eliminandoId === restaurante.favorito_id}
+                          disabled={eliminandoId === restaurante.negocio_id}
                           className="bg-white p-2 rounded-full shadow-md hover:bg-red-50 transition-colors duration-200"
                         >
-                          {eliminandoId === restaurante.favorito_id ? (
+                          {eliminandoId === restaurante.negocio_id ? (
                             <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
                           ) : (
                             <Heart className="w-4 h-4 text-red-600 fill-current" />
@@ -285,62 +285,18 @@ const Favoritos = () => {
                         </button>
                       </div>
 
-                      {/* Información adicional del restaurante */}
-                      <div className="absolute top-3 left-3 z-10">
-                        {restaurante.calificacion_promedio && (
-                          <div className="bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-current" />
-                            <span>{restaurante.calificacion_promedio}</span>
-                          </div>
-                        )}
-                      </div>
+                      
 
                       {/* Tarjeta de Restaurante */}
                       <TarjetaRestaurante
-                        imagenUrl={restaurante.imagen_url}
+                        imagenUrl={restaurante.logo}
                         nombreRestaurante={restaurante.nombre}
                         descripcion={restaurante.descripcion}
                         distancia={restaurante.distancia}
-                        restauranteId={restaurante.favorito_id}
+                        restauranteId={restaurante.negocio_id}
                       />
 
-                      {/* Información adicional debajo de la tarjeta */}
-                      <div className="mt-2 p-3 bg-white rounded-lg border border-gray-200">
-                        <div className="space-y-2 text-sm text-gray-600">
-                          {restaurante.categoria && (
-                            <div className="flex items-center gap-2">
-                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                                {restaurante.categoria}
-                              </span>
-                            </div>
-                          )}
-
-                          {restaurante.ubicacion && (
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4 text-gray-400" />
-                              <span className="line-clamp-1">{restaurante.ubicacion}</span>
-                            </div>
-                          )}
-
-                          {restaurante.horario && (
-                            <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4 text-gray-400" />
-                              <span>{restaurante.horario}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-200">
-                          {restaurante.telefono && (
-                            <a
-                              href={`tel:${restaurante.telefono}`}
-                              className="text-gray-600 hover:text-gray-800 text-sm"
-                            >
-                              {restaurante.telefono}
-                            </a>
-                          )}
-                        </div>
-                      </div>
+                      
                     </div>
                   ))}
                 </div>

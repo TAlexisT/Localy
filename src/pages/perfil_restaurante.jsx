@@ -24,7 +24,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  ZoomIn
+  ZoomIn,
+  Heart
 } from "lucide-react";
 
 export default function PerfilRestaurante() {
@@ -41,6 +42,8 @@ export default function PerfilRestaurante() {
   const [previewImage, setPreviewImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [previewLogo, setPreviewLogo] = useState(false);
+  const [esFavorito, setEsFavorito] = useState(false);
+  const [cargandoFavorito, setCargandoFavorito] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { negocioId } = useParams();
@@ -69,6 +72,7 @@ export default function PerfilRestaurante() {
             const sesionData = await sesionRes.json();
             if (sesionData.exito) {
               setUsuario(sesionData.datos);
+              
             }
           }
         } catch (err) {
@@ -95,6 +99,70 @@ export default function PerfilRestaurante() {
     cargarDatos();
   }, [negocioId]);
 
+
+
+  // Función para agregar/remover de favoritos
+  const toggleFavorito = async () => {
+    if (!usuario) {
+      alert('Debes iniciar sesión para agregar restaurantes a favoritos');
+      return;
+    }
+
+    setCargandoFavorito(true);
+
+    try {
+      if (esFavorito) {
+        // Remover de favoritos
+        const response = await fetch(
+          `http://localhost:3000/api/usuarios/borrar-favorito/${usuario.id}/${negocioId}/negocio`,
+          {
+            method: 'DELETE',
+            credentials: 'include',
+          }
+        );
+
+        const resultado = await response.json();
+        
+        if (response.ok && resultado.exito) {
+          setEsFavorito(false);
+        } else {
+          throw new Error(resultado.mensaje || 'Error al remover de favoritos');
+        }
+      } else {
+        // Agregar a favoritos
+        const body = {
+          tipo: "negocio",
+          favorito_id: negocioId
+        };
+
+        const response = await fetch(
+          `http://localhost:3000/api/usuarios/crear-favorito/${usuario.id}`,
+          {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+          }
+        );
+
+        const resultado = await response.json();
+        
+        if (response.ok && resultado.exito) {
+          setEsFavorito(true);
+        } else {
+          throw new Error(resultado.mensaje || 'Error al agregar a favoritos');
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error al gestionar favorito:', error);
+      alert('Error: ' + error.message);
+    } finally {
+      setCargandoFavorito(false);
+    }
+  };
+
   // Función para cargar perfil y extraer imágenes del menú
   const cargarPerfilYMenu = async () => {
     try {
@@ -119,6 +187,7 @@ export default function PerfilRestaurante() {
       }
 
       setPerfil(perfilData.datos);
+      setEsFavorito(perfilData.datos.esFavorito);
 
       // Extraer imágenes del menú del objeto "menus"
       if (perfilData.datos.menus && typeof perfilData.datos.menus === 'object') {
@@ -615,27 +684,56 @@ export default function PerfilRestaurante() {
 
         {/* Tarjeta principal del negocio */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+
+
+          
           {/* Header con imagen y información básica */}
           <div className="relative">
             {perfil.logo && (
-              <div className="h-64 bg-gray-200 overflow-hidden group cursor-pointer" onClick={openLogoPreview}>
-                <img 
-                  src={perfil.logo} 
-                  alt={`Logo de ${perfil.nombre}`}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-100', 'to-purple-100');
-                  }}
-                />
-                {/* Overlay con efecto hover para el logo */}
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2 bg-white bg-opacity-90 px-4 py-2 rounded-full shadow-lg">
-                    <ZoomIn className="w-5 h-5 text-gray-700" />
-                    <span className="text-gray-700 font-medium text-sm">Ver imagen</span>
+              <>
+                {/* Botón de favoritos en la esquina superior derecha - FUERA del contenedor de la imagen */}
+                {!esPropietario && usuario && (
+                  <div className="absolute top-4 right-4 z-20">
+                    <button
+                      onClick={toggleFavorito}
+                      disabled={cargandoFavorito}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-md transition duration-200 ${
+                        esFavorito 
+                          ? 'bg-red-600 hover:bg-red-700 text-white' 
+                          : 'bg-white hover:bg-gray-100 text-gray-700 border border-gray-300'
+                      } ${cargandoFavorito ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {cargandoFavorito ? (
+                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <Heart className={`w-4 h-4 ${esFavorito ? 'fill-current' : ''}`} />
+                      )}
+                      {esFavorito ? 'En Favoritos' : 'Agregar a Favoritos'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Contenedor de la imagen - SIN el botón dentro */}
+                <div className="h-64 bg-gray-200 overflow-hidden group cursor-pointer" onClick={openLogoPreview}>
+                  <img 
+                    src={perfil.logo} 
+                    alt={`Logo de ${perfil.nombre}`}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.classList.add('bg-gradient-to-br', 'from-blue-100', 'to-purple-100');
+                    }}
+                  />
+                  
+                  {/* Overlay con efecto hover para el logo */}
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2 bg-white bg-opacity-90 px-4 py-2 rounded-full shadow-lg">
+                      <ZoomIn className="w-5 h-5 text-gray-700" />
+                      <span className="text-gray-700 font-medium text-sm">Ver imagen</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </>
             )}
             <div className={`p-6 ${perfil.logo ? 'absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-br from-blue-100 to-purple-100'}`}>
               <div className={`${perfil.logo ? 'text-white' : 'text-gray-900'}`}>

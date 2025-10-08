@@ -9,7 +9,7 @@ export default function RegistroAnunciante() {
     telefono: "",
     price_id: "",
     recurrente: false,
-    businessType: "" // 👈 guardamos el tipo para poder recalcular
+    businessType: "", // 👈 guardamos el tipo para poder recalcular
   });
 
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ export default function RegistroAnunciante() {
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
 
     setFormData((prev) => {
       let updated = { ...prev };
@@ -55,13 +55,16 @@ export default function RegistroAnunciante() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3000/api/negocios/crear-sesion-pago", {
+      const response = await fetch(
+        "http://localhost:3000/api/negocios/crear-sesion-pago",
+        {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData), // 👈 mandamos todo el formData
-      });
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Error en la petición al servidor");

@@ -34,11 +34,6 @@ const InformacionProducto = () => {
   useEffect(() => {
     if (location.state) {
       const { producto_id, negocioId, negocioNombre } = location.state;
-      console.log("📦 Datos recibidos del state:", {
-        producto_id,
-        negocioId,
-        negocioNombre,
-      });
 
       if (producto_id && negocioId) {
         setProductoId(producto_id);
@@ -69,15 +64,12 @@ const InformacionProducto = () => {
         const sesionData = await response.json();
         if (sesionData.exito) {
           setUsuario(sesionData.datos);
-          
         }
       }
     } catch (error) {
-      console.log("No hay sesión activa o error al verificar sesión:", error);
+      console.error("No hay sesión activa o error al verificar sesión:", error);
     }
   };
-
-  
 
   // Función para agregar/remover de favoritos
   const toggleFavorito = async () => {
@@ -215,7 +207,6 @@ const InformacionProducto = () => {
       );
 
       const resultado = await response.json();
-      console.log("🗑️ Respuesta del servidor al eliminar:", resultado);
 
       if (response.ok && resultado.exito) {
         setMensaje("Producto eliminado exitosamente");
@@ -240,7 +231,6 @@ const InformacionProducto = () => {
   const verificarPropietario = async (negocioId) => {
     try {
       setVerificandoPropietario(true);
-      console.log("🔐 Verificando propietario para negocio:", negocioId);
 
       const response = await fetch(
         `http://localhost:3000/api/usuarios/autenticar-negocio/${negocioId}`,
@@ -251,14 +241,11 @@ const InformacionProducto = () => {
       );
 
       const resultado = await response.json();
-      console.log("📋 Respuesta de verificación de propietario:", resultado);
 
       if (resultado.exito) {
         setUsuarioEsPropietario(true);
-        console.log("✅ Usuario es propietario del negocio");
       } else {
         setUsuarioEsPropietario(false);
-        console.log("❌ Usuario NO es propietario del negocio");
       }
     } catch (error) {
       console.error("❌ Error al verificar propietario:", error);
@@ -272,7 +259,6 @@ const InformacionProducto = () => {
   const obtenerProducto = async (id) => {
     try {
       setCargandoProducto(true);
-      console.log("🔄 Obteniendo producto con ID:", id);
 
       const response = await fetch(
         `http://localhost:3000/api/productos/obtener-producto/${id}`,
@@ -282,8 +268,6 @@ const InformacionProducto = () => {
         }
       );
       const resultado = await response.json();
-
-      console.log("📥 Respuesta del endpoint:", resultado);
 
       if (resultado.exito && resultado.datos) {
         const productoData = {
@@ -367,7 +351,6 @@ const InformacionProducto = () => {
       );
 
       const resultado = await response.json();
-      console.log("📤 Respuesta del servidor:", resultado);
 
       if (response.ok) {
         setMensaje("Producto actualizado exitosamente");

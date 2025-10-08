@@ -9,9 +9,11 @@ export default function ConfigurarPerfil() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
+
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
+    borrar_logo: false,
     ubicacion: { latitude: 0, longitude: 0 },
     horario: {
       Lunes: { apertura: "", cierre: "" },
@@ -34,7 +36,7 @@ export default function ConfigurarPerfil() {
   // ✅ Obtener negocioId de múltiples fuentes
   const obtenerNegocioId = () => {
     const negocioIdFromState = location.state?.negocioId;
-    const usuarioStorage = localStorage.getItem('usuario');
+    const usuarioStorage = localStorage.getItem("usuario");
     const usuario = usuarioStorage ? JSON.parse(usuarioStorage) : null;
     const negocioIdFromUsuario = usuario?.negocioId;
     const negocioExistente = location.state?.negocio;
@@ -44,7 +46,7 @@ export default function ConfigurarPerfil() {
   };
 
   const negocioId = obtenerNegocioId();
-  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+  const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
 
   useEffect(() => {
     if (!negocioId) {
@@ -54,7 +56,9 @@ export default function ConfigurarPerfil() {
     }
 
     if (usuario.negocioId && usuario.negocioId !== negocioId) {
-      setError("No tienes permisos para configurar este perfil. Redirigiendo...");
+      setError(
+        "No tienes permisos para configurar este perfil. Redirigiendo..."
+      );
       setTimeout(() => navigate("/login"), 2000);
       return;
     }
@@ -69,8 +73,8 @@ export default function ConfigurarPerfil() {
 
         if (response.ok) {
           const negocioData = await response.json();
-          
-          setFormData(prev => ({
+
+          setFormData((prev) => ({
             ...prev,
             nombre: negocioData.nombre || "",
             descripcion: negocioData.descripcion || "",
@@ -92,7 +96,7 @@ export default function ConfigurarPerfil() {
 
     const negocioFromState = location.state?.negocio;
     if (negocioFromState) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         nombre: negocioFromState.nombre || "",
         descripcion: negocioFromState.descripcion || "",
@@ -111,29 +115,29 @@ export default function ConfigurarPerfil() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleHorarioChange = (dia, tipo, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       horario: {
         ...prev.horario,
         [dia]: {
           ...prev.horario[dia],
-          [tipo]: value
-        }
-      }
+          [tipo]: value,
+        },
+      },
     }));
   };
 
   const handleRedesChange = (red, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       redes: {
         ...prev.redes,
-        [red]: value
-      }
+        [red]: value,
+      },
     }));
   };
 
@@ -159,7 +163,10 @@ export default function ConfigurarPerfil() {
     if (formData.ubicacion.latitude < -90 || formData.ubicacion.latitude > 90) {
       return "La latitud debe estar entre -90 y 90";
     }
-    if (formData.ubicacion.longitude < -180 || formData.ubicacion.longitude > 180) {
+    if (
+      formData.ubicacion.longitude < -180 ||
+      formData.ubicacion.longitude > 180
+    ) {
       return "La longitud debe estar entre -180 y 180";
     }
 
@@ -176,7 +183,10 @@ export default function ConfigurarPerfil() {
 
     // Validar redes sociales
     const whatsappRegex = /^\+?[1-9]\d{1,14}$/;
-    if (formData.redes.WhatsApp && !whatsappRegex.test(formData.redes.WhatsApp)) {
+    if (
+      formData.redes.WhatsApp &&
+      !whatsappRegex.test(formData.redes.WhatsApp)
+    ) {
       return "Formato de WhatsApp inválido. Use formato internacional: +5215512345678";
     }
 
@@ -238,6 +248,10 @@ export default function ConfigurarPerfil() {
       formDataToSend.append("ubicacion", JSON.stringify(formData.ubicacion));
       formDataToSend.append("horario", JSON.stringify(formData.horario));
       formDataToSend.append("redes", JSON.stringify(formData.redes));
+      formDataToSend.append(
+        "borrar_logo",
+        formData.borrar_logo && !fileInput?.files[0]
+      );
 
       // Agregar imagen si existe (el backend espera en req.file)
       if (fileInput?.files[0]) {
@@ -259,15 +273,15 @@ export default function ConfigurarPerfil() {
         }
       );
 
-      console.log("📊 Status de respuesta:", response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
         console.error("❌ Error response:", errorText);
-        
+
         try {
           const errorData = JSON.parse(errorText);
-          throw new Error(errorData.mensaje || errorData.error || "Error al actualizar perfil");
+          throw new Error(
+            errorData.mensaje || errorData.error || "Error al actualizar perfil"
+          );
         } catch {
           throw new Error(errorText || "Error al actualizar perfil");
         }
@@ -275,14 +289,13 @@ export default function ConfigurarPerfil() {
 
       const result = await response.json();
       console.log("✅ Success:", result);
-      
+
       setSuccess("¡Perfil actualizado exitosamente!");
-      
+
       // Redirigir después de éxito
       setTimeout(() => {
         navigate(`/perfil_restaurante/${negocioId}`);
       }, 2000);
-
     } catch (err) {
       console.error("❌ Error completo:", err);
       setError(err.message || "Error de conexión");
@@ -295,7 +308,7 @@ export default function ConfigurarPerfil() {
     const file = e.target.files[0];
     if (file) {
       const allowedTypes = ["image/jpeg", "image/png"];
-      
+
       if (!allowedTypes.includes(file.type)) {
         setError("Por favor selecciona un archivo JPG o PNG");
         return;
@@ -320,12 +333,12 @@ export default function ConfigurarPerfil() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
-            ubicacion: { 
-              latitude: parseFloat(latitude.toFixed(6)), 
-              longitude: parseFloat(longitude.toFixed(6)) 
-            }
+            ubicacion: {
+              latitude: parseFloat(latitude.toFixed(6)),
+              longitude: parseFloat(longitude.toFixed(6)),
+            },
           }));
           setError("");
         },
@@ -342,6 +355,7 @@ export default function ConfigurarPerfil() {
     setImagePreview(null);
     const input = document.getElementById("imagen");
     if (input) input.value = "";
+    setFormData((prev) => ({ ...prev, borrar_logo: true }));
     setError("");
   };
 
@@ -377,12 +391,17 @@ export default function ConfigurarPerfil() {
             Configurar Perfil del Negocio
           </h1>
           <div className="text-center text-sm text-gray-600">
-            <p>Usuario: {usuario.correo} • Tipo: {usuario.tipo}</p>
+            <p>
+              Usuario: {usuario.correo} • Tipo: {usuario.tipo}
+            </p>
             <p>ID del Negocio: {negocioId}</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white shadow-md rounded-lg p-6 space-y-6"
+        >
           {/* Sección de Información Básica */}
           <div>
             <h2 className="text-xl font-semibold mb-4">Información Básica</h2>
@@ -400,7 +419,9 @@ export default function ConfigurarPerfil() {
                   placeholder="Ej: Restaurante La Delicia"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">{formData.nombre.length}/100 caracteres</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {formData.nombre.length}/100 caracteres
+                </p>
               </div>
 
               <div>
@@ -416,7 +437,9 @@ export default function ConfigurarPerfil() {
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <p className="text-xs text-gray-500 mt-1">{formData.descripcion.length}/500 caracteres</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {formData.descripcion.length}/500 caracteres
+                </p>
               </div>
             </div>
           </div>
@@ -433,11 +456,13 @@ export default function ConfigurarPerfil() {
                 Obtener Ubicación Actual
               </button>
               <span className="text-sm text-gray-600">
-                Lat: {formData.ubicacion.latitude.toFixed(6)}, Lng: {formData.ubicacion.longitude.toFixed(6)}
+                Lat: {formData.ubicacion.latitude.toFixed(6)}, Lng:{" "}
+                {formData.ubicacion.longitude.toFixed(6)}
               </span>
             </div>
             <p className="text-xs text-gray-500">
-              La ubicación es requerida. Usa el botón para obtener tu ubicación actual.
+              La ubicación es requerida. Usa el botón para obtener tu ubicación
+              actual.
             </p>
           </div>
 
@@ -450,20 +475,28 @@ export default function ConfigurarPerfil() {
                   <h3 className="font-medium mb-2 capitalize">{dia}</h3>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-sm text-gray-600 mb-1">Apertura</label>
+                      <label className="block text-sm text-gray-600 mb-1">
+                        Apertura
+                      </label>
                       <input
                         type="time"
                         value={horario.apertura}
-                        onChange={(e) => handleHorarioChange(dia, "apertura", e.target.value)}
+                        onChange={(e) =>
+                          handleHorarioChange(dia, "apertura", e.target.value)
+                        }
                         className="w-full px-2 py-1 border border-gray-300 rounded"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm text-gray-600 mb-1">Cierre</label>
+                      <label className="block text-sm text-gray-600 mb-1">
+                        Cierre
+                      </label>
                       <input
                         type="time"
                         value={horario.cierre}
-                        onChange={(e) => handleHorarioChange(dia, "cierre", e.target.value)}
+                        onChange={(e) =>
+                          handleHorarioChange(dia, "cierre", e.target.value)
+                        }
                         className="w-full px-2 py-1 border border-gray-300 rounded"
                       />
                     </div>
@@ -471,7 +504,9 @@ export default function ConfigurarPerfil() {
                 </div>
               ))}
             </div>
-            <p className="text-xs text-gray-500 mt-2">Formato: HH:MM (24 horas)</p>
+            <p className="text-xs text-gray-500 mt-2">
+              Formato: HH:MM (24 horas)
+            </p>
           </div>
 
           {/* Sección de Redes Sociales */}
@@ -484,11 +519,15 @@ export default function ConfigurarPerfil() {
                 </label>
                 <input
                   value={formData.redes.WhatsApp}
-                  onChange={(e) => handleRedesChange("WhatsApp", e.target.value)}
+                  onChange={(e) =>
+                    handleRedesChange("WhatsApp", e.target.value)
+                  }
                   placeholder="+5215512345678"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
-                <p className="text-xs text-gray-500 mt-1">Formato internacional</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Formato internacional
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -508,7 +547,9 @@ export default function ConfigurarPerfil() {
                 <input
                   type="url"
                   value={formData.redes.Facebook}
-                  onChange={(e) => handleRedesChange("Facebook", e.target.value)}
+                  onChange={(e) =>
+                    handleRedesChange("Facebook", e.target.value)
+                  }
                   placeholder="https://facebook.com/tupagina"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
@@ -520,7 +561,9 @@ export default function ConfigurarPerfil() {
                 <input
                   type="url"
                   value={formData.redes.Instagram}
-                  onChange={(e) => handleRedesChange("Instagram", e.target.value)}
+                  onChange={(e) =>
+                    handleRedesChange("Instagram", e.target.value)
+                  }
                   placeholder="https://instagram.com/tucuenta"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 />
@@ -538,7 +581,9 @@ export default function ConfigurarPerfil() {
                 />
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">Las URLs deben comenzar con http:// o https://</p>
+            <p className="text-xs text-gray-500 mt-2">
+              Las URLs deben comenzar con http:// o https://
+            </p>
           </div>
 
           {/* Sección de Imagen */}
@@ -558,7 +603,7 @@ export default function ConfigurarPerfil() {
               >
                 {imagePreview ? "Cambiar Imagen" : "Seleccionar Imagen"}
               </label>
-              
+
               {imagePreview ? (
                 <div className="relative">
                   <img
@@ -576,7 +621,9 @@ export default function ConfigurarPerfil() {
                 </div>
               ) : (
                 <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center">
-                  <span className="text-gray-400 text-xs text-center">Sin imagen</span>
+                  <span className="text-gray-400 text-xs text-center">
+                    Sin imagen
+                  </span>
                 </div>
               )}
             </div>

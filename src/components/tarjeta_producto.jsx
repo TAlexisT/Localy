@@ -9,6 +9,7 @@ export default function TarjetaProducto({
   productoId,
   negocioId,
   negocioNombre,
+  enOferta,
 }) {
   const navigate = useNavigate(); // Agregar esta línea
 
@@ -52,6 +53,9 @@ export default function TarjetaProducto({
         </p>
         <div className="flex justify-between items-center">
           <span className="text-green-600 font-bold text-3xl">${precio}</span>
+          {enOferta && (
+            <span className="text-green-600 font-bold text-xl bg-green-200 p-2 rounded-xl">Oferta</span>
+          )}
         </div>
       </div>
     </div>

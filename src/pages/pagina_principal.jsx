@@ -335,6 +335,7 @@ export default function PaginaPrincipal() {
           negocio_id: producto.negocio_id,
           nombre_negocio: producto.nombre_negocio,
           descripcion: producto.descripcion || "",
+          en_oferta: producto.en_oferta || false,
         }));
 
         if (cargarMas) {
@@ -1245,6 +1246,7 @@ export default function PaginaPrincipal() {
                         productoId={item.producto_id}
                         negocioId={item.negocio_id}
                         negocioNombre={item.nombre_negocio}
+                        enOferta={item.en_oferta}
                       />
                     ))}
               </div>

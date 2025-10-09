@@ -14,6 +14,10 @@ const Favoritos = () => {
   const [eliminandoId, setEliminandoId] = useState(null);
   const navigate = useNavigate();
 
+  const handleVolver = () => {
+    navigate(-1);
+  };
+
   // Verificar sesión del usuario
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -259,9 +263,20 @@ const Favoritos = () => {
       <div className="max-w-6xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Mis Favoritos
-          </h1>
+          <div className="flex space-x-2">
+              <button
+                onClick={handleVolver}
+                className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition duration-300"
+                title="Atrás"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </button>
+              
+              <h1 className="text-3xl font-bold text-gray-900">Mis Favoritos</h1>
+            </div>
+          
           <p className="text-gray-600">
             Gestiona tus productos y restaurantes favoritos
           </p>

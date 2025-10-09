@@ -54,7 +54,7 @@ export default function TarjetaProducto({
         <div className="flex justify-between items-center">
           <span className="text-green-600 font-bold text-3xl">${precio}</span>
           {enOferta && (
-            <span className="text-green-600 font-bold text-xl bg-green-200 p-2 rounded-xl">Oferta</span>
+            <span className="text-white font-semibold text-sm bg-green-600 px-2 py-1 rounded-xl">Oferta</span>
           )}
         </div>
       </div>

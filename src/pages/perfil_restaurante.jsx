@@ -625,18 +625,22 @@ export default function PerfilRestaurante() {
       <div className="max-w-6xl mx-auto px-4">
         {/* Header con información de usuario */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
-          <div className="flex items-center gap-4">
+         
             
-            <div>
+            <div className="flex space-x-2">
+              <button
+                onClick={handleVolver}
+                className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition duration-300"
+                title="Atrás"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+              </button>
               <h1 className="text-3xl font-bold text-gray-900">Perfil del Negocio</h1>
-              {usuario && (
-                <p className="text-gray-600 flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Sesión activa: {usuario.correo}
-                </p>
-              )}
+              
             </div>
-          </div>
+          
           
           <div className="flex gap-3 flex-wrap">
             {verificandoSesion ? (
@@ -960,7 +964,7 @@ export default function PerfilRestaurante() {
                       </div>
                     </div>
                     {esPropietario && (
-                      <div className="absolute top-2 right-2 bg-black bg-opacity-50 rounded-lg p-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="absolute top-2 right-2 bg-black bg-opacity-50 rounded-lg p-1  group-hover:opacity-100 transition-opacity duration-300">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();

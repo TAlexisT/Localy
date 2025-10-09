@@ -30,6 +30,10 @@ const InformacionProducto = () => {
   const [agregandoFavorito, setAgregandoFavorito] = useState(false);
   const [esFavorito, setEsFavorito] = useState(false);
 
+   const handleVolver = () => {
+    navigate(-1);
+  };
+
   // Obtener datos del state de navegación
   useEffect(() => {
     if (location.state) {
@@ -447,390 +451,410 @@ const InformacionProducto = () => {
 
   return (
     <>
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* Banner superior con imagen del producto */}
-        <div className="relative h-64 bg-gray-200">
-          {producto.imagen_URL ? (
-            <div
-              className="relative w-full h-full group cursor-pointer"
-              onClick={abrirModalImagen}
-            >
-              <img
-                src={producto.imagen_URL}
-                alt={producto.nombre}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-              />
-              {/* Overlay con efecto hover */}
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2 bg-white bg-opacity-90 px-4 py-2 rounded-full shadow-lg">
-                  <ZoomIn className="w-5 h-5 text-gray-700" />
-                  <span className="text-gray-700 font-medium text-sm">
-                    Ver imagen
-                  </span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-              <span className="text-gray-400">Imagen no disponible</span>
-            </div>
-          )}
-
-          {/* Botón de favoritos */}
-          {!usuarioEsPropietario && (
-            <div className="absolute top-4 right-4">
+      
+      
+      <div className="max-w-4xl mx-auto ">
+        <div className="flex space-x-2 my-2">
               <button
-                onClick={toggleFavorito}
-                disabled={agregandoFavorito}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-md transition duration-200 ${
-                  esFavorito
-                    ? "bg-red-600 hover:bg-red-700 text-white"
-                    : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
-                } ${agregandoFavorito ? "opacity-50 cursor-not-allowed" : ""}`}
+                onClick={handleVolver}
+                className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition duration-300"
+                title="Atrás"
               >
-                {agregandoFavorito ? (
-                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <Heart
-                    className={`w-4 h-4 ${esFavorito ? "fill-current" : ""}`}
-                  />
-                )}
-                {esFavorito ? "En Favoritos" : "Agregar a Favoritos"}
-              </button>
-            </div>
-          )}
-
-          {/* Botones de editar y eliminar para propietarios */}
-          {usuarioEsPropietario && !editando && (
-            <div className="absolute top-4 right-4 flex gap-2">
-              <button
-                onClick={() => setEditando(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
-                Editar Producto
               </button>
-              <button
-                onClick={abrirModalEliminar}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
+              
+              <h1 className="text-3xl font-bold text-gray-900">Información del Producto</h1>
+            </div>
+        
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            {/* Banner superior con imagen del producto */}
+          <div className="relative h-64 bg-gray-200">
+            {producto.imagen_URL ? (
+              <div
+                className="relative w-full h-full group cursor-pointer"
+                onClick={abrirModalImagen}
               >
-                <Trash2 className="w-4 h-4" />
-                Eliminar Producto
-              </button>
-            </div>
-          )}
-
-          {/* Indicador de propietario */}
-          {usuarioEsPropietario && (
-            <div className="absolute top-4 left-4 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-              Propietario
-            </div>
-          )}
-        </div>
-
-        <div className="p-6">
-          {mensaje && (
-            <div
-              className={`mb-4 p-3 rounded ${
-                mensaje.includes("éxito") ||
-                mensaje.includes("exitosa") ||
-                mensaje.includes("favoritos")
-                  ? "bg-green-100 text-green-800 border border-green-200"
-                  : "bg-red-100 text-red-800 border border-red-200"
-              }`}
-            >
-              {mensaje}
-            </div>
-          )}
-
-          {editando ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Campo para cambiar imagen */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Cambiar imagen del producto
-                </label>
-                <input
-                  type="file"
-                  name="image"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <img
+                  src={producto.imagen_URL}
+                  alt={producto.nombre}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Formatos aceptados: JPG, PNG, GIF. Tamaño máximo: 2MB
-                </p>
-              </div>
-
-              {/* Campo nombre */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre del Producto *
-                </label>
-                <input
-                  type="text"
-                  name="nombre"
-                  value={formData.nombre}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Nombre del producto"
-                />
-              </div>
-
-              {/* Campo descripción */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Descripción
-                </label>
-                <textarea
-                  name="descripcion"
-                  value={formData.descripcion}
-                  onChange={handleInputChange}
-                  rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Descripción del producto"
-                />
-              </div>
-
-              {/* Campos de precio y categoría */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Campo precio */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Precio *
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                      $
+                {/* Overlay con efecto hover */}
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2 bg-white bg-opacity-90 px-4 py-2 rounded-full shadow-lg">
+                    <ZoomIn className="w-5 h-5 text-gray-700" />
+                    <span className="text-gray-700 font-medium text-sm">
+                      Ver imagen
                     </span>
-                    <input
-                      type="number"
-                      name="precio"
-                      value={formData.precio}
-                      onChange={handleInputChange}
-                      required
-                      min="0"
-                      step="0.01"
-                      className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="0.00"
-                    />
                   </div>
                 </div>
+              </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                <span className="text-gray-400">Imagen no disponible</span>
+              </div>
+            )}
 
-                {/* Campo categoría */}
+            {/* Botón de favoritos */}
+            {!usuarioEsPropietario && (
+              <div className="absolute top-4 right-4">
+                <button
+                  onClick={toggleFavorito}
+                  disabled={agregandoFavorito}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-md transition duration-200 ${
+                    esFavorito
+                      ? "bg-red-600 hover:bg-red-700 text-white"
+                      : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
+                  } ${agregandoFavorito ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  {agregandoFavorito ? (
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <Heart
+                      className={`w-4 h-4 ${esFavorito ? "fill-current" : ""}`}
+                    />
+                  )}
+                  {esFavorito ? "En Favoritos" : "Agregar a Favoritos"}
+                </button>
+              </div>
+            )}
+
+            {/* Botones de editar y eliminar para propietarios */}
+            {usuarioEsPropietario && !editando && (
+              <div className="absolute top-4 right-4 flex gap-2">
+                <button
+                  onClick={() => setEditando(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                  Editar Producto
+                </button>
+                <button
+                  onClick={abrirModalEliminar}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Eliminar Producto
+                </button>
+              </div>
+            )}
+
+            {/* Indicador de propietario */}
+            {usuarioEsPropietario && (
+              <div className="absolute top-4 left-4 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                Propietario
+              </div>
+            )}
+          </div>
+
+          <div className="p-6">
+            {mensaje && (
+              <div
+                className={`mb-4 p-3 rounded ${
+                  mensaje.includes("éxito") ||
+                  mensaje.includes("exitosa") ||
+                  mensaje.includes("favoritos")
+                    ? "bg-green-100 text-green-800 border border-green-200"
+                    : "bg-red-100 text-red-800 border border-red-200"
+                }`}
+              >
+                {mensaje}
+              </div>
+            )}
+
+            {editando ? (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Campo para cambiar imagen */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Categoría *
+                    Cambiar imagen del producto
                   </label>
-                  <select
-                    name="categoria"
-                    value={formData.categoria}
+                  <input
+                    type="file"
+                    name="image"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Formatos aceptados: JPG, PNG, GIF. Tamaño máximo: 2MB
+                  </p>
+                </div>
+
+                {/* Campo nombre */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Nombre del Producto *
+                  </label>
+                  <input
+                    type="text"
+                    name="nombre"
+                    value={formData.nombre}
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Selecciona una categoría</option>
-                    <option value="Mexicana">Mexicana</option>
-                    <option value="Italiana">Italiana</option>
-                    <option value="Asiática">Asiática</option>
-                    <option value="Americana">Americana</option>
-                    <option value="Vegetariana">Vegetariana</option>
-                    <option value="Mariscos">Mariscos</option>
-                    <option value="Postres">Postres</option>
-                    <option value="Bebidas">Bebidas</option>
-                    <option value="Otros">Otros</option>
-                  </select>
+                    placeholder="Nombre del producto"
+                  />
                 </div>
-              </div>
 
-              {/* Campo en oferta */}
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="en_oferta"
-                  id="en_oferta"
-                  checked={formData.en_oferta}
-                  onChange={handleInputChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label
-                  htmlFor="en_oferta"
-                  className="ml-2 block text-sm text-gray-700"
-                >
-                  Este producto está en oferta
-                </label>
-              </div>
+                {/* Campo descripción */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Descripción
+                  </label>
+                  <textarea
+                    name="descripcion"
+                    value={formData.descripcion}
+                    onChange={handleInputChange}
+                    rows="4"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Descripción del producto"
+                  />
+                </div>
 
-              {/* Botones de acción */}
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={cargando}
-                  className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white py-2 px-4 rounded-md transition duration-200 flex items-center justify-center gap-2"
-                >
-                  {cargando ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      Guardar Cambios
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={cancelarEdicion}
-                  disabled={cargando}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white py-2 px-4 rounded-md transition duration-200"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </form>
-          ) : (
-            /* Vista de solo lectura */
-            <div className="space-y-6">
-              {/* Información del producto */}
-              <div>
-                <div className="flex justify-between items-start mb-2">
-                  <h1 className="text-3xl font-bold text-gray-900">
-                    {producto.nombre}
-                  </h1>
-                  <div className="flex items-center gap-2">
-                    {producto.en_oferta && (
-                      <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                        Oferta
+                {/* Campos de precio y categoría */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Campo precio */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Precio *
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        $
                       </span>
-                    )}
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-3xl font-bold">
-                      ${producto.precio}
-                    </span>
+                      <input
+                        type="number"
+                        name="precio"
+                        value={formData.precio}
+                        onChange={handleInputChange}
+                        required
+                        min="0"
+                        step="0.01"
+                        className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Campo categoría */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Categoría *
+                    </label>
+                    <select
+                      name="categoria"
+                      value={formData.categoria}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Selecciona una categoría</option>
+                      <option value="Mexicana">Mexicana</option>
+                      <option value="Italiana">Italiana</option>
+                      <option value="Asiática">Asiática</option>
+                      <option value="Americana">Americana</option>
+                      <option value="Vegetariana">Vegetariana</option>
+                      <option value="Mariscos">Mariscos</option>
+                      <option value="Postres">Postres</option>
+                      <option value="Bebidas">Bebidas</option>
+                      <option value="Otros">Otros</option>
+                    </select>
                   </div>
                 </div>
 
-                {producto.categoria && (
-                  <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
-                    {producto.categoria}
-                  </span>
-                )}
+                {/* Campo en oferta */}
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="en_oferta"
+                    id="en_oferta"
+                    checked={formData.en_oferta}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  />
+                  <label
+                    htmlFor="en_oferta"
+                    className="ml-2 block text-sm text-gray-700"
+                  >
+                    Este producto está en oferta
+                  </label>
+                </div>
 
-                <p className="text-gray-600 leading-relaxed text-lg">
-                  {producto.descripcion ||
-                    "Este producto no tiene descripción."}
-                </p>
-              </div>
-
-              {/* Información del restaurante */}
-              <div className="border-t border-gray-200 pt-6">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  Información del Restaurante
-                </h2>
-
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <span className="font-medium text-gray-700 min-w-32">
-                      Restaurante:
-                    </span>
-                    <button
-                      onClick={irAPerfilRestaurante}
-                      className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition duration-200 text-left"
-                    >
-                      {negocioNombre}
-                    </button>
+                {/* Botones de acción */}
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="submit"
+                    disabled={cargando}
+                    className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white py-2 px-4 rounded-md transition duration-200 flex items-center justify-center gap-2"
+                  >
+                    {cargando ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                        Guardar Cambios
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={cancelarEdicion}
+                    disabled={cargando}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white py-2 px-4 rounded-md transition duration-200"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* Vista de solo lectura */
+              <div className="space-y-6">
+                {/* Información del producto */}
+                <div>
+                  <div className="flex justify-between items-start mb-2">
+                    <h1 className="text-3xl font-bold text-gray-900">
+                      {producto.nombre}
+                    </h1>
+                    <div className="flex items-center gap-2">
+                      {producto.en_oferta && (
+                        <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                          Oferta
+                        </span>
+                      )}
+                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-3xl font-bold">
+                        ${producto.precio}
+                      </span>
+                    </div>
                   </div>
 
-                  {producto.negocio_ubicacion && (
-                    <div className="flex items-start gap-3">
-                      <MapPin className="w-4 h-4 text-gray-500 mt-1" />
-                      <div className="flex-1">
-                        <p className="font-medium mb-2">Ubicación</p>
+                  {producto.categoria && (
+                    <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
+                      {producto.categoria}
+                    </span>
+                  )}
 
-                        {/* Mapa interactivo que abre Google Maps */}
-                        <a
-                          href={`https://www.google.com/maps?q=${producto.negocio_ubicacion.latitude},${producto.negocio_ubicacion.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block"
-                        >
-                          <div className="relative h-32 rounded-lg overflow-hidden border border-gray-300 bg-gray-100 hover:border-blue-500 transition-all duration-300 hover:shadow-md hover:transform hover:translate-y-[-2px]">
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-                              <div className="text-center">
-                                <MapPin className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                                <p className="text-sm text-gray-600 font-medium">
-                                  Ver ubicación en mapa
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Presiona para abrir Google Maps
-                                </p>
+                  <p className="text-gray-600 leading-relaxed text-lg">
+                    {producto.descripcion ||
+                      "Este producto no tiene descripción."}
+                  </p>
+                </div>
+
+                {/* Información del restaurante */}
+                <div className="border-t border-gray-200 pt-6">
+                  <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                    Información del Restaurante
+                  </h2>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center">
+                      <span className="font-medium text-gray-700 min-w-32">
+                        Restaurante:
+                      </span>
+                      <button
+                        onClick={irAPerfilRestaurante}
+                        className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition duration-200 text-left"
+                      >
+                        {negocioNombre}
+                      </button>
+                    </div>
+
+                    {producto.negocio_ubicacion && (
+                      <div className="flex items-start gap-3">
+                        <MapPin className="w-4 h-4 text-gray-500 mt-1" />
+                        <div className="flex-1">
+                          <p className="font-medium mb-2">Ubicación</p>
+
+                          {/* Mapa interactivo que abre Google Maps */}
+                          <a
+                            href={`https://www.google.com/maps?q=${producto.negocio_ubicacion.latitude},${producto.negocio_ubicacion.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block"
+                          >
+                            <div className="relative h-32 rounded-lg overflow-hidden border border-gray-300 bg-gray-100 hover:border-blue-500 transition-all duration-300 hover:shadow-md hover:transform hover:translate-y-[-2px]">
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
+                                <div className="text-center">
+                                  <MapPin className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                                  <p className="text-sm text-gray-600 font-medium">
+                                    Ver ubicación en mapa
+                                  </p>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Presiona para abrir Google Maps
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </a>
+                          </a>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Mensaje para no propietarios */}
-              {!usuarioEsPropietario && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
-                  <div className="flex items-start gap-3">
-                    <svg
-                      className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <div>
-                      <p className="text-blue-800 font-medium">
-                        Información de solo lectura
-                      </p>
-                      <p className="text-blue-700 text-sm mt-1">
-                        Solo el propietario del restaurante puede editar esta
-                        información. Si necesitas modificar algo, contacta al
-                        establecimiento.
-                      </p>
-                    </div>
+                    )}
                   </div>
                 </div>
-              )}
-            </div>
-          )}
+
+                {/* Mensaje para no propietarios */}
+                {!usuarioEsPropietario && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+                    <div className="flex items-start gap-3">
+                      <svg
+                        className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <div>
+                        <p className="text-blue-800 font-medium">
+                          Información de solo lectura
+                        </p>
+                        <p className="text-blue-700 text-sm mt-1">
+                          Solo el propietario del restaurante puede editar esta
+                          información. Si necesitas modificar algo, contacta al
+                          establecimiento.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
+        
+        
       </div>
 
       {/* Modal para imagen en grande */}

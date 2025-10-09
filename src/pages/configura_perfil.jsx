@@ -648,7 +648,7 @@ export default function ConfigurarPerfil() {
           <div className="flex justify-end gap-4 pt-6">
             <button
               type="button"
-              onClick={() => navigate(`/perfil_restaurante/${negocioId}`)}
+              onClick={() => navigate(-1)}
               disabled={loading}
               className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50 transition"
             >

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MapPin, X, ZoomIn, Trash2, Heart } from "lucide-react";
 
+import { Colores_Interfaz, Colores_Font } from "../assets/Colores";
+
 const InformacionProducto = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -30,7 +32,7 @@ const InformacionProducto = () => {
   const [agregandoFavorito, setAgregandoFavorito] = useState(false);
   const [esFavorito, setEsFavorito] = useState(false);
 
-   const handleVolver = () => {
+  const handleVolver = () => {
     navigate(-1);
   };
 
@@ -451,25 +453,35 @@ const InformacionProducto = () => {
 
   return (
     <>
-      
-      
       <div className="max-w-4xl mx-auto ">
         <div className="flex space-x-2 my-2">
-              <button
-                onClick={handleVolver}
-                className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition duration-300"
-                title="Atrás"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </button>
-              
-              <h1 className="text-3xl font-bold text-gray-900">Información del Producto</h1>
-            </div>
-        
+          <button
+            onClick={handleVolver}
+            className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition duration-300"
+            title="Atrás"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+          </button>
+
+          <h1 className="text-3xl font-bold text-gray-900">
+            Información del Producto
+          </h1>
+        </div>
+
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            {/* Banner superior con imagen del producto */}
+          {/* Banner superior con imagen del producto */}
           <div className="relative h-64 bg-gray-200">
             {producto.imagen_URL ? (
               <div
@@ -507,7 +519,9 @@ const InformacionProducto = () => {
                     esFavorito
                       ? "bg-red-600 hover:bg-red-700 text-white"
                       : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
-                  } ${agregandoFavorito ? "opacity-50 cursor-not-allowed" : ""}`}
+                  } ${
+                    agregandoFavorito ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                 >
                   {agregandoFavorito ? (
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
@@ -672,6 +686,7 @@ const InformacionProducto = () => {
                       <option value="Mariscos">Mariscos</option>
                       <option value="Postres">Postres</option>
                       <option value="Bebidas">Bebidas</option>
+                      <option value="Francesa">Francesa</option>
                       <option value="Otros">Otros</option>
                     </select>
                   </div>
@@ -738,51 +753,88 @@ const InformacionProducto = () => {
               </form>
             ) : (
               /* Vista de solo lectura */
-              <div className="space-y-6">
+              <div className="space-y-12">
                 {/* Información del producto */}
-                <div>
-                  <div className="flex justify-between items-start mb-2">
-                    <h1 className="text-3xl font-bold text-gray-900">
-                      {producto.nombre}
-                    </h1>
-                    <div className="flex items-center gap-2">
-                      {producto.en_oferta && (
-                        <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                          Oferta
-                        </span>
-                      )}
-                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-3xl font-bold">
-                        ${producto.precio}
+                <div className="flex justify-between items-center mb-2">
+                  <h1
+                    className="text-3xl font-bold py-2 px-4 rounded-tr-full rounded-r-full"
+                    style={{
+                      background: Colores_Interfaz.bright_green,
+                      color: Colores_Font.white,
+                    }}
+                  >
+                    {producto.nombre}
+                  </h1>
+                  <div
+                    className="flex items-center gap-2 pl-2 border-l"
+                    style={{ borderColor: Colores_Interfaz.bright_green }}
+                  >
+                    {producto.en_oferta && (
+                      <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                        Oferta
                       </span>
-                    </div>
-                  </div>
-
-                  {producto.categoria && (
-                    <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
-                      {producto.categoria}
+                    )}
+                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-3xl font-bold">
+                      ${producto.precio}
                     </span>
-                  )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <div
+                    className={`h-fit border-b`}
+                    style={{ borderColor: Colores_Interfaz.bright_green }}
+                  >
+                    <h2
+                      className={`rounded-tr-xl text-2xl font-bold py-2 px-4 w-fit`}
+                      style={{
+                        background: Colores_Interfaz.bright_green,
+                        color: Colores_Font.white,
+                      }}
+                    >
+                      Descripción
+                    </h2>
+                  </div>
 
                   <p className="text-gray-600 leading-relaxed text-lg">
                     {producto.descripcion ||
                       "Este producto no tiene descripción."}
                   </p>
+                  {producto.categoria && (
+                    <div className="flex space-x-2">
+                      <span className="font-medium">Categoria:</span>
+                      <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium mb-4">
+                        {producto.categoria}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Información del restaurante */}
-                <div className="border-t border-gray-200 pt-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                    Información del Restaurante
-                  </h2>
+                <div className=" space-y-2">
+                  <div
+                    className={`h-fit border-b`}
+                    style={{ borderColor: Colores_Interfaz.bright_green }}
+                  >
+                    <h2
+                      className={`rounded-tr-xl text-2xl font-bold py-2 px-4 w-fit`}
+                      style={{
+                        background: Colores_Interfaz.bright_green,
+                        color: Colores_Font.white,
+                      }}
+                    >
+                      Detalles de restaurante
+                    </h2>
+                  </div>
 
                   <div className="space-y-3">
-                    <div className="flex items-center">
-                      <span className="font-medium text-gray-700 min-w-32">
-                        Restaurante:
+                    <div className="flex space-x-2">
+                      <span className="font-medium text-gray-700">
+                        Nombre del restaurante:
                       </span>
                       <button
                         onClick={irAPerfilRestaurante}
-                        className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition duration-200 text-left"
+                        className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition duration-200"
                       >
                         {negocioNombre}
                       </button>
@@ -853,8 +905,6 @@ const InformacionProducto = () => {
             )}
           </div>
         </div>
-        
-        
       </div>
 
       {/* Modal para imagen en grande */}

@@ -30,7 +30,7 @@ export default function TarjetaRestaurante({
 
   return (
     <div 
-      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition cursor-pointer"
+      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg hover:shadow-green-400/50 hover:scale-110 transition-transform duration-400 ease-in-out cursor-pointer shadow-green-300/50"
       onClick={handleClick}
     >
       {/* Imagen del restaurante */}

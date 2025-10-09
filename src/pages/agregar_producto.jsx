@@ -32,7 +32,13 @@ export default function AgregarProducto() {
     "Italiana",
     "Americana",
     "Internacional",
-    "Otra"
+    "Francesa",
+    "Asiatica",
+    "Vegetariana",
+    "Mariscos",
+    "Postres",
+    "Bebidas",
+    "Otras"
   ];
 
   // Obtener negocioId del state de navegación

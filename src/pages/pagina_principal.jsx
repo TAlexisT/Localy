@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import TarjetaRestaurante from "../components/tarjeta_restaurante";
 import TarjetaProducto from "../components/tarjeta_producto";
@@ -54,6 +54,10 @@ export default function PaginaPrincipal() {
     precio_orden: "",
     precio_rango: "",
   });
+
+  // seguimiento del estado de la peticion de datos
+  const reqNegociosActivo = useRef(false);
+  const reqProductosActivo = useRef(false);
 
   const navigate = useNavigate();
 
@@ -196,7 +200,12 @@ export default function PaginaPrincipal() {
 
   // Función para obtener restaurantes
   const obtenerRestaurantes = async (cargarMas = false) => {
+    // Prevenir peticiones simultaneas
+    if (reqNegociosActivo.current) return;
+
     try {
+      reqNegociosActivo.current = true;
+
       if (cargarMas) {
         setCargandoMasRestaurantes(true);
       } else {
@@ -253,9 +262,8 @@ export default function PaginaPrincipal() {
 
         if (result.ultimoToken) {
           setUltimoTokenRestaurantes(result.ultimoToken);
-        }
-
-        setHayMasRestaurantes(result.datos.length > 0);
+          setHayMasRestaurantes(true);
+        } else setHayMasRestaurantes(false);
       } else {
         if (!cargarMas) {
           setRestaurantes([]);
@@ -275,6 +283,8 @@ export default function PaginaPrincipal() {
         setRestaurantes([]);
       }
     } finally {
+      reqNegociosActivo.current = false;
+
       if (cargarMas) {
         setCargandoMasRestaurantes(false);
       } else {
@@ -288,7 +298,11 @@ export default function PaginaPrincipal() {
 
   // Función para obtener productos
   const obtenerProductos = async (cargarMas = false) => {
+    if (reqProductosActivo.current) return;
+
     try {
+      reqProductosActivo.current = true;
+
       if (cargarMas) {
         setCargandoMasProductos(true);
       } else {
@@ -346,9 +360,8 @@ export default function PaginaPrincipal() {
 
         if (result.ultimoToken) {
           setUltimoTokenProductos(result.ultimoToken);
-        }
-
-        setHayMasProductos(result.datos.length > 0);
+          setHayMasProductos(true);
+        } else setHayMasProductos(false);
       } else {
         if (!cargarMas) {
           setProductos([]);
@@ -365,6 +378,7 @@ export default function PaginaPrincipal() {
         setProductos([]);
       }
     } finally {
+      reqProductosActivo.current = false;
       if (cargarMas) {
         setCargandoMasProductos(false);
       } else {
@@ -433,11 +447,13 @@ export default function PaginaPrincipal() {
   };
 
   // Funciones para filtros de Productos
+  //Checar funcion
   const aplicarFiltrosProductos = () => {
     setFiltrosAplicadosProductos({ ...filtrosProductos });
     setMostrarFiltrosProductos(false);
   };
 
+  // Cambio requerido **correcto reinicio de filtros**
   const resetearFiltrosProductos = () => {
     const filtrosPorDefecto = {
       categoria: "",
@@ -512,15 +528,22 @@ export default function PaginaPrincipal() {
     } else {
       return productos.filter((producto) => {
         return (
-          producto.nombre
-            .toLowerCase()
-            .includes(busquedaAplicada.toLowerCase()) ||
-          producto.restaurante
-            .toLowerCase()
-            .includes(busquedaAplicada.toLowerCase()) ||
-          producto.categoria
-            .toLowerCase()
-            .includes(busquedaAplicada.toLowerCase())
+          (producto.nombre &&
+            producto.nombre
+              .toLowerCase()
+              .includes(busquedaAplicada.toLowerCase())) ||
+          (producto.restaurante &&
+            producto.restaurante
+              .toLowerCase()
+              .includes(busquedaAplicada.toLowerCase())) ||
+          (producto.categoria &&
+            producto.categoria
+              .toLowerCase()
+              .includes(busquedaAplicada.toLowerCase())) ||
+          (producto.descripcion &&
+            producto.descripcion
+              .toLowerCase()
+              .includes(busquedaAplicada.toLowerCase()))
         );
       });
     }

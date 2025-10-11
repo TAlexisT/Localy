@@ -755,26 +755,32 @@ const InformacionProducto = () => {
               /* Vista de solo lectura */
               <div className="space-y-12">
                 {/* Información del producto */}
-                <div className="flex justify-between items-center mb-2">
+                <div className="flex space-x-2 justify-between items-stretch mb-2">
+                  {/* Product name */}
                   <h1
-                    className="text-3xl font-bold py-2 px-4 rounded-tr-full rounded-r-full"
+                    className="text-3xl font-bold py-2 px-4 rounded-tr-full rounded-r-full flex items-center"
                     style={{
-                      background: Colores_Interfaz.bright_green,
+                      backgroundColor: Colores_Interfaz.bright_green,
                       color: Colores_Font.white,
                     }}
                   >
                     {producto.nombre}
                   </h1>
+
+                  {/* Price + Offer */}
                   <div
-                    className="flex items-center gap-2 pl-2 border-l"
-                    style={{ borderColor: Colores_Interfaz.bright_green }}
+                    className="flex flex-col justify-center items-center pl-2 border-l"
+                    style={{
+                      borderColor: Colores_Interfaz.bright_green,
+                      borderLeftWidth: "3px",
+                    }}
                   >
                     {producto.en_oferta && (
-                      <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
+                      <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium mb-2">
                         Oferta
                       </span>
                     )}
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-3xl font-bold">
+                    <span className="bg-green-100 text-green-800 px-4 py-1 rounded-full text-2xl font-bold">
                       ${producto.precio}
                     </span>
                   </div>

@@ -689,7 +689,7 @@ export default function PerfilRestaurante() {
                 {esPropietario && (
                   <button
                     onClick={handleEditarPerfil}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                    className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
                   >
                     <Edit className="w-4 h-4" />
                     Editar Perfil
@@ -827,7 +827,7 @@ export default function PerfilRestaurante() {
                         <Mail className="w-4 h-4 text-gray-500" />
                         <a
                           href={`mailto:${perfil.correo}`}
-                          className="text-blue-600 hover:text-blue-800 break-all"
+                          className="text-green-600 hover:text-green-800 break-all underline"
                         >
                           {perfil.correo}
                         </a>
@@ -838,7 +838,7 @@ export default function PerfilRestaurante() {
                         <Phone className="w-4 h-4 text-gray-500" />
                         <a
                           href={`tel:${perfil.telefono}`}
-                          className="text-blue-600 hover:text-blue-800"
+                          className="text-green-600 hover:text-gray-800 underline"
                         >
                           {perfil.telefono}
                         </a>
@@ -951,10 +951,8 @@ export default function PerfilRestaurante() {
                     </div>
                   )}
                 </div>
-
-                <div className="text-sm text-gray-500">
-                  <span>ID del negocio: {negocioId}</span>
-                </div>
+                
+                
               </div>
             </div>
           </div>
@@ -965,7 +963,7 @@ export default function PerfilRestaurante() {
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold flex items-center gap-3">
-                <ImageIcon className="w-6 h-6 text-blue-600" />
+                <ImageIcon className="w-6 h-6 text-green-600" />
                 Menú
               </h3>
               {esPropietario && (
@@ -1120,12 +1118,12 @@ export default function PerfilRestaurante() {
                       </h4>
 
                       <div className="flex items-center gap-2">
-                        <span className="text-xl font-semibold">
+                        <span className="text-2xl text-green-500 font-bold">
                           ${producto.precio}
                         </span>
 
                         {producto.en_oferta && (
-                          <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">
+                          <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
                             Oferta
                           </span>
                         )}

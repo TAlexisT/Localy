@@ -39,7 +39,6 @@ export default function Login() {
       }
 
       setErrorMessage("");
-      console.log("Login exitoso:", result);
       
       // ✅ NUEVA LÓGICA DE REDIRECCIÓN
       if (result.exito && result.datos) {

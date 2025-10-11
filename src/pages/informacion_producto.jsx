@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { MapPin, X, ZoomIn, Trash2, Heart } from "lucide-react";
 
 import { Colores_Interfaz, Colores_Font } from "../assets/Colores";
+import MapaUbicacion from "../components/MapaUbicacion";
 
 const InformacionProducto = () => {
   const location = useLocation();
@@ -847,34 +848,7 @@ const InformacionProducto = () => {
                     </div>
 
                     {producto.negocio_ubicacion && (
-                      <div className="flex items-start gap-3">
-                        <MapPin className="w-4 h-4 text-gray-500 mt-1" />
-                        <div className="flex-1">
-                          <p className="font-medium mb-2">Ubicación</p>
-
-                          {/* Mapa interactivo que abre Google Maps */}
-                          <a
-                            href={`https://www.google.com/maps?q=${producto.negocio_ubicacion.latitude},${producto.negocio_ubicacion.longitude}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="block"
-                          >
-                            <div className="relative h-32 rounded-lg overflow-hidden border border-gray-300 bg-gray-100 hover:border-blue-500 transition-all duration-300 hover:shadow-md hover:transform hover:translate-y-[-2px]">
-                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50">
-                                <div className="text-center">
-                                  <MapPin className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                                  <p className="text-sm text-gray-600 font-medium">
-                                    Ver ubicación en mapa
-                                  </p>
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    Presiona para abrir Google Maps
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </a>
-                        </div>
-                      </div>
+                      <MapaUbicacion geopoint={producto.negocio_ubicacion}/>
                     )}
                   </div>
                 </div>

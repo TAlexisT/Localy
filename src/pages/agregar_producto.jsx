@@ -7,7 +7,8 @@ import {
   Save,
   Loader,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  ChevronDown
 } from "lucide-react";
 
 export default function AgregarProducto() {
@@ -23,6 +24,8 @@ export default function AgregarProducto() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [camposCompletos, setCamposCompletos] = useState(false);
+  const [isSelectOpen, setIsSelectOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -54,12 +57,33 @@ export default function AgregarProducto() {
     }
   }, [negocioId, navigate]);
 
+  // Efecto para verificar si todos los campos requeridos están llenos
+  useEffect(() => {
+    const { nombre, precio, categoria, descripcion } = formData;
+    const todosCamposLlenos = 
+      nombre.trim() !== "" && 
+      precio !== "" && 
+      categoria !== "" && 
+      descripcion.trim() !== "" && 
+      imagen !== null;
+    
+    setCamposCompletos(todosCamposLlenos);
+  }, [formData, imagen]);
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+  };
+
+  const handleCategoriaSelect = (categoria) => {
+    setFormData(prev => ({
+      ...prev,
+      categoria
+    }));
+    setIsSelectOpen(false);
   };
 
   const handleImageChange = (e) => {
@@ -185,6 +209,20 @@ export default function AgregarProducto() {
     navigate(-1);
   };
 
+  // Cerrar dropdown al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isSelectOpen && !event.target.closest('.categoria-select-container')) {
+        setIsSelectOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSelectOpen]);
+
   if (!negocioId) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -205,22 +243,22 @@ export default function AgregarProducto() {
         <div className="flex items-center gap-4 mb-8">
           <button
             onClick={handleVolver}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
+            className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition duration-300"
+            title="Atrás"
           >
-            <ArrowLeft className="w-5 h-5" />
-            Volver
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
           </button>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Agrega tu producto</h1>
-            {negocioNombre && (
-              <p className="text-gray-600">Para: {negocioNombre}</p>
-            )}
+            
           </div>
         </div>
 
         {/* Información */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-          <p className="text-blue-800">
+        <div className="bg-gray-100 border border-gray-200 rounded-lg p-4 mb-6">
+          <p className="text-gray-600">
             Los datos que introduzca serán vistos por las personas que visiten la página.
           </p>
         </div>
@@ -344,25 +382,49 @@ export default function AgregarProducto() {
           {/* Separador */}
           <hr className="border-gray-300" />
 
-          {/* Categoría */}
-          <div>
-            <label htmlFor="categoria" className="block text-lg font-semibold text-gray-900 mb-2">
+          {/* Categoría - Select Personalizado */}
+          <div className="categoria-select-container">
+            <label className="block text-lg font-semibold text-gray-900 mb-2">
               Selecciona la categoría a la que pertenece
             </label>
-            <select
-              id="categoria"
-              name="categoria"
-              value={formData.categoria}
-              onChange={handleInputChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Selecciona una categoría</option>
-              {categorias.map((categoria) => (
-                <option key={categoria} value={categoria}>
-                  {categoria}
-                </option>
-              ))}
-            </select>
+            
+            <div className="relative">
+              {/* Botón que simula el select */}
+              <button
+                type="button"
+                onClick={() => setIsSelectOpen(!isSelectOpen)}
+                className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left bg-white flex items-center justify-between ${
+                  !formData.categoria ? 'text-gray-400' : 'text-gray-900'
+                }`}
+              >
+                <span>{formData.categoria || "Selecciona una categoría"}</span>
+                <ChevronDown 
+                  className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
+                    isSelectOpen ? 'transform rotate-180' : ''
+                  }`} 
+                />
+              </button>
+
+              {/* Dropdown de opciones */}
+              {isSelectOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {categorias.map((categoria) => (
+                    <button
+                      key={categoria}
+                      type="button"
+                      onClick={() => handleCategoriaSelect(categoria)}
+                      className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+                        formData.categoria === categoria 
+                          ? 'bg-blue-50 text-blue-600 font-medium' 
+                          : 'text-gray-900'
+                      } first:rounded-t-lg last:rounded-b-lg`}
+                    >
+                      {categoria}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Mensajes de error y éxito */}
@@ -384,8 +446,12 @@ export default function AgregarProducto() {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={loading}
-              className="flex items-center gap-2 bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              disabled={loading || !camposCompletos}
+              className={`flex items-center gap-2 text-white px-8 py-3 rounded-lg transition ${
+                camposCompletos 
+                  ? "bg-[#12B400] hover:bg-[#0F9A00]" 
+                  : "bg-[#9B9B9B] cursor-not-allowed"
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {loading ? (
                 <>

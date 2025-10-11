@@ -384,18 +384,16 @@ export default function ConfigurarPerfil() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-6">
       <div className="max-w-4xl mx-auto px-4">
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-          <h1 className="text-3xl font-bold text-center mb-2">
-            Configurar Perfil del Negocio
+        <div className=" my-5">
+          <h1 className="text-3xl font-bold">
+            Configura tu perfil ⋅ Negocio
           </h1>
-          <div className="text-center text-sm text-gray-600">
-            <p>
-              Usuario: {usuario.correo} • Tipo: {usuario.tipo}
-            </p>
-            <p>ID del Negocio: {negocioId}</p>
-          </div>
+          <h1 className="text-sm text-gray-500 font-semibold mt-2">
+           ✓ Esta es una configuración de tu perfil, la podras modificar en cualquier momento.
+          </h1>
+          
         </div>
 
         <form
@@ -408,7 +406,7 @@ export default function ConfigurarPerfil() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nombre del Negocio *
+                  Nombre del Local/Restaurante *
                 </label>
                 <input
                   name="nombre"
@@ -426,7 +424,7 @@ export default function ConfigurarPerfil() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Descripción
+                  Descripción general
                 </label>
                 <textarea
                   name="descripcion"
@@ -438,15 +436,65 @@ export default function ConfigurarPerfil() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  {formData.descripcion.length}/500 caracteres
+                  {formData.descripcion.length}/1000 caracteres
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Sección de Ubicación */}
+          {/* Sección de Imagen */}
           <div>
-            <h2 className="text-xl font-semibold mb-4">Ubicación</h2>
+            <h2 className="text-xl font-semibold mb-4">Selecciona una imagen o logotipo de tu restaurante para tu perfil.</h2>
+            <div className="flex items-center gap-4">
+              <input
+                id="imagen"
+                type="file"
+                accept="image/jpeg,image/png"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+              <label
+                htmlFor="imagen"
+                className="px-4 py-2 bg-green-600 text-white rounded-full cursor-pointer hover:bg-blue-700 transition"
+              >
+                {imagePreview ? "Cambiar Imagen" : "Seleccionar Imagen"}
+              </label>
+
+              {imagePreview ? (
+                <div className="relative">
+                  <img
+                    src={imagePreview?.url || imagePreview}
+                    alt="Vista previa"
+                    className="w-20 h-20 object-cover rounded-md border-2 border-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleEliminarImagen}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center">
+                  <span className="text-gray-400 text-xs text-center">
+                    Sin imagen
+                  </span>
+                </div>
+              )}
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              Formatos soportados: JPG, PNG. Tamaño máximo: 2MB
+            </p>
+          </div>
+
+          {/* Sección de Ubicación */}
+          <div className="py-5">
+            <div className="flex space-x-2 items-center align-center">
+              <h2 className="text-xl font-semibold mb-4">Ubicación</h2>
+              <h2 className="text-base font-semibold mb-4 text-gray-500"> - Selecciona "Obtener ubicación  actual"</h2>
+            </div>
+            
             <div className="flex items-center gap-4 mb-4">
               <button
                 type="button"
@@ -466,48 +514,6 @@ export default function ConfigurarPerfil() {
             </p>
           </div>
 
-          {/* Sección de Horario */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4">Horario de Atención</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {Object.entries(formData.horario).map(([dia, horario]) => (
-                <div key={dia} className="border p-3 rounded-md">
-                  <h3 className="font-medium mb-2 capitalize">{dia}</h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">
-                        Apertura
-                      </label>
-                      <input
-                        type="time"
-                        value={horario.apertura}
-                        onChange={(e) =>
-                          handleHorarioChange(dia, "apertura", e.target.value)
-                        }
-                        className="w-full px-2 py-1 border border-gray-300 rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-600 mb-1">
-                        Cierre
-                      </label>
-                      <input
-                        type="time"
-                        value={horario.cierre}
-                        onChange={(e) =>
-                          handleHorarioChange(dia, "cierre", e.target.value)
-                        }
-                        className="w-full px-2 py-1 border border-gray-300 rounded"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="text-xs text-gray-500 mt-2">
-              Formato: HH:MM (24 horas)
-            </p>
-          </div>
 
           {/* Sección de Redes Sociales */}
           <div>
@@ -586,51 +592,50 @@ export default function ConfigurarPerfil() {
             </p>
           </div>
 
-          {/* Sección de Imagen */}
+          {/* Sección de Horario */}
           <div>
-            <h2 className="text-xl font-semibold mb-4">Imagen del Negocio</h2>
-            <div className="flex items-center gap-4">
-              <input
-                id="imagen"
-                type="file"
-                accept="image/jpeg,image/png"
-                onChange={handleImageChange}
-                className="hidden"
-              />
-              <label
-                htmlFor="imagen"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md cursor-pointer hover:bg-blue-700 transition"
-              >
-                {imagePreview ? "Cambiar Imagen" : "Seleccionar Imagen"}
-              </label>
-
-              {imagePreview ? (
-                <div className="relative">
-                  <img
-                    src={imagePreview?.url || imagePreview}
-                    alt="Vista previa"
-                    className="w-20 h-20 object-cover rounded-md border-2 border-blue-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleEliminarImagen}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
-                  >
-                    ×
-                  </button>
+            <h2 className="text-xl font-semibold mb-4">Horario de Atención</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Object.entries(formData.horario).map(([dia, horario]) => (
+                <div key={dia} className="border p-3 rounded-md">
+                  <h3 className="font-medium mb-2 capitalize">{dia}</h3>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1">
+                        Apertura
+                      </label>
+                      <input
+                        type="time"
+                        value={horario.apertura}
+                        onChange={(e) =>
+                          handleHorarioChange(dia, "apertura", e.target.value)
+                        }
+                        className="w-full px-2 py-1 border border-gray-300 rounded"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1">
+                        Cierre
+                      </label>
+                      <input
+                        type="time"
+                        value={horario.cierre}
+                        onChange={(e) =>
+                          handleHorarioChange(dia, "cierre", e.target.value)
+                        }
+                        className="w-full px-2 py-1 border border-gray-300 rounded"
+                      />
+                    </div>
+                  </div>
                 </div>
-              ) : (
-                <div className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center">
-                  <span className="text-gray-400 text-xs text-center">
-                    Sin imagen
-                  </span>
-                </div>
-              )}
+              ))}
             </div>
-            <p className="text-sm text-gray-500 mt-2">
-              Formatos soportados: JPG, PNG. Tamaño máximo: 2MB
+            <p className="text-xs text-gray-500 mt-2">
+              Formato: HH:MM (24 horas)
             </p>
           </div>
+
+          
 
           {/* Mensajes de error y éxito */}
           {error && (

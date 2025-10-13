@@ -293,6 +293,9 @@ export default function PaginaPrincipal() {
     }
   };
 
+  const handleAdmin = () =>
+    navigate(`/administrador`);
+ 
   const handlePerfil = () =>
     navigate(`/perfil_restaurante/${usuario.negocioId}`);
 
@@ -737,12 +740,19 @@ export default function PaginaPrincipal() {
                 <span className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30">
                   {usuario.correo}
                 </span>
-              ) : (
+              ) : usuario.tipo == "negocio" ? (
                 <button
                   className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30"
                   onClick={handlePerfil}
                 >
                   Perfil
+                </button>
+              ): usuario.tipo == "admin" && (
+                <button
+                  className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30"
+                  onClick={handleAdmin}
+                >
+                  Administrador
                 </button>
               )}
 

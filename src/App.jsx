@@ -9,6 +9,7 @@ import PerfilRestaurante from './pages/perfil_restaurante';
 import AgregarProducto from './pages/agregar_producto';
 import InformacionProducto from './pages/informacion_producto';
 import Favoritos from './pages/favoritos';
+import Administrador from './pages/administrador';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/agregar_producto" element={<AgregarProducto />} />
         <Route path="/informacion_producto" element={<InformacionProducto />} />
         <Route path="/favoritos" element={<Favoritos />} /> 
+        <Route path="/administrador" element={<Administrador />} /> 
 
 
 

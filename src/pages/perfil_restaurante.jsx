@@ -26,6 +26,12 @@ import {
   ChevronRight,
   ZoomIn,
   Heart,
+  MessageSquare,
+  Send,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 
 import MapaUbicacion from "../components/MapaUbicacion";
@@ -46,6 +52,19 @@ export default function PerfilRestaurante() {
   const [previewLogo, setPreviewLogo] = useState(false);
   const [esFavorito, setEsFavorito] = useState(false);
   const [cargandoFavorito, setCargandoFavorito] = useState(false);
+
+  // Estados para sugerencias
+  const [sugerencias, setSugerencias] = useState([]);
+  const [cargandoSugerencias, setCargandoSugerencias] = useState(false);
+  const [enviandoSugerencia, setEnviandoSugerencia] = useState(false);
+  const [formSugerencia, setFormSugerencia] = useState({
+    titulo: "",
+    descripcion: "",
+  });
+  const [errorSugerencia, setErrorSugerencia] = useState("");
+  const [successSugerencia, setSuccessSugerencia] = useState("");
+  const [mostrarFormSugerencia, setMostrarFormSugerencia] = useState(false);
+
   const navigate = useNavigate();
   const { negocioId } = useParams();
 
@@ -89,6 +108,11 @@ export default function PerfilRestaurante() {
 
         // 3. Cargar productos desde el endpoint real
         await cargarProductos();
+
+        // 4. Cargar sugerencias si el usuario es propietario
+        if (usuario && perfil && usuario.correo === perfil.correo) {
+          await cargarSugerencias();
+        }
       } catch (err) {
         console.error("Error al cargar datos:", err);
         setError(err.message);
@@ -100,6 +124,134 @@ export default function PerfilRestaurante() {
 
     cargarDatos();
   }, [negocioId]);
+
+  // Cargar sugerencias cuando el usuario esté disponible
+  useEffect(() => {
+    if (usuario && perfil && usuario.correo === perfil.correo) {
+      cargarSugerencias();
+    }
+  }, [usuario, perfil]);
+
+  // Función para cargar sugerencias
+  const cargarSugerencias = async () => {
+    if (!usuario || !esPropietario) return;
+
+    setCargandoSugerencias(true);
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/sugerencias/obtener-sugerencias/${negocioId}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status} al cargar las sugerencias`);
+      }
+
+      const result = await response.json();
+
+      if (result.exito) {
+        setSugerencias(result.datos || []);
+      } else {
+        setSugerencias([]);
+        console.warn("Respuesta del servidor:", result.mensaje);
+      }
+    } catch (error) {
+      console.error("Error al cargar sugerencias:", error);
+      setSugerencias([]);
+    } finally {
+      setCargandoSugerencias(false);
+    }
+  };
+
+  // Función para enviar sugerencia
+  const enviarSugerencia = async (e) => {
+    e.preventDefault();
+    setEnviandoSugerencia(true);
+    setErrorSugerencia("");
+    setSuccessSugerencia("");
+
+    // Validaciones básicas
+    if (!formSugerencia.titulo.trim()) {
+      setErrorSugerencia("El título es requerido");
+      setEnviandoSugerencia(false);
+      return;
+    }
+
+    if (!formSugerencia.descripcion.trim()) {
+      setErrorSugerencia("La descripción es requerida");
+      setEnviandoSugerencia(false);
+      return;
+    }
+
+    if (formSugerencia.titulo.length > 100) {
+      setErrorSugerencia("El título no puede exceder los 100 caracteres");
+      setEnviandoSugerencia(false);
+      return;
+    }
+
+    if (formSugerencia.descripcion.length > 5000) {
+      setErrorSugerencia("La descripción no puede exceder los 5000 caracteres");
+      setEnviandoSugerencia(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/sugerencias/crear-sugerencia/${negocioId}`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            titulo: formSugerencia.titulo.trim(),
+            descripcion: formSugerencia.descripcion.trim(),
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.mensaje || `Error ${response.status}: ${response.statusText}`
+        );
+      }
+
+      if (!result.exito) {
+        throw new Error(result.mensaje || "Error al crear la sugerencia");
+      }
+
+      setSuccessSugerencia(
+        "¡Sugerencia enviada exitosamente a los administradores!"
+      );
+      setFormSugerencia({ titulo: "", descripcion: "" });
+      setMostrarFormSugerencia(false);
+
+      // Recargar las sugerencias para mostrar la nueva
+      await cargarSugerencias();
+    } catch (err) {
+      console.error("Error al enviar sugerencia:", err);
+      setErrorSugerencia(err.message || "Error de conexión al servidor");
+    } finally {
+      setEnviandoSugerencia(false);
+    }
+  };
+
+  const handleInputSugerenciaChange = (e) => {
+    const { name, value } = e.target;
+    setFormSugerencia((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   // Función para agregar/remover de favoritos
   const toggleFavorito = async () => {
@@ -650,7 +802,7 @@ export default function PerfilRestaurante() {
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header con información de usuario */}
         <div className="flex justify-between items-center mb-8 flex-wrap gap-4">
           <div className="flex space-x-2">
@@ -951,8 +1103,6 @@ export default function PerfilRestaurante() {
                     </div>
                   )}
                 </div>
-                
-                
               </div>
             </div>
           </div>
@@ -1141,6 +1291,233 @@ export default function PerfilRestaurante() {
                     Haz clic en "Agregar Producto" para comenzar
                   </p>
                 )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Sección de Sugerencias para los Administradores */}
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+          <div className="p-4 sm:p-6">
+            {/* Header responsivo */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+              <div className="flex items-center gap-3">
+                <MessageSquare className="w-6 h-6 text-green-600 flex-shrink-0" />
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  Sugerencias para los Administradores
+                </h3>
+              </div>
+
+              {esPropietario && (
+                <button
+                  onClick={() =>
+                    setMostrarFormSugerencia(!mostrarFormSugerencia)
+                  }
+                  className="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition w-full sm:w-auto"
+                >
+                  {mostrarFormSugerencia ? (
+                    <EyeOff className="w-4 h-4 flex-shrink-0" />
+                  ) : (
+                    <Eye className="w-4 h-4 flex-shrink-0" />
+                  )}
+                  <span className="text-sm sm:text-base">
+                    {mostrarFormSugerencia ? "Ocultar" : "Nueva Sugerencia"}
+                  </span>
+                </button>
+              )}
+            </div>
+
+            <p className="text-gray-600 mb-6 text-sm sm:text-base">
+              {esPropietario
+                ? "Envía sugerencias a los administradores para mejorar el servicio de la plataforma."
+                : "Esta sección es exclusiva para el propietario del negocio."}
+            </p>
+
+            {/* Formulario para enviar sugerencia (solo para propietarios) */}
+            {esPropietario && mostrarFormSugerencia && (
+              <div className="bg-blue-50 rounded-lg p-4 sm:p-6 mb-6 border border-blue-200">
+                <h4 className="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-800">
+                  <Send className="w-5 h-5 flex-shrink-0" />
+                  <span className="text-base sm:text-lg">
+                    Envía una sugerencia a los administradores
+                  </span>
+                </h4>
+
+                <form onSubmit={enviarSugerencia} className="space-y-4">
+                  <div>
+                    <label
+                      htmlFor="titulo"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Título de la sugerencia *
+                    </label>
+                    <input
+                      type="text"
+                      id="titulo"
+                      name="titulo"
+                      value={formSugerencia.titulo}
+                      onChange={handleInputSugerenciaChange}
+                      placeholder="Ej: Mejorar la interfaz de gestión de productos"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                      maxLength={100}
+                    />
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                      {formSugerencia.titulo.length}/100 caracteres
+                    </p>
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="descripcion"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Descripción detallada *
+                    </label>
+                    <textarea
+                      id="descripcion"
+                      name="descripcion"
+                      value={formSugerencia.descripcion}
+                      onChange={handleInputSugerenciaChange}
+                      placeholder="Describe tu sugerencia de manera detallada para que los administradores puedan entenderla mejor..."
+                      rows={4}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base"
+                      maxLength={5000}
+                    />
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                      {formSugerencia.descripcion.length}/5000 caracteres
+                    </p>
+                  </div>
+
+                  {/* Mensajes de error y éxito */}
+                  {errorSugerencia && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 sm:px-4 sm:py-3 rounded-lg flex items-center gap-2 text-sm sm:text-base">
+                      <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                      {errorSugerencia}
+                    </div>
+                  )}
+
+                  {successSugerencia && (
+                    <div className="bg-green-100 border border-green-400 text-green-700 px-3 py-2 sm:px-4 sm:py-3 rounded-lg flex items-center gap-2 text-sm sm:text-base">
+                      <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                      {successSugerencia}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setMostrarFormSugerencia(false)}
+                      className="px-4 py-2 sm:px-6 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm sm:text-base w-full sm:w-auto"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={enviandoSugerencia}
+                      className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm sm:text-base w-full sm:w-auto"
+                    >
+                      {enviandoSugerencia ? (
+                        <>
+                          <Loader className="w-4 h-4 animate-spin flex-shrink-0" />
+                          <span>Enviando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 flex-shrink-0" />
+                          <span>Enviar Sugerencia</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Lista de sugerencias enviadas (solo visible para el propietario) */}
+            {esPropietario && (
+              <div>
+                <h4 className="text-lg font-semibold mb-4 text-base sm:text-lg">
+                  Mis Sugerencias Enviadas ({sugerencias.length})
+                </h4>
+
+                {cargandoSugerencias ? (
+                  <div className="text-center py-8">
+                    <Loader className="w-8 h-8 animate-spin text-blue-600 mx-auto mb-4" />
+                    <p className="text-gray-500 text-sm sm:text-base">
+                      Cargando sugerencias...
+                    </p>
+                  </div>
+                ) : sugerencias.length > 0 ? (
+                  <div className="space-y-4">
+                    {sugerencias.map((sugerencia) => {
+                      // Convertir el timestamp de Firebase a Date
+                      const fechaCreacion =
+                        sugerencia.creado && sugerencia.creado._seconds
+                          ? new Date(sugerencia.creado._seconds * 1000)
+                          : new Date();
+
+                      return (
+                        <div
+                          key={sugerencia.id}
+                          className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
+                            <h5 className="font-semibold text-gray-900 text-base sm:text-lg break-words">
+                              {sugerencia.titulo}
+                            </h5>
+                            <span className="text-xs sm:text-sm text-gray-500 whitespace-nowrap flex-shrink-0 mt-1 sm:mt-0">
+                              {fechaCreacion.toLocaleDateString("es-ES", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base leading-relaxed">
+                            {sugerencia.description || sugerencia.descripcion}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                    <MessageSquare className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500 text-sm sm:text-base mb-2">
+                      No has enviado sugerencias aún
+                    </p>
+                    <p className="text-xs sm:text-sm text-gray-400">
+                      Haz clic en "Nueva Sugerencia" para compartir tus ideas
+                      con los administradores
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Mensaje para usuarios no propietarios */}
+            {!esPropietario && usuario && (
+              <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                <Shield className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 text-sm sm:text-base">
+                  Esta sección es exclusiva para el propietario del negocio
+                </p>
+              </div>
+            )}
+
+            {/* Mensaje para usuarios no autenticados */}
+            {!usuario && (
+              <div className="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
+                <MessageSquare className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500 text-sm sm:text-base mb-4">
+                  Inicia sesión para ver las sugerencias del negocio
+                </p>
+                <button
+                  onClick={handleLogin}
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition text-sm sm:text-base"
+                >
+                  Iniciar Sesión
+                </button>
               </div>
             )}
           </div>

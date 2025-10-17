@@ -355,15 +355,15 @@ const Administrador = () => {
                               <Store className="w-4 h-4" />
                               <span className="font-medium">Restaurante:</span>
                               <span>
-                                {sugerencia.negocioNombre || "No especificado"}
+                                {sugerencia.negocio_nombre || "No especificado"}
                               </span>
                             </div>
-                            {sugerencia.propietarioNombre && (
+                            {sugerencia.propietario_nombre && (
                               <div className="flex items-center gap-1">
                                 <span className="font-medium">
                                   Propietario:
                                 </span>
-                                <span>{sugerencia.propietarioNombre}</span>
+                                <span>{sugerencia.propietario_nombre}</span>
                               </div>
                             )}
                           </div>
@@ -434,60 +434,90 @@ const Administrador = () => {
               </div>
             ) : negociosFiltrados.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {negociosFiltrados.map((negocio) => (
-                  <div
-                    key={negocio.id}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
-                  >
-                    {negocio.logo && (
-                      <div className="h-32 bg-gray-200 overflow-hidden">
-                        <img
-                          src={negocio.logo}
-                          alt={`Logo de ${negocio.nombre}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 text-lg mb-2">
-                        {negocio.nombre}
-                      </h3>
+                {negociosFiltrados.map((negocio) => {
+                  // Formatear fecha de pago
+                  const fechaPago =
+                    negocio.pago_fecha && negocio.pago_fecha._seconds
+                      ? new Date(negocio.pago_fecha._seconds * 1000)
+                      : null;
 
-                      <div className="space-y-2 text-sm text-gray-600">
-                        {negocio.descripcion && (
-                          <p className="line-clamp-2">{negocio.descripcion}</p>
-                        )}
+                  return (
+                    <div
+                      key={negocio.id}
+                      onClick={() =>
+                        (window.location.href = `/perfil_restaurante/${
+                          negocio.negocio_id || negocio.id
+                        }`)
+                      }
+                      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden cursor-pointer hover:shadow-md transition-shadow duration-200"
+                    >
+                      {negocio.logo && (
+                        <div className="h-32 bg-gray-200 overflow-hidden">
+                          <img
+                            src={negocio.logo}
+                            alt={`Logo de ${negocio.nombre}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <h3 className="font-semibold text-gray-900 text-lg mb-2">
+                          {negocio.nombre}
+                        </h3>
 
-                        {negocio.correo && (
+                        <div className="space-y-2 text-sm text-gray-600">
+                          {negocio.descripcion && (
+                            <p className="line-clamp-2">
+                              {negocio.descripcion}
+                            </p>
+                          )}
+
+                          {negocio.correo && (
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium">Email:</span>
+                              <span className="truncate">{negocio.correo}</span>
+                            </div>
+                          )}
+
+                          {negocio.telefono && (
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium">Teléfono:</span>
+                              <span>{negocio.telefono}</span>
+                            </div>
+                          )}
+
+                          {/* Fecha de pago */}
+                          {fechaPago && (
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium">Pago:</span>
+                              <span>
+                                {fechaPago.toLocaleDateString("es-ES", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                })}
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Estado del negocio */}
                           <div className="flex items-center gap-1">
-                            <span className="font-medium">Email:</span>
-                            <span className="truncate">{negocio.correo}</span>
+                            <span className="font-medium">Estado:</span>
+                            <span
+                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                negocio.activo
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {negocio.activo ? "Activo" : "Inactivo"}
+                            </span>
                           </div>
-                        )}
-
-                        {negocio.telefono && (
-                          <div className="flex items-center gap-1">
-                            <span className="font-medium">Teléfono:</span>
-                            <span>{negocio.telefono}</span>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-1">
-                          <span className="font-medium">Estado:</span>
-                          <span
-                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              negocio.activo
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {negocio.activo ? "Activo" : "Inactivo"}
-                          </span>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-12 bg-white rounded-lg border border-gray-200">

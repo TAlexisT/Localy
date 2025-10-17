@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { MapPin, X, ZoomIn, Trash2, Heart, Edit, ArrowLeft } from "lucide-react";
+import {
+  MapPin,
+  X,
+  ZoomIn,
+  Trash2,
+  Heart,
+  Edit,
+  ArrowLeft,
+  Ban,
+} from "lucide-react";
 
 import { Colores_Interfaz, Colores_Font } from "../assets/Colores";
 import MapaUbicacion from "../components/MapaUbicacion";
@@ -32,6 +41,7 @@ const InformacionProducto = () => {
   const [usuario, setUsuario] = useState(null);
   const [agregandoFavorito, setAgregandoFavorito] = useState(false);
   const [esFavorito, setEsFavorito] = useState(false);
+  const [productoActivo, setProductoActivo] = useState(true); // Nuevo estado para producto activo
 
   const handleVolver = () => {
     navigate(-1);
@@ -163,6 +173,10 @@ const InformacionProducto = () => {
 
   // Función para abrir el modal de eliminar
   const abrirModalEliminar = () => {
+    if (!productoActivo) {
+      setMensaje("El producto está inhabilitado y no se puede eliminar");
+      return;
+    }
     setModalEliminarAbierto(true);
   };
 
@@ -197,7 +211,7 @@ const InformacionProducto = () => {
 
   // Función para eliminar producto
   const eliminarProducto = async () => {
-    if (!usuarioEsPropietario) {
+    if (!usuarioEsPropietario || !productoActivo) {
       setMensaje("Error: No tienes permisos para eliminar este producto");
       return;
     }
@@ -283,6 +297,8 @@ const InformacionProducto = () => {
         };
         setProducto(productoData);
         setEsFavorito(resultado.datos.esFavorito);
+        // Establecer el estado activo del producto
+        setProductoActivo(resultado.datos.activo !== false);
 
         // Inicializar formData con todos los datos del producto
         setFormData({
@@ -322,7 +338,7 @@ const InformacionProducto = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!usuarioEsPropietario) {
+    if (!usuarioEsPropietario || !productoActivo) {
       setMensaje("Error: No tienes permisos para editar este producto");
       return;
     }
@@ -501,7 +517,9 @@ const InformacionProducto = () => {
                 </div>
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                  <span className="text-gray-400 text-sm sm:text-base">Imagen no disponible</span>
+                  <span className="text-gray-400 text-sm sm:text-base">
+                    Imagen no disponible
+                  </span>
                 </div>
               )}
 
@@ -523,7 +541,9 @@ const InformacionProducto = () => {
                       <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
                     ) : (
                       <Heart
-                        className={`w-3 h-3 sm:w-4 sm:h-4 ${esFavorito ? "fill-current" : ""}`}
+                        className={`w-3 h-3 sm:w-4 sm:h-4 ${
+                          esFavorito ? "fill-current" : ""
+                        }`}
                       />
                     )}
                     <span className="hidden xs:inline">
@@ -536,20 +556,41 @@ const InformacionProducto = () => {
               {/* Botones de editar y eliminar para propietarios */}
               {usuarioEsPropietario && !editando && (
                 <div className="absolute top-3 right-3 sm:top-4 sm:right-4 flex flex-col xs:flex-row gap-2">
-                  <button
-                    onClick={() => setEditando(true)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
-                  >
-                    <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span>Editar</span>
-                  </button>
-                  <button
-                    onClick={abrirModalEliminar}
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
-                  >
-                    <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span>Eliminar</span>
-                  </button>
+                  {productoActivo ? (
+                    <>
+                      <button
+                        onClick={() => setEditando(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                      >
+                        <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>Editar</span>
+                      </button>
+                      <button
+                        onClick={abrirModalEliminar}
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                      >
+                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>Eliminar</span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        disabled
+                        className="bg-gray-400 text-gray-200 px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm cursor-not-allowed"
+                      >
+                        <Ban className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>Inhabilitado</span>
+                      </button>
+                      <button
+                        disabled
+                        className="bg-gray-400 text-gray-200 px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm cursor-not-allowed"
+                      >
+                        <Ban className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>Inhabilitado</span>
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -557,6 +598,14 @@ const InformacionProducto = () => {
               {usuarioEsPropietario && (
                 <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-green-100 text-green-800 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium">
                   Propietario
+                </div>
+              )}
+
+              {/* Indicador de producto inactivo */}
+              {!productoActivo && (
+                <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 bg-red-100 text-red-800 px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1">
+                  <Ban className="w-3 h-3" />
+                  Producto Inactivo
                 </div>
               )}
             </div>
@@ -577,7 +626,10 @@ const InformacionProducto = () => {
               )}
 
               {editando ? (
-                <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <form
+                  onSubmit={handleSubmit}
+                  className="space-y-4 sm:space-y-6"
+                >
                   {/* Campo para cambiar imagen */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -740,11 +792,11 @@ const InformacionProducto = () => {
               ) : (
                 /* Vista de solo lectura */
                 <div className="space-y-6 sm:space-y-8">
-                  {/* Información del producto */}
-                  <div className="flex flex-col xs:flex-row xs:justify-between xs:items-stretch gap-3 mb-2">
+                  {/* Información del producto - Versión compacta */}
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-2">
                     {/* Product name */}
                     <h1
-                      className="text-xl sm:text-2xl lg:text-3xl font-bold py-2 px-4 rounded-tr-full rounded-r-full flex items-center break-words"
+                      className="text-xl sm:text-2xl lg:text-3xl font-bold py-2 px-4 rounded-tr-full rounded-r-full flex items-center break-words lg:flex-1"
                       style={{
                         backgroundColor: Colores_Interfaz.bright_green,
                         color: Colores_Font.white,
@@ -753,20 +805,19 @@ const InformacionProducto = () => {
                       {producto.nombre}
                     </h1>
 
-                    {/* Price + Offer */}
-                    <div
-                      className="flex flex-col justify-center items-center pl-2 border-l"
-                      style={{
-                        borderColor: Colores_Interfaz.bright_green,
-                        borderLeftWidth: "3px",
-                      }}
-                    >
+                    {/* Price + Offer - En línea en desktop */}
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 mt-3 lg:mt-0">
                       {producto.en_oferta && (
-                        <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium mb-2">
+                        <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xl font-medium order-1 lg:order-1">
                           Oferta
                         </span>
                       )}
-                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-lg sm:text-xl font-bold">
+                      <span
+                        className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-3xl sm:text-3xl font-bold order-2 lg:order-2"
+                        style={{
+                          border: `2px solid ${Colores_Interfaz.bright_green}`,
+                        }}
+                      >
                         ${producto.precio}
                       </span>
                     </div>
@@ -794,7 +845,9 @@ const InformacionProducto = () => {
                     </p>
                     {producto.categoria && (
                       <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                        <span className="font-medium text-sm sm:text-base">Categoría:</span>
+                        <span className="font-medium text-sm sm:text-base">
+                          Categoría:
+                        </span>
                         <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                           {producto.categoria}
                         </span>
@@ -833,8 +886,12 @@ const InformacionProducto = () => {
                       </div>
 
                       {producto.negocio_ubicacion && (
-                        <div className="mt-3">
-                          <MapaUbicacion geopoint={producto.negocio_ubicacion}/>
+                        <div className="mt-3 relative z-10">
+                          {" "}
+                          {/* Añadido relative z-10 aquí */}
+                          <MapaUbicacion
+                            geopoint={producto.negocio_ubicacion}
+                          />
                         </div>
                       )}
                     </div>
@@ -860,9 +917,9 @@ const InformacionProducto = () => {
                             Información de solo lectura
                           </p>
                           <p className="text-blue-700 text-xs sm:text-sm mt-1">
-                            Solo el propietario del restaurante puede editar esta
-                            información. Si necesitas modificar algo, contacta al
-                            establecimiento.
+                            Solo el propietario del restaurante puede editar
+                            esta información. Si necesitas modificar algo,
+                            contacta al establecimiento.
                           </p>
                         </div>
                       </div>
@@ -877,7 +934,7 @@ const InformacionProducto = () => {
 
       {/* Modal para imagen en grande */}
       {modalImagenAbierto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-90">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black bg-opacity-90">
           <div className="relative max-w-4xl max-h-full w-full">
             {/* Botón cerrar */}
             <button
@@ -897,7 +954,9 @@ const InformacionProducto = () => {
 
               {/* Información de la imagen */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4 sm:p-6 text-white rounded-b-lg">
-                <h3 className="text-lg sm:text-xl font-bold mb-2">{producto.nombre}</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2">
+                  {producto.nombre}
+                </h3>
                 <p className="text-gray-200 text-sm sm:text-base">
                   ${producto.precio} • {producto.categoria}
                 </p>
@@ -909,7 +968,7 @@ const InformacionProducto = () => {
 
       {/* Modal para confirmar eliminación */}
       {modalEliminarAbierto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black bg-opacity-70">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-auto">
             <div className="p-4 sm:p-6">
               {/* Icono de advertencia */}

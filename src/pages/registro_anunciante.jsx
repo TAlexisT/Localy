@@ -231,7 +231,7 @@ export default function RegistroAnunciante() {
         <div className="text-center mt-4">
           <button
             onClick={() => navigate("/")}
-            className="text-sm text-green-600 hover:text-green-700 underline"
+            className="text-sm text-white font-semibold bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full transition"
           >
             Volver a la página principal
           </button>

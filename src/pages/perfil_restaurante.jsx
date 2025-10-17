@@ -32,6 +32,7 @@ import {
   EyeOff,
   AlertCircle,
   CheckCircle2,
+  Ban,
 } from "lucide-react";
 
 import MapaUbicacion from "../components/MapaUbicacion";
@@ -65,8 +66,27 @@ export default function PerfilRestaurante() {
   const [successSugerencia, setSuccessSugerencia] = useState("");
   const [mostrarFormSugerencia, setMostrarFormSugerencia] = useState(false);
 
+  // Estados para el modal de confirmación de eliminación
+  const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false);
+  const [imagenAEliminar, setImagenAEliminar] = useState(null);
+  const [eliminandoImagen, setEliminandoImagen] = useState(false);
+
   const navigate = useNavigate();
   const { negocioId } = useParams();
+
+  // Efecto para prevenir el scroll cuando hay modales abiertos
+  useEffect(() => {
+    if (previewLogo || previewImage || mostrarModalEliminar) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    // Cleanup function
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [previewLogo, previewImage, mostrarModalEliminar]);
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -478,15 +498,19 @@ export default function PerfilRestaurante() {
         if (e.key === "Escape") {
           closeLogoPreview();
         }
+      } else if (mostrarModalEliminar) {
+        if (e.key === "Escape") {
+          cerrarModalEliminar();
+        }
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [previewImage, previewLogo, currentImageIndex]);
+  }, [previewImage, previewLogo, mostrarModalEliminar, currentImageIndex]);
 
   const handleEditarPerfil = () => {
-    if (perfil && usuario) {
+    if (perfil && usuario && usuario.negocioActivo !== false) {
       navigate("/configura_perfil", {
         state: {
           negocio: perfil,
@@ -497,7 +521,7 @@ export default function PerfilRestaurante() {
   };
 
   const handleAgregarProducto = () => {
-    if (usuario && perfil) {
+    if (usuario && perfil && usuario.negocioActivo !== false) {
       navigate("/agregar_producto", {
         state: {
           negocioId: negocioId,
@@ -509,6 +533,13 @@ export default function PerfilRestaurante() {
 
   // Función REAL para subir imagen del menú
   const handleUploadMenu = async (event) => {
+    if (usuario?.negocioActivo === false) {
+      alert(
+        "Tu negocio está inactivo. Activa tu suscripción para agregar imágenes del menú."
+      );
+      return;
+    }
+
     const file = event.target.files[0];
     if (!file) return;
 
@@ -544,7 +575,6 @@ export default function PerfilRestaurante() {
       if (response.ok && result.exito) {
         // Recargar las imágenes del menú después de subir
         await cargarImagenesMenu();
-        alert("Imagen del menú agregada exitosamente");
       } else {
         throw new Error(result.mensaje || "Error al subir la imagen");
       }
@@ -559,19 +589,34 @@ export default function PerfilRestaurante() {
     }
   };
 
-  // Función REAL para eliminar imagen del menú
-  const handleDeleteMenuImage = async (imageId) => {
-    if (
-      !window.confirm(
-        "¿Estás seguro de que quieres eliminar esta imagen del menú?"
-      )
-    ) {
+  // Función para abrir modal de confirmación de eliminación
+  const confirmarEliminarImagen = (imageId, e) => {
+    if (usuario?.negocioActivo === false) {
+      alert("Tu negocio está inactivo. No puedes eliminar imágenes del menú.");
       return;
     }
 
+    e.stopPropagation();
+    setImagenAEliminar(imageId);
+    setMostrarModalEliminar(true);
+  };
+
+  // Función para cerrar modal de eliminación
+  const cerrarModalEliminar = () => {
+    setMostrarModalEliminar(false);
+    setImagenAEliminar(null);
+    setEliminandoImagen(false);
+  };
+
+  // Función REAL para eliminar imagen del menú
+  const handleDeleteMenuImage = async () => {
+    if (!imagenAEliminar) return;
+
+    setEliminandoImagen(true);
+
     try {
       const response = await fetch(
-        `http://localhost:3000/api/negocios/borrar-menu/${negocioId}/${imageId}`,
+        `http://localhost:3000/api/negocios/borrar-menu/${negocioId}/${imagenAEliminar}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -583,13 +628,16 @@ export default function PerfilRestaurante() {
       if (response.ok && result.exito) {
         // Recargar las imágenes del menú después de eliminar
         await cargarImagenesMenu();
-        alert("Imagen del menú eliminada exitosamente");
+        cerrarModalEliminar();
       } else {
         throw new Error(result.mensaje || "Error al eliminar la imagen");
       }
     } catch (error) {
       console.error("Error al eliminar imagen del menú:", error);
       alert("Error al eliminar la imagen del menú: " + error.message);
+      cerrarModalEliminar();
+    } finally {
+      setEliminandoImagen(false);
     }
   };
 
@@ -678,6 +726,9 @@ export default function PerfilRestaurante() {
   // Verificar si el usuario actual es el propietario del negocio
   const esPropietario = usuario && perfil && usuario.correo === perfil.correo;
 
+  // Verificar si el negocio está activo
+  const negocioActivo = perfil?.activo !== false;
+
   // Mostrar loading principal
   if (loading) {
     return (
@@ -731,7 +782,7 @@ export default function PerfilRestaurante() {
             {/* Botón cerrar */}
             <button
               onClick={closeLogoPreview}
-              className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition"
+              className="absolute top-4 right-4 z-50 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition"
             >
               <X className="w-6 h-6" />
             </button>
@@ -760,7 +811,7 @@ export default function PerfilRestaurante() {
             {/* Botón cerrar */}
             <button
               onClick={closeImagePreview}
-              className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition"
+              className="absolute top-4 right-4 z-50 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition"
             >
               <X className="w-6 h-6" />
             </button>
@@ -769,7 +820,7 @@ export default function PerfilRestaurante() {
             {currentImageIndex > 0 && (
               <button
                 onClick={goToPrevImage}
-                className="absolute left-4 z-10 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition"
+                className="absolute left-4 z-50 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
@@ -788,7 +839,7 @@ export default function PerfilRestaurante() {
             {currentImageIndex < menuImages.length - 1 && (
               <button
                 onClick={goToNextImage}
-                className="absolute right-4 z-10 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition"
+                className="absolute right-4 z-50 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition"
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
@@ -797,6 +848,72 @@ export default function PerfilRestaurante() {
             {/* Contador */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
               {currentImageIndex + 1} / {menuImages.length}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación para Eliminar Imagen */}
+      {mostrarModalEliminar && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            {/* Header del modal */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Confirmar eliminación
+              </h3>
+              <button
+                onClick={cerrarModalEliminar}
+                disabled={eliminandoImagen}
+                className="text-gray-400 hover:text-gray-600 transition duration-200 disabled:opacity-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Contenido del modal */}
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                  <Trash2 className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <p className="text-gray-700 font-medium">
+                    ¿Estás seguro de que quieres eliminar esta imagen del menú?
+                  </p>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Esta acción no se puede deshacer.
+                  </p>
+                </div>
+              </div>
+
+              {/* Botones de acción */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-end">
+                <button
+                  onClick={cerrarModalEliminar}
+                  disabled={eliminandoImagen}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto order-2 sm:order-1"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleDeleteMenuImage}
+                  disabled={eliminandoImagen}
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto order-1 sm:order-2"
+                >
+                  {eliminandoImagen ? (
+                    <>
+                      <Loader className="w-4 h-4 animate-spin" />
+                      Eliminando...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4" />
+                      Eliminar
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -841,38 +958,64 @@ export default function PerfilRestaurante() {
                 {esPropietario && (
                   <button
                     onClick={handleEditarPerfil}
-                    className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                    disabled={!negocioActivo}
+                    className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition text-sm sm:text-base ${
+                      negocioActivo
+                        ? "bg-green-600 text-white hover:bg-blue-700"
+                        : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    }`}
                   >
                     <Edit className="w-4 h-4" />
-                    Editar Perfil
+                    <span className="hidden sm:inline">
+                      {negocioActivo ? "Editar Perfil" : "Inhabilitado"}
+                    </span>
+                    <span className="sm:hidden">
+                      {negocioActivo ? "Editar" : "Inhab."}
+                    </span>
                   </button>
                 )}
                 <button
                   onClick={handleCerrarSesion}
-                  className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                  className="flex items-center gap-2 bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm sm:text-base"
                 >
                   <LogOut className="w-4 h-4" />
-                  Cerrar Sesión
+                  <span className="hidden sm:inline">Cerrar Sesión</span>
+                  <span className="sm:hidden">Salir</span>
                 </button>
               </>
             ) : (
               <div className="flex gap-3">
                 <button
                   onClick={handleLogin}
-                  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+                  className="flex items-center gap-2 bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm sm:text-base"
                 >
-                  Iniciar Sesión
+                  <span className="hidden sm:inline">Iniciar Sesión</span>
+                  <span className="sm:hidden">Entrar</span>
                 </button>
                 <button
                   onClick={handleRegistrar}
-                  className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+                  className="flex items-center gap-2 bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm sm:text-base"
                 >
-                  Registrarse
+                  <span className="hidden sm:inline">Registrarse</span>
+                  <span className="sm:hidden">Registro</span>
                 </button>
               </div>
             )}
           </div>
         </div>
+
+        {/* Alerta de negocio inactivo */}
+        {esPropietario && !negocioActivo && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6 flex items-center gap-3">
+            <Ban className="w-5 h-5 flex-shrink-0" />
+            <div>
+              <p className="font-medium">Tu negocio está inactivo</p>
+              <p className="text-sm">
+                Activa tu suscripción para habilitar todas las funcionalidades.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Tarjeta principal del negocio */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
@@ -882,11 +1025,11 @@ export default function PerfilRestaurante() {
               <>
                 {/* Botón de favoritos en la esquina superior derecha - FUERA del contenedor de la imagen */}
                 {!esPropietario && usuario && (
-                  <div className="absolute top-4 right-4 z-20">
+                  <div className="absolute top-4 right-4 z-40">
                     <button
                       onClick={toggleFavorito}
                       disabled={cargandoFavorito}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg shadow-md transition duration-200 ${
+                      className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg shadow-md transition duration-200 text-sm sm:text-base ${
                         esFavorito
                           ? "bg-red-600 hover:bg-red-700 text-white"
                           : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
@@ -903,7 +1046,12 @@ export default function PerfilRestaurante() {
                           }`}
                         />
                       )}
-                      {esFavorito ? "En Favoritos" : "Agregar a Favoritos"}
+                      <span className="hidden sm:inline">
+                        {esFavorito ? "En Favoritos" : "Agregar a Favoritos"}
+                      </span>
+                      <span className="sm:hidden">
+                        {esFavorito ? "Favorito" : "Favoritos"}
+                      </span>
                     </button>
                   </div>
                 )}
@@ -929,9 +1077,9 @@ export default function PerfilRestaurante() {
 
                   {/* Overlay con efecto hover para el logo */}
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2 bg-white bg-opacity-90 px-4 py-2 rounded-full shadow-lg">
-                      <ZoomIn className="w-5 h-5 text-gray-700" />
-                      <span className="text-gray-700 font-medium text-sm">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2 bg-white bg-opacity-90 px-3 sm:px-4 py-2 rounded-full shadow-lg">
+                      <ZoomIn className="w-4 sm:w-5 h-4 sm:h-5 text-gray-700" />
+                      <span className="text-gray-700 font-medium text-xs sm:text-sm">
                         Ver imagen
                       </span>
                     </div>
@@ -949,12 +1097,16 @@ export default function PerfilRestaurante() {
               <div
                 className={`${perfil.logo ? "text-white" : "text-gray-900"}`}
               >
-                <h2 className="text-4xl font-bold mb-2">{perfil.nombre}</h2>
+                <h2 className="text-3xl sm:text-4xl font-bold mb-2">
+                  {perfil.nombre}
+                </h2>
                 {perfil.descripcion && (
-                  <p className="text-lg opacity-90">{perfil.descripcion}</p>
+                  <p className="text-base sm:text-lg opacity-90">
+                    {perfil.descripcion}
+                  </p>
                 )}
                 {!perfil.activo && (
-                  <div className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm mt-2">
+                  <div className="inline-flex items-center gap-2 bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs sm:text-sm mt-2">
                     <div className="w-2 h-2 bg-red-600 rounded-full"></div>
                     Negocio inactivo
                   </div>
@@ -979,7 +1131,7 @@ export default function PerfilRestaurante() {
                         <Mail className="w-4 h-4 text-gray-500" />
                         <a
                           href={`mailto:${perfil.correo}`}
-                          className="text-green-600 hover:text-green-800 break-all underline"
+                          className="text-green-600 hover:text-green-800 break-all underline text-sm sm:text-base"
                         >
                           {perfil.correo}
                         </a>
@@ -990,19 +1142,31 @@ export default function PerfilRestaurante() {
                         <Phone className="w-4 h-4 text-gray-500" />
                         <a
                           href={`tel:${perfil.telefono}`}
-                          className="text-green-600 hover:text-gray-800 underline"
+                          className="text-green-600 hover:text-gray-800 underline text-sm sm:text-base"
                         >
                           {perfil.telefono}
                         </a>
                       </div>
                     )}
                     {perfil.ubicacion && (
-                      <MapaUbicacion
-                        geopoint={{
-                          latitude: perfil.ubicacion.latitude,
-                          longitude: perfil.ubicacion.longitude,
-                        }}
-                      />
+                      <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-3">
+                          <MapPin className="w-4 h-4 text-gray-500" />
+                          <span className="text-gray-700 font-medium">
+                            Ubicación:
+                          </span>
+                        </div>
+                        <MapaUbicacion
+                          geopoint={{
+                            latitude: perfil.ubicacion.latitude,
+                            longitude: perfil.ubicacion.longitude,
+                          }}
+                        />
+                        <p className="text-xs text-gray-500 mt-2">
+                          Haz clic y arrastra para explorar la ubicación en el
+                          mapa
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1041,7 +1205,7 @@ export default function PerfilRestaurante() {
                                 href={enlace}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition"
+                                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition text-sm sm:text-base"
                               >
                                 <Icono className="w-4 h-4" />
                                 <span>{plataforma}</span>
@@ -1067,8 +1231,10 @@ export default function PerfilRestaurante() {
                         key={dia}
                         className="flex justify-between items-center py-2 border-b border-gray-100"
                       >
-                        <span className="font-medium capitalize">{dia}:</span>
-                        <span className="text-gray-600">
+                        <span className="font-medium capitalize text-sm sm:text-base">
+                          {dia}:
+                        </span>
+                        <span className="text-gray-600 text-sm sm:text-base">
                           {formatearHorario(horario.apertura, horario.cierre)}
                         </span>
                       </div>
@@ -1091,13 +1257,13 @@ export default function PerfilRestaurante() {
                         perfil.activo ? "bg-green-500" : "bg-red-500"
                       }`}
                     ></div>
-                    <span>
+                    <span className="text-sm sm:text-base">
                       {perfil.activo ? "Negocio activo" : "Negocio inactivo"}
                     </span>
                   </div>
 
                   {esPropietario && (
-                    <div className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                    <div className="flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs sm:text-sm">
                       <User className="w-3 h-3" />
                       Eres el propietario
                     </div>
@@ -1111,7 +1277,7 @@ export default function PerfilRestaurante() {
         {/* Sección de Menú */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
           <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
               <h3 className="text-2xl font-bold flex items-center gap-3">
                 <ImageIcon className="w-6 h-6 text-green-600" />
                 Menú
@@ -1119,21 +1285,31 @@ export default function PerfilRestaurante() {
               {esPropietario && (
                 <div className="flex items-center gap-3">
                   <label
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition cursor-pointer ${
+                    className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition cursor-pointer text-sm sm:text-base w-full sm:w-auto ${
                       uploadingMenu
                         ? "bg-gray-400 text-white cursor-not-allowed"
+                        : !negocioActivo
+                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                         : "bg-green-600 text-white hover:bg-green-700"
                     }`}
                   >
                     {uploadingMenu ? (
                       <>
                         <Loader className="w-4 h-4 animate-spin" />
-                        Subiendo...
+                        <span className="hidden sm:inline">Subiendo...</span>
+                        <span className="sm:hidden">Subiendo</span>
+                      </>
+                    ) : !negocioActivo ? (
+                      <>
+                        <Ban className="w-4 h-4" />
+                        <span className="hidden sm:inline">Inhabilitado</span>
+                        <span className="sm:hidden">Inhab.</span>
                       </>
                     ) : (
                       <>
                         <Plus className="w-4 h-4" />
-                        Agregar Imagen
+                        <span className="hidden sm:inline">Agregar Imagen</span>
+                        <span className="sm:hidden">Agregar</span>
                       </>
                     )}
                     <input
@@ -1141,14 +1317,14 @@ export default function PerfilRestaurante() {
                       accept="image/*"
                       onChange={handleUploadMenu}
                       className="hidden"
-                      disabled={uploadingMenu}
+                      disabled={uploadingMenu || !negocioActivo}
                     />
                   </label>
                 </div>
               )}
             </div>
 
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-6 text-sm sm:text-base">
               Imágenes del menú del restaurante.
             </p>
 
@@ -1179,11 +1355,13 @@ export default function PerfilRestaurante() {
                     {esPropietario && (
                       <div className="absolute top-2 right-2 bg-black bg-opacity-50 rounded-lg p-1  group-hover:opacity-100 transition-opacity duration-300">
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteMenuImage(image.id);
-                          }}
-                          className="text-white hover:text-red-300 transition"
+                          onClick={(e) => confirmarEliminarImagen(image.id, e)}
+                          disabled={!negocioActivo}
+                          className={`text-white transition ${
+                            negocioActivo
+                              ? "hover:text-red-300"
+                              : "opacity-50 cursor-not-allowed"
+                          }`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -1195,12 +1373,14 @@ export default function PerfilRestaurante() {
             ) : (
               <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
                 <ImageIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">
+                <p className="text-gray-500 text-sm sm:text-base">
                   No hay imágenes del menú cargadas
                 </p>
                 {esPropietario && (
-                  <p className="text-sm text-gray-400 mt-2">
-                    Haz clic en "Agregar Imagen" para comenzar
+                  <p className="text-xs sm:text-sm text-gray-400 mt-2">
+                    {negocioActivo
+                      ? "Haz clic en 'Agregar Imagen' para comenzar"
+                      : "Activa tu suscripción para agregar imágenes"}
                   </p>
                 )}
               </div>
@@ -1211,7 +1391,7 @@ export default function PerfilRestaurante() {
         {/* Sección de Productos */}
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
           <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
               <h3 className="text-2xl font-bold flex items-center gap-3">
                 <Utensils className="w-6 h-6 text-green-600" />
                 Productos
@@ -1219,15 +1399,25 @@ export default function PerfilRestaurante() {
               {esPropietario && (
                 <button
                   onClick={handleAgregarProducto}
-                  className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+                  disabled={!negocioActivo}
+                  className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition text-sm sm:text-base w-full sm:w-auto ${
+                    negocioActivo
+                      ? "bg-green-600 text-white hover:bg-green-700"
+                      : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                  }`}
                 >
                   <Plus className="w-4 h-4" />
-                  Agregar Producto
+                  <span className="hidden sm:inline">
+                    {negocioActivo ? "Agregar Producto" : "Inhabilitado"}
+                  </span>
+                  <span className="sm:hidden">
+                    {negocioActivo ? "Agregar" : "Inhab."}
+                  </span>
                 </button>
               )}
             </div>
 
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 mb-6 text-sm sm:text-base">
               Agrega los productos y su información.
             </p>
 
@@ -1285,10 +1475,14 @@ export default function PerfilRestaurante() {
             ) : (
               <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg">
                 <Utensils className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-500">No hay productos cargados</p>
+                <p className="text-gray-500 text-sm sm:text-base">
+                  No hay productos cargados
+                </p>
                 {esPropietario && (
-                  <p className="text-sm text-gray-400 mt-2">
-                    Haz clic en "Agregar Producto" para comenzar
+                  <p className="text-xs sm:text-sm text-gray-400 mt-2">
+                    {negocioActivo
+                      ? "Haz clic en 'Agregar Producto' para comenzar"
+                      : "Activa tu suscripción para agregar productos"}
                   </p>
                 )}
               </div>
@@ -1311,9 +1505,16 @@ export default function PerfilRestaurante() {
               {esPropietario && (
                 <button
                   onClick={() =>
-                    setMostrarFormSugerencia(!mostrarFormSugerencia)
+                    !negocioActivo
+                      ? null
+                      : setMostrarFormSugerencia(!mostrarFormSugerencia)
                   }
-                  className="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition w-full sm:w-auto"
+                  disabled={!negocioActivo}
+                  className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition w-full sm:w-auto text-sm sm:text-base ${
+                    negocioActivo
+                      ? "bg-green-600 text-white hover:bg-green-700"
+                      : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                  }`}
                 >
                   {mostrarFormSugerencia ? (
                     <EyeOff className="w-4 h-4 flex-shrink-0" />
@@ -1321,7 +1522,11 @@ export default function PerfilRestaurante() {
                     <Eye className="w-4 h-4 flex-shrink-0" />
                   )}
                   <span className="text-sm sm:text-base">
-                    {mostrarFormSugerencia ? "Ocultar" : "Nueva Sugerencia"}
+                    {negocioActivo
+                      ? mostrarFormSugerencia
+                        ? "Ocultar"
+                        : "Nueva Sugerencia"
+                      : "Inhabilitado"}
                   </span>
                 </button>
               )}
@@ -1334,7 +1539,7 @@ export default function PerfilRestaurante() {
             </p>
 
             {/* Formulario para enviar sugerencia (solo para propietarios) */}
-            {esPropietario && mostrarFormSugerencia && (
+            {esPropietario && mostrarFormSugerencia && negocioActivo && (
               <div className="bg-blue-50 rounded-lg p-4 sm:p-6 mb-6 border border-blue-200">
                 <h4 className="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-800">
                   <Send className="w-5 h-5 flex-shrink-0" />
@@ -1487,8 +1692,9 @@ export default function PerfilRestaurante() {
                       No has enviado sugerencias aún
                     </p>
                     <p className="text-xs sm:text-sm text-gray-400">
-                      Haz clic en "Nueva Sugerencia" para compartir tus ideas
-                      con los administradores
+                      {negocioActivo
+                        ? "Haz clic en 'Nueva Sugerencia' para compartir tus ideas con los administradores"
+                        : "Activa tu suscripción para enviar sugerencias"}
                     </p>
                   </div>
                 )}

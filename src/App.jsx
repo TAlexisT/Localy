@@ -10,6 +10,7 @@ import AgregarProducto from './pages/agregar_producto';
 import InformacionProducto from './pages/informacion_producto';
 import Favoritos from './pages/favoritos';
 import Administrador from './pages/administrador';
+import RenovacionExitosa from './pages/renovacion_exitosa';
 
 function App() {
   return (
@@ -25,7 +26,8 @@ function App() {
         <Route path="/agregar_producto" element={<AgregarProducto />} />
         <Route path="/informacion_producto" element={<InformacionProducto />} />
         <Route path="/favoritos" element={<Favoritos />} /> 
-        <Route path="/administrador" element={<Administrador />} /> 
+        <Route path="/administrador" element={<Administrador />} />
+        <Route path="/renovacion_exitosa" element={<RenovacionExitosa />} /> 
 
 
 

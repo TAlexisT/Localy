@@ -33,9 +33,25 @@ import {
   AlertCircle,
   CheckCircle2,
   Ban,
+  CreditCard,
+  Store,
+  Clock as ClockIcon,
+  RotateCcw,
 } from "lucide-react";
 
 import MapaUbicacion from "../components/MapaUbicacion";
+
+// Definir los price_ids
+const PRICE_IDS = {
+  ambulante: {
+    recurrente: "price_1S8W421rnZa5ePTMqg8QtLWm",
+    puntual: "price_1S8W4V1rnZa5ePTMuLtfNJXM",
+  },
+  restaurante: {
+    recurrente: "price_1S8W4q1rnZa5ePTMI7llDwgK",
+    puntual: "price_1S8W5A1rnZa5ePTM3nz80AnR",
+  },
+};
 
 export default function PerfilRestaurante() {
   const [perfil, setPerfil] = useState(null);
@@ -71,12 +87,25 @@ export default function PerfilRestaurante() {
   const [imagenAEliminar, setImagenAEliminar] = useState(null);
   const [eliminandoImagen, setEliminandoImagen] = useState(false);
 
+  // Estados para el modal de reactivación
+  const [mostrarModalReactivacion, setMostrarModalReactivacion] =
+    useState(false);
+  const [tipoNegocio, setTipoNegocio] = useState(""); // 'ambulante' o 'restaurante'
+  const [pagoRecurrente, setPagoRecurrente] = useState(false);
+  const [reactivando, setReactivando] = useState(false);
+  const [errorReactivacion, setErrorReactivacion] = useState("");
+
   const navigate = useNavigate();
   const { negocioId } = useParams();
 
   // Efecto para prevenir el scroll cuando hay modales abiertos
   useEffect(() => {
-    if (previewLogo || previewImage || mostrarModalEliminar) {
+    if (
+      previewLogo ||
+      previewImage ||
+      mostrarModalEliminar ||
+      mostrarModalReactivacion
+    ) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -86,7 +115,24 @@ export default function PerfilRestaurante() {
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [previewLogo, previewImage, mostrarModalEliminar]);
+  }, [
+    previewLogo,
+    previewImage,
+    mostrarModalEliminar,
+    mostrarModalReactivacion,
+  ]);
+
+  // Cerrar modal de reactivación con Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && mostrarModalReactivacion) {
+        cerrarModalReactivacion();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [mostrarModalReactivacion]);
 
   useEffect(() => {
     const cargarDatos = async () => {
@@ -151,6 +197,102 @@ export default function PerfilRestaurante() {
       cargarSugerencias();
     }
   }, [usuario, perfil]);
+
+  // Función para abrir modal de reactivación
+  const abrirModalReactivacion = () => {
+    setMostrarModalReactivacion(true);
+    setTipoNegocio("");
+    setPagoRecurrente(false);
+    setErrorReactivacion("");
+  };
+
+  // Función para cerrar modal de reactivación
+  const cerrarModalReactivacion = () => {
+    if (!reactivando) {
+      setMostrarModalReactivacion(false);
+      setTipoNegocio("");
+      setPagoRecurrente(false);
+      setErrorReactivacion("");
+    }
+  };
+
+  // Función para reactivar suscripción
+  const handleReactivarSuscripcion = async () => {
+    if (!tipoNegocio) {
+      setErrorReactivacion("Por favor selecciona el tipo de negocio");
+      return;
+    }
+
+    setReactivando(true);
+    setErrorReactivacion("");
+
+    try {
+      const priceId =
+        PRICE_IDS[tipoNegocio][pagoRecurrente ? "recurrente" : "puntual"];
+
+      const response = await fetch(
+        `http://localhost:3000/api/negocios/reactivar-sesion-pago/${negocioId}`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            price_id: priceId,
+            recurrente: pagoRecurrente,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.mensaje || `Error ${response.status}: ${response.statusText}`
+        );
+      }
+
+      if (!result.exito) {
+        throw new Error(result.mensaje || "Error al reactivar la suscripción");
+      }
+
+      // Manejar la respuesta del backend
+      if (result.url) {
+        // El backend nos envía una URL de Stripe para redirección
+        const stripeUrl = result.url;
+
+        // Validar que la URL sea segura antes de redirigir
+        if (
+          stripeUrl &&
+          (stripeUrl.startsWith("https://") ||
+            stripeUrl.startsWith("http://localhost"))
+        ) {
+          
+
+          // Redirigir a la URL de Stripe
+          window.location.href = stripeUrl;
+        } else {
+          throw new Error("URL de redirección no válida");
+        }
+      } else {
+        // Si no hay URL, asumimos que el pago fue exitoso inmediatamente
+        // Recargar el perfil para actualizar el estado
+        await cargarPerfilYMenu();
+
+        // Cerrar modal
+        cerrarModalReactivacion();
+
+        // Mostrar mensaje de éxito
+        alert("¡Suscripción reactivada exitosamente!");
+      }
+    } catch (err) {
+      console.error("Error al reactivar suscripción:", err);
+      setErrorReactivacion(err.message || "Error de conexión al servidor");
+    } finally {
+      setReactivando(false);
+    }
+  };
 
   // Función para cargar sugerencias
   const cargarSugerencias = async () => {
@@ -775,6 +917,157 @@ export default function PerfilRestaurante() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-6">
+      {/* Modal de Reactivación de Suscripción */}
+      {mostrarModalReactivacion && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            {/* Header del modal */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Reactivar Suscripción
+              </h3>
+              <button
+                onClick={cerrarModalReactivacion}
+                disabled={reactivando}
+                className="text-gray-400 hover:text-gray-600 transition duration-200 disabled:opacity-50"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Contenido del modal */}
+            <div className="p-6">
+              <div className="space-y-6">
+                {/* Selección de tipo de negocio */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">
+                    Selecciona el tipo de negocio:
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setTipoNegocio("ambulante")}
+                      className={`p-4 border-2 rounded-lg text-center transition duration-200 ${
+                        tipoNegocio === "ambulante"
+                          ? "border-blue-500 bg-blue-50 text-blue-700"
+                          : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                      }`}
+                    >
+                      <ClockIcon className="w-6 h-6 mx-auto mb-2" />
+                      <span className="font-medium">Ambulante</span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Horario limitado
+                      </p>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTipoNegocio("restaurante")}
+                      className={`p-4 border-2 rounded-lg text-center transition duration-200 ${
+                        tipoNegocio === "restaurante"
+                          ? "border-blue-500 bg-blue-50 text-blue-700"
+                          : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                      }`}
+                    >
+                      <Store className="w-6 h-6 mx-auto mb-2" />
+                      <span className="font-medium">Restaurante</span>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Establecimiento fijo
+                      </p>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Selección de tipo de pago */}
+                <div>
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">
+                    Tipo de pago:
+                  </h4>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-3 p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                      <input
+                        type="checkbox"
+                        checked={pagoRecurrente}
+                        onChange={(e) => setPagoRecurrente(e.target.checked)}
+                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-900">
+                          Pago Recurrente
+                        </span>
+                        <p className="text-xs text-gray-500">
+                          Se cobrará automáticamente cada mes
+                        </p>
+                      </div>
+                    </label>
+                    <div className="p-3 border border-gray-300 rounded-lg bg-gray-50">
+                      <span className="font-medium text-gray-900">
+                        Pago Puntual
+                      </span>
+                      <p className="text-xs text-gray-500">
+                        Un solo pago por un mes de servicio
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mensaje de error */}
+                {errorReactivacion && (
+                  <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">
+                    {errorReactivacion}
+                  </div>
+                )}
+
+                {/* Información del pago seleccionado */}
+                {tipoNegocio && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-sm text-blue-800">
+                      <strong>Tipo:</strong>{" "}
+                      {tipoNegocio === "ambulante"
+                        ? "Ambulante"
+                        : "Restaurante"}
+                    </p>
+                    <p className="text-sm text-blue-800">
+                      <strong>Pago:</strong>{" "}
+                      {pagoRecurrente
+                        ? "Recurrente (mensual)"
+                        : "Puntual (1 mes)"}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Botones de acción */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-end mt-6">
+                <button
+                  onClick={cerrarModalReactivacion}
+                  disabled={reactivando}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleReactivarSuscripcion}
+                  disabled={reactivando || !tipoNegocio}
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto"
+                >
+                  {reactivando ? (
+                    <>
+                      <Loader className="w-4 h-4 animate-spin" />
+                      Procesando...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-4 h-4" />
+                      Reactivar Suscripción
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal de Preview del Logo */}
       {previewLogo && (
         <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4">
@@ -956,23 +1249,39 @@ export default function PerfilRestaurante() {
             ) : usuario ? (
               <>
                 {esPropietario && (
-                  <button
-                    onClick={handleEditarPerfil}
-                    disabled={!negocioActivo}
-                    className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition text-sm sm:text-base ${
-                      negocioActivo
-                        ? "bg-green-600 text-white hover:bg-blue-700"
-                        : "bg-gray-400 text-gray-200 cursor-not-allowed"
-                    }`}
-                  >
-                    <Edit className="w-4 h-4" />
-                    <span className="hidden sm:inline">
-                      {negocioActivo ? "Editar Perfil" : "Inhabilitado"}
-                    </span>
-                    <span className="sm:hidden">
-                      {negocioActivo ? "Editar" : "Inhab."}
-                    </span>
-                  </button>
+                  <>
+                    <button
+                      onClick={handleEditarPerfil}
+                      disabled={!negocioActivo}
+                      className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition text-sm sm:text-base ${
+                        negocioActivo
+                          ? "bg-green-600 text-white hover:bg-blue-700"
+                          : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                      }`}
+                    >
+                      <Edit className="w-4 h-4" />
+                      <span className="hidden sm:inline">
+                        {negocioActivo ? "Editar Perfil" : "Inhabilitado"}
+                      </span>
+                      <span className="sm:hidden">
+                        {negocioActivo ? "Editar" : "Inhab."}
+                      </span>
+                    </button>
+
+                    {/* Botón de Reactivar Suscripción - SOLO cuando el negocio está inactivo */}
+                    {!negocioActivo && (
+                      <button
+                        onClick={abrirModalReactivacion}
+                        className="flex items-center gap-2 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        <span className="hidden sm:inline">
+                          Reactivar Suscripción
+                        </span>
+                        <span className="sm:hidden">Reactivar</span>
+                      </button>
+                    )}
+                  </>
                 )}
                 <button
                   onClick={handleCerrarSesion}

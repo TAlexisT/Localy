@@ -1330,9 +1330,10 @@ export default function PaginaPrincipal() {
       </section>
 
       {/* Footer */}
-      <footer className="py-6 px-6 mt-12">
-        <div className="container mx-auto text-center">
+      <footer className="py-6 px-6 bg-gray-100 shadow-lg border-t border-green-100 border-t-[5px]">
+        <div className="container mx-auto text-center text-gray-600">
           <p>&copy; 2025 LOCALY. Todos los derechos reservados.</p>
+          <p>Tipografía e íconos pertenecen a sus respectivos autores.</p>
         </div>
       </footer>
 

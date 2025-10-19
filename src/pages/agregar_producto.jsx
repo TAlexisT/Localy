@@ -8,7 +8,8 @@ import {
   Loader,
   AlertCircle,
   CheckCircle2,
-  ChevronDown
+  ChevronDown,
+  Ban
 } from "lucide-react";
 
 export default function AgregarProducto() {
@@ -26,6 +27,7 @@ export default function AgregarProducto() {
   const [success, setSuccess] = useState("");
   const [camposCompletos, setCamposCompletos] = useState(false);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
+  const [botonDeshabilitado, setBotonDeshabilitado] = useState(false); // Nuevo estado
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -142,6 +144,9 @@ export default function AgregarProducto() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // ⬇️⬇️⬇️ DESHABILITAR EL BOTÓN INMEDIATAMENTE ⬇️⬇️⬇️
+    setBotonDeshabilitado(true);
     setLoading(true);
     setError("");
     setSuccess("");
@@ -151,6 +156,7 @@ export default function AgregarProducto() {
     if (errorValidacion) {
       setError(errorValidacion);
       setLoading(false);
+      setBotonDeshabilitado(false); // Rehabilitar en caso de error de validación
       return;
     }
 
@@ -200,6 +206,9 @@ export default function AgregarProducto() {
     } catch (err) {
       console.error("Error al crear producto:", err);
       setError(err.message || "Error de conexión al servidor");
+      
+      // ⬇️⬇️⬇️ REHABILITAR EL BOTÓN EN CASO DE ERROR ⬇️⬇️⬇️
+      setBotonDeshabilitado(false);
     } finally {
       setLoading(false);
     }
@@ -446,9 +455,9 @@ export default function AgregarProducto() {
           <div className="flex justify-end">
             <button
               type="submit"
-              disabled={loading || !camposCompletos}
+              disabled={loading || !camposCompletos || botonDeshabilitado}
               className={`flex items-center gap-2 text-white px-8 py-3 rounded-lg transition ${
-                camposCompletos 
+                camposCompletos && !botonDeshabilitado
                   ? "bg-[#12B400] hover:bg-[#0F9A00]" 
                   : "bg-[#9B9B9B] cursor-not-allowed"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -457,6 +466,11 @@ export default function AgregarProducto() {
                 <>
                   <Loader className="w-5 h-5 animate-spin" />
                   Guardando...
+                </>
+              ) : botonDeshabilitado ? (
+                <>
+                  <Ban className="w-5 h-5" />
+                  Procesando...
                 </>
               ) : (
                 <>
@@ -476,8 +490,28 @@ export default function AgregarProducto() {
             <li>• La imagen debe ser de buena calidad y representativa del platillo</li>
             <li>• El precio debe ser en la moneda local</li>
             <li>• Los productos en oferta se mostrarán de manera especial en la página</li>
+            <li>• Haz clic solo una vez en "Guardar platillo" para evitar duplicados</li>
           </ul>
         </div>
+
+        {/* Alerta de protección contra múltiples clics */}
+        {(loading || botonDeshabilitado) && (
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-center gap-3">
+              <Loader className="w-5 h-5 text-blue-600 animate-spin" />
+              <div>
+                <p className="text-blue-800 font-medium text-sm">
+                  {botonDeshabilitado && !loading 
+                    ? "✅ Producto guardado. Redirigiendo..." 
+                    : "⏳ Procesando tu solicitud, por favor espera..."}
+                </p>
+                <p className="text-blue-700 text-xs mt-1">
+                  El botón está deshabilitado para prevenir duplicados.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

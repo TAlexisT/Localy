@@ -673,7 +673,7 @@ export default function PerfilRestaurante() {
   };
 
   const handleVolver = () => {
-    navigate(-1);
+    navigate("/");
   };
 
   const handleLogin = () => {

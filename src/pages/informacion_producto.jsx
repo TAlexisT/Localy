@@ -873,13 +873,13 @@ const InformacionProducto = () => {
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                        <span className="font-medium text-gray-700 text-sm sm:text-base">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:items-center gap-1 sm:gap-2">
+                        <span className="font-medium text-gray-700 text-sm sm:text-xl">
                           Nombre del restaurante:
                         </span>
                         <button
                           onClick={irAPerfilRestaurante}
-                          className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition duration-200 text-sm sm:text-base text-left"
+                          className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition duration-200 text-sm sm:text-xl text-left"
                         >
                           {negocioNombre}
                         </button>

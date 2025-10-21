@@ -1439,7 +1439,7 @@ export default function PerfilRestaurante() {
                       <div className="flex items-center gap-3">
                         <Mail className="w-4 h-4 text-gray-500" />
                         <a
-                          href={`mailto:${perfil.correo}`}
+                          href={`https://mail.google.com/mail/?view=cm&to=${perfil.correo}`}
                           className="text-green-600 hover:text-green-800 break-all underline text-sm sm:text-base"
                         >
                           {perfil.correo}

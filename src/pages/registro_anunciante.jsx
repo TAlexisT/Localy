@@ -9,9 +9,15 @@ export default function RegistroAnunciante() {
     telefono: "",
     price_id: "",
     recurrente: false,
-    businessType: "", // 👈 guardamos el tipo para poder recalcular
+    businessType: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+  
   const navigate = useNavigate();
 
   // 🔹 Aquí defines tus price IDs de Stripe
@@ -29,6 +35,12 @@ export default function RegistroAnunciante() {
   const updatePriceId = (tipo, recurrente) => {
     if (!tipo) return "";
     return recurrente ? PRICE_IDS[tipo].recurrente : PRICE_IDS[tipo].puntual;
+  };
+
+  // Función para validar email
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleChange = (e) => {
@@ -51,8 +63,22 @@ export default function RegistroAnunciante() {
     });
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validar email antes de enviar
+    if (!isValidEmail(formData.correo)) {
+      setMessage("Por favor, ingresa un correo electrónico válido.");
+      setMessageType("error");
+      return;
+    }
+
+    setIsLoading(true);
+    setMessage("");
 
     try {
       const response = await fetch(
@@ -62,7 +88,7 @@ export default function RegistroAnunciante() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData), // 👈 mandamos todo el formData
+          body: JSON.stringify(formData),
         }
       );
 
@@ -73,15 +99,16 @@ export default function RegistroAnunciante() {
       const data = await response.json();
       console.log("Respuesta del backend:", data);
 
-      // 🔹 Si tu backend responde con la URL de Stripe Checkout:
-      if (data.url) {
-        window.location.href = data.url; // Redirigir a Stripe Checkout
-      } else {
-        alert("No se recibió una URL de pago");
-      }
+      // 🔹 Cambiado: No redirigir a Stripe, mostrar mensaje de verificación
+      setMessageType("success");
+      setVerificationSent(true);
+
     } catch (error) {
       console.error("Error al crear la sesión de pago:", error);
-      alert("Hubo un problema al procesar tu registro");
+      setMessage("Hubo un problema al procesar tu registro. Intenta nuevamente.");
+      setMessageType("error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -122,24 +149,45 @@ export default function RegistroAnunciante() {
               name="usuario"
               value={formData.usuario}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
               required
+              disabled={isLoading || verificationSent}
             />
           </div>
 
-          {/* Contraseña */}
+          {/* Contraseña con icono de visibilidad */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Contraseña
             </label>
-            <input
-              type="password"
-              name="contrasena"
-              value={formData.contrasena}
-              onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="contrasena"
+                value={formData.contrasena}
+                onChange={handleChange}
+                className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 pr-10 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                required
+                disabled={isLoading || verificationSent}
+              />
+              <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 disabled:opacity-50"
+                disabled={isLoading || verificationSent}
+              >
+                {showPassword ? (
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                ) : (
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m9.02 9.02l3.83 3.83" />
+                  </svg>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Correo */}
@@ -152,8 +200,9 @@ export default function RegistroAnunciante() {
               name="correo"
               value={formData.correo}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
               required
+              disabled={isLoading || verificationSent}
             />
           </div>
 
@@ -167,8 +216,9 @@ export default function RegistroAnunciante() {
               name="telefono"
               value={formData.telefono}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
               required
+              disabled={isLoading || verificationSent}
             />
           </div>
 
@@ -185,9 +235,10 @@ export default function RegistroAnunciante() {
                   value="ambulante"
                   checked={formData.businessType === "ambulante"}
                   onChange={handleChange}
-                  className="text-green-600 focus:ring-green-400"
+                  className="text-green-600 focus:ring-green-400 disabled:opacity-50"
+                  disabled={isLoading || verificationSent}
                 />
-                <span className="text-sm text-gray-700">
+                <span className={`text-sm ${isLoading || verificationSent ? 'text-gray-400' : 'text-gray-700'}`}>
                   Ambulante (horario limitado)
                 </span>
               </label>
@@ -198,16 +249,19 @@ export default function RegistroAnunciante() {
                   value="restaurante"
                   checked={formData.businessType === "restaurante"}
                   onChange={handleChange}
-                  className="text-green-600 focus:ring-green-400"
+                  className="text-green-600 focus:ring-green-400 disabled:opacity-50"
+                  disabled={isLoading || verificationSent}
                 />
-                <span className="text-sm text-gray-700">Restaurante</span>
+                <span className={`text-sm ${isLoading || verificationSent ? 'text-gray-400' : 'text-gray-700'}`}>
+                  Restaurante
+                </span>
               </label>
             </div>
           </div>
 
           {/* Pago recurrente */}
           <div className="flex items-center mt-4">
-            <label className="text-sm font-medium text-gray-700">
+            <label className={`text-sm font-medium ${isLoading || verificationSent ? 'text-gray-400' : 'text-gray-700'}`}>
               Pago recurrente
             </label>
             <input
@@ -215,23 +269,48 @@ export default function RegistroAnunciante() {
               name="recurrente"
               checked={formData.recurrente}
               onChange={handleChange}
-              className="w-5 h-5 text-green-600 focus:ring-green-400 ml-3"
+              className="w-5 h-5 text-green-600 focus:ring-green-400 ml-3 disabled:opacity-50"
+              disabled={isLoading || verificationSent}
             />
           </div>
 
           {/* Botón de registro */}
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-full transition mt-4"
+            disabled={isLoading || verificationSent}
+            className={`w-full text-white font-semibold py-3 rounded-full transition mt-4 ${
+              isLoading || verificationSent
+                ? "bg-green-400 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+            }`}
           >
-            Registrate
+            {isLoading ? "Procesando..." : verificationSent ? "Registro Enviado" : "Regístrate"}
           </button>
         </form>
+
+        {/* Mensaje de retroalimentación */}
+        {message && (
+          <div className={`mt-4 p-3 rounded-lg text-center ${
+            messageType === "success" 
+              ? "bg-green-100 text-green-700" 
+              : "bg-red-100 text-red-700"
+          }`}>
+            {message}
+          </div>
+        )}
+
+        {/* Mensaje específico de verificación */}
+        {verificationSent && (
+          <div className="mt-4 p-3 rounded-lg text-center bg-blue-100 text-blue-700">
+            Hemos enviado un enlace de verificación a tu correo. Ábrelo para continuar con el proceso.
+          </div>
+        )}
 
         <div className="text-center mt-4">
           <button
             onClick={() => navigate("/")}
-            className="text-sm text-white font-semibold bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full transition"
+            className="text-sm text-white font-semibold bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full transition disabled:opacity-50"
+            disabled={isLoading}
           >
             Volver a la página principal
           </button>

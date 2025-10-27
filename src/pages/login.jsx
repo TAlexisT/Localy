@@ -6,6 +6,10 @@ export default function Login() {
   const [contrasena, setContrasena] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showPasswordRecovery, setShowPasswordRecovery] = useState(false);
+  const [recoveryEmail, setRecoveryEmail] = useState("");
+  const [recoveryLoading, setRecoveryLoading] = useState(false);
+  const [recoveryMessage, setRecoveryMessage] = useState("");
   const navigate = useNavigate();
 
   async function loginUsuario() {
@@ -115,10 +119,56 @@ export default function Login() {
     }
   };
 
+  // Función para recuperar contraseña
+  const handlePasswordRecovery = async () => {
+    if (!recoveryEmail) {
+      setRecoveryMessage("Por favor, ingresa tu correo electrónico");
+      return;
+    }
+
+    setRecoveryLoading(true);
+    setRecoveryMessage("");
+
+    try {
+      const response = await fetch("http://localhost:3000/api/usuarios/peticion-cambiar-contrasena", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ correo: recoveryEmail })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.exito) {
+        setRecoveryMessage("Se ha enviado un enlace de recuperación a tu correo electrónico");
+        setTimeout(() => {
+          setShowPasswordRecovery(false);
+          setRecoveryEmail("");
+          setRecoveryMessage("");
+        }, 3000);
+      } else {
+        setRecoveryMessage(result.message || "Error al enviar la solicitud de recuperación");
+      }
+    } catch (error) {
+      console.error("Error al recuperar contraseña:", error);
+      setRecoveryMessage("Error al conectar con el servidor");
+    } finally {
+      setRecoveryLoading(false);
+    }
+  };
+
   // Manejar envío del formulario con Enter
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       loginUsuario();
+    }
+  };
+
+  // Manejar Enter en el popup de recuperación
+  const handleRecoveryKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handlePasswordRecovery();
     }
   };
 
@@ -130,6 +180,13 @@ export default function Login() {
   // Función para redirigir a registro de anunciante
   const redirectToAdvertiserRegister = () => {
     navigate('/registro_anunciante');
+  };
+
+  // Función para cerrar el popup
+  const closeRecoveryPopup = () => {
+    setShowPasswordRecovery(false);
+    setRecoveryEmail("");
+    setRecoveryMessage("");
   };
 
   return (
@@ -186,6 +243,18 @@ export default function Login() {
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 text-black"
               disabled={isLoading}
             />
+            
+            {/* Enlace "Olvidé mi contraseña" */}
+            <div className="text-right mt-2">
+              <button
+                type="button"
+                onClick={() => setShowPasswordRecovery(true)}
+                className="text-sm text-green-600 hover:text-green-700 underline"
+                disabled={isLoading}
+              >
+                Olvidé mi contraseña
+              </button>
+            </div>
           </div>
 
           {/* Mensaje de error */}
@@ -245,6 +314,70 @@ export default function Login() {
           </button>
         </div>
       </div>
+
+      {/* Popup de recuperación de contraseña */}
+      {showPasswordRecovery && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 p-4">
+          <div 
+            className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md"
+            onKeyPress={handleRecoveryKeyPress}
+          >
+            <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
+              Recuperar contraseña
+            </h3>
+            
+            <p className="text-gray-600 mb-4 text-center">
+              Ingresa tu correo electrónico para recibir un enlace de recuperación
+            </p>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Correo electrónico
+              </label>
+              <input
+                type="email"
+                placeholder="Ingresa tu correo electrónico"
+                value={recoveryEmail}
+                onChange={(e) => setRecoveryEmail(e.target.value)}
+                className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 text-black"
+                disabled={recoveryLoading}
+                autoFocus
+              />
+            </div>
+
+            {recoveryMessage && (
+              <p className={`text-sm font-medium text-center mb-4 ${
+                recoveryMessage.includes("Error") || recoveryMessage.includes("ingresa") 
+                  ? "text-red-600" 
+                  : "text-green-600"
+              }`}>
+                {recoveryMessage}
+              </p>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={closeRecoveryPopup}
+                disabled={recoveryLoading}
+                className="flex-1 bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-full hover:bg-gray-400 transition disabled:bg-gray-200 disabled:cursor-not-allowed"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handlePasswordRecovery}
+                disabled={recoveryLoading || !recoveryEmail}
+                className={`flex-1 text-white font-medium py-2 px-4 rounded-full transition ${
+                  recoveryLoading || !recoveryEmail
+                    ? "bg-green-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {recoveryLoading ? "Enviando..." : "Aceptar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

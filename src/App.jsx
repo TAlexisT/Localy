@@ -11,6 +11,7 @@ import InformacionProducto from './pages/informacion_producto';
 import Favoritos from './pages/favoritos';
 import Administrador from './pages/administrador';
 import RenovacionExitosa from './pages/renovacion_exitosa';
+import CambiarContrasena from './pages/cambiar_contrasena';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/favoritos" element={<Favoritos />} /> 
         <Route path="/administrador" element={<Administrador />} />
         <Route path="/renovacion_exitosa" element={<RenovacionExitosa />} /> 
+        <Route path="/cambiar_contrasena" element={<CambiarContrasena />} />
 
 
 

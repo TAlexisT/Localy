@@ -42,18 +42,26 @@ export default function PaginaPrincipal() {
       distancia_rango: 25,
     });
 
+  // Estados para los dropdowns personalizados
+  const [mostrarCategorias, setMostrarCategorias] = useState(false);
+  const [mostrarOrdenPrecio, setMostrarOrdenPrecio] = useState(false);
+  const [mostrarOrdenDistancia, setMostrarOrdenDistancia] = useState(false);
+
   // Estados para filtros de Productos
   const [mostrarFiltrosProductos, setMostrarFiltrosProductos] = useState(false);
   const [filtrosProductos, setFiltrosProductos] = useState({
     categoria: "",
     precio_orden: "",
-    precio_rango: "",
+    precio_min: "",
+    precio_max: "",
   });
   const [filtrosAplicadosProductos, setFiltrosAplicadosProductos] = useState({
     categoria: "",
     precio_orden: "",
-    precio_rango: "",
+    precio_min: "",
+    precio_max: "",
   });
+  const [errorPrecio, setErrorPrecio] = useState("");
 
   // seguimiento del estado de la peticion de datos
   const reqNegociosActivo = useRef(false);
@@ -61,7 +69,23 @@ export default function PaginaPrincipal() {
 
   const navigate = useNavigate();
 
-  // Cerrar filtros al hacer clic fuera
+  // Categorías disponibles para productos
+  const categoriasDisponibles = [
+    "Mexicana",
+    "China",
+    "Italiana",
+    "Americana",
+    "Internacional",
+    "Francesa",
+    "Asiatica",
+    "Vegetariana",
+    "Mariscos",
+    "Postres",
+    "Bebidas",
+    "Otras",
+  ];
+
+  // Cerrar filtros y dropdowns al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Para filtros de restaurantes
@@ -100,13 +124,52 @@ export default function PaginaPrincipal() {
           setMostrarFiltrosProductos(false);
         }
       }
+
+      // Para dropdown de categorías
+      if (mostrarCategorias) {
+        const categoriasElement = document.querySelector(
+          '[data-dropdown="categorias"]'
+        );
+        if (categoriasElement && !categoriasElement.contains(event.target)) {
+          setMostrarCategorias(false);
+        }
+      }
+
+      // Para dropdown de orden precio
+      if (mostrarOrdenPrecio) {
+        const ordenPrecioElement = document.querySelector(
+          '[data-dropdown="orden-precio"]'
+        );
+        if (ordenPrecioElement && !ordenPrecioElement.contains(event.target)) {
+          setMostrarOrdenPrecio(false);
+        }
+      }
+
+      // Para dropdown de orden distancia
+      if (mostrarOrdenDistancia) {
+        const ordenDistanciaElement = document.querySelector(
+          '[data-dropdown="orden-distancia"]'
+        );
+        if (
+          ordenDistanciaElement &&
+          !ordenDistanciaElement.contains(event.target)
+        ) {
+          setMostrarOrdenDistancia(false);
+        }
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [mostrarFiltrosRestaurantes, mostrarFiltrosProductos]);
+  }, [
+    mostrarFiltrosRestaurantes,
+    mostrarFiltrosProductos,
+    mostrarCategorias,
+    mostrarOrdenPrecio,
+    mostrarOrdenDistancia,
+  ]);
 
   // Obtener ubicación del usuario
   useEffect(() => {
@@ -293,9 +356,8 @@ export default function PaginaPrincipal() {
     }
   };
 
-  const handleAdmin = () =>
-    navigate(`/administrador`);
- 
+  const handleAdmin = () => navigate(`/administrador`);
+
   const handlePerfil = () =>
     navigate(`/perfil_restaurante/${usuario.negocioId}`);
 
@@ -321,7 +383,11 @@ export default function PaginaPrincipal() {
         general: busquedaAplicada,
         categoria: filtrosAplicadosProductos.categoria,
         precio_orden: filtrosAplicadosProductos.precio_orden,
-        precio_rango: filtrosAplicadosProductos.precio_rango,
+        precio_rango:
+          filtrosAplicadosProductos.precio_min &&
+          filtrosAplicadosProductos.precio_max
+            ? `${filtrosAplicadosProductos.precio_min}-${filtrosAplicadosProductos.precio_max}`
+            : "",
       };
 
       const response = await fetch(
@@ -450,21 +516,33 @@ export default function PaginaPrincipal() {
   };
 
   // Funciones para filtros de Productos
-  //Checar funcion
   const aplicarFiltrosProductos = () => {
+    // Validar precios
+    if (filtrosProductos.precio_min && filtrosProductos.precio_max) {
+      const min = parseFloat(filtrosProductos.precio_min);
+      const max = parseFloat(filtrosProductos.precio_max);
+
+      if (min > max) {
+        setErrorPrecio("El precio máximo debe ser mayor al precio mínimo");
+        return;
+      }
+    }
+
+    setErrorPrecio("");
     setFiltrosAplicadosProductos({ ...filtrosProductos });
     setMostrarFiltrosProductos(false);
   };
 
-  // Cambio requerido **correcto reinicio de filtros**
   const resetearFiltrosProductos = () => {
     const filtrosPorDefecto = {
       categoria: "",
       precio_orden: "",
-      precio_rango: "",
+      precio_min: "",
+      precio_max: "",
     };
     setFiltrosProductos(filtrosPorDefecto);
     setFiltrosAplicadosProductos(filtrosPorDefecto);
+    setErrorPrecio("");
     setMostrarFiltrosProductos(false);
   };
 
@@ -747,13 +825,15 @@ export default function PaginaPrincipal() {
                 >
                   Perfil
                 </button>
-              ): usuario.tipo == "admin" && (
-                <button
-                  className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30"
-                  onClick={handleAdmin}
-                >
-                  Administrador
-                </button>
+              ) : (
+                usuario.tipo == "admin" && (
+                  <button
+                    className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30"
+                    onClick={handleAdmin}
+                  >
+                    Administrador
+                  </button>
+                )
               )}
 
               <button
@@ -967,19 +1047,70 @@ export default function PaginaPrincipal() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Ordenar por distancia
                     </label>
-                    <select
-                      value={filtrosRestaurantes.distancia_orden}
-                      onChange={(e) =>
-                        setFiltrosRestaurantes((prev) => ({
-                          ...prev,
-                          distancia_orden: e.target.value,
-                        }))
-                      }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400"
-                    >
-                      <option value="ASC">Más cercanos primero</option>
-                      <option value="DESC">Más lejanos primero</option>
-                    </select>
+                    <div className="relative" data-dropdown="orden-distancia">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMostrarOrdenDistancia(!mostrarOrdenDistancia)
+                        }
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center"
+                      >
+                        <span>
+                          {filtrosRestaurantes.distancia_orden === "ASC"
+                            ? "Más cercanos primero"
+                            : "Más lejanos primero"}
+                        </span>
+                        <svg
+                          className={`h-4 w-4 text-gray-500 transition-transform ${
+                            mostrarOrdenDistancia ? "rotate-180" : ""
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+
+                      {/* Lista desplegable de orden por distancia */}
+                      {mostrarOrdenDistancia && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                          <div
+                            className="px-3 py-2 hover:bg-green-50 cursor-pointer border-b border-gray-100"
+                            onClick={() => {
+                              setFiltrosRestaurantes((prev) => ({
+                                ...prev,
+                                distancia_orden: "ASC",
+                              }));
+                              setMostrarOrdenDistancia(false);
+                            }}
+                          >
+                            <span className="text-gray-700">
+                              Más cercanos primero
+                            </span>
+                          </div>
+                          <div
+                            className="px-3 py-2 hover:bg-green-50 cursor-pointer"
+                            onClick={() => {
+                              setFiltrosRestaurantes((prev) => ({
+                                ...prev,
+                                distancia_orden: "DESC",
+                              }));
+                              setMostrarOrdenDistancia(false);
+                            }}
+                          >
+                            <span className="text-gray-700">
+                              Más lejanos primero
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Filtro de rango de distancia */}
@@ -1104,12 +1235,17 @@ export default function PaginaPrincipal() {
                       <span>•</span>
                     </>
                   )}
-                  {filtrosAplicadosProductos.precio_rango && (
-                    <span>Rango: {filtrosAplicadosProductos.precio_rango}</span>
+                  {(filtrosAplicadosProductos.precio_min ||
+                    filtrosAplicadosProductos.precio_max) && (
+                    <span>
+                      Rango: {filtrosAplicadosProductos.precio_min || "0"} -{" "}
+                      {filtrosAplicadosProductos.precio_max || "∞"}
+                    </span>
                   )}
                   {!filtrosAplicadosProductos.categoria &&
                     !filtrosAplicadosProductos.precio_orden &&
-                    !filtrosAplicadosProductos.precio_rango && (
+                    !filtrosAplicadosProductos.precio_min &&
+                    !filtrosAplicadosProductos.precio_max && (
                       <span>Sin filtros aplicados</span>
                     )}
                 </div>
@@ -1126,65 +1262,217 @@ export default function PaginaPrincipal() {
                   </h4>
 
                   {/* Filtro de categoría */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Categoría
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Ej: Mexicana, Italiana, Postres..."
-                      value={filtrosProductos.categoria}
-                      onChange={(e) =>
-                        setFiltrosProductos((prev) => ({
-                          ...prev,
-                          categoria: e.target.value,
-                        }))
-                      }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400"
-                    />
+                  <div className="mb-4" data-dropdown="categorias">
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Categoría
+                      </label>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setMostrarCategorias(!mostrarCategorias)
+                          }
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center"
+                        >
+                          <span>
+                            {filtrosProductos.categoria ||
+                              "Todas las categorías"}
+                          </span>
+                          <svg
+                            className={`h-4 w-4 text-gray-500 transition-transform ${
+                              mostrarCategorias ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </button>
+
+                        {/* Lista desplegable de categorías */}
+                        {mostrarCategorias && (
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            <div
+                              className="px-3 py-2 hover:bg-green-50 cursor-pointer border-b border-gray-100"
+                              onClick={() => {
+                                setFiltrosProductos((prev) => ({
+                                  ...prev,
+                                  categoria: "",
+                                }));
+                                setMostrarCategorias(false);
+                              }}
+                            >
+                              <span className="text-gray-700">
+                                Todas las categorías
+                              </span>
+                            </div>
+                            {categoriasDisponibles.map((categoria) => (
+                              <div
+                                key={categoria}
+                                className="px-3 py-2 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                                onClick={() => {
+                                  setFiltrosProductos((prev) => ({
+                                    ...prev,
+                                    categoria,
+                                  }));
+                                  setMostrarCategorias(false);
+                                }}
+                              >
+                                <span className="text-gray-700">
+                                  {categoria}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Filtro de orden por precio */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Ordenar por precio
-                    </label>
-                    <select
-                      value={filtrosProductos.precio_orden}
-                      onChange={(e) =>
-                        setFiltrosProductos((prev) => ({
-                          ...prev,
-                          precio_orden: e.target.value,
-                        }))
-                      }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400"
-                    >
-                      <option value="">Sin orden específico</option>
-                      <option value="ASC">Menor a mayor</option>
-                      <option value="DESC">Mayor a menor</option>
-                    </select>
+                  <div className="mb-4" data-dropdown="orden-precio">
+                    <div className="mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Ordenar por precio
+                      </label>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setMostrarOrdenPrecio(!mostrarOrdenPrecio)
+                          }
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center"
+                        >
+                          <span>
+                            {filtrosProductos.precio_orden === ""
+                              ? "Sin orden específico"
+                              : filtrosProductos.precio_orden === "ASC"
+                              ? "Menor a mayor"
+                              : "Mayor a menor"}
+                          </span>
+                          <svg
+                            className={`h-4 w-4 text-gray-500 transition-transform ${
+                              mostrarOrdenPrecio ? "rotate-180" : ""
+                            }`}
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </button>
+
+                        {/* Lista desplegable de orden por precio */}
+                        {mostrarOrdenPrecio && (
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                            <div
+                              className="px-3 py-2 hover:bg-green-50 cursor-pointer border-b border-gray-100"
+                              onClick={() => {
+                                setFiltrosProductos((prev) => ({
+                                  ...prev,
+                                  precio_orden: "",
+                                }));
+                                setMostrarOrdenPrecio(false);
+                              }}
+                            >
+                              <span className="text-gray-700">
+                                Sin orden específico
+                              </span>
+                            </div>
+                            <div
+                              className="px-3 py-2 hover:bg-green-50 cursor-pointer border-b border-gray-100"
+                              onClick={() => {
+                                setFiltrosProductos((prev) => ({
+                                  ...prev,
+                                  precio_orden: "ASC",
+                                }));
+                                setMostrarOrdenPrecio(false);
+                              }}
+                            >
+                              <span className="text-gray-700">
+                                Menor a mayor
+                              </span>
+                            </div>
+                            <div
+                              className="px-3 py-2 hover:bg-green-50 cursor-pointer"
+                              onClick={() => {
+                                setFiltrosProductos((prev) => ({
+                                  ...prev,
+                                  precio_orden: "DESC",
+                                }));
+                                setMostrarOrdenPrecio(false);
+                              }}
+                            >
+                              <span className="text-gray-700">
+                                Mayor a menor
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Filtro de rango de precio */}
-                  <div className="mb-6">
+                  <div className="mb-4">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Rango de precio (min-max)
+                      Rango de precio
                     </label>
-                    <input
-                      type="text"
-                      placeholder="Ej: 50-200"
-                      value={filtrosProductos.precio_rango}
-                      onChange={(e) =>
-                        setFiltrosProductos((prev) => ({
-                          ...prev,
-                          precio_rango: e.target.value,
-                        }))
-                      }
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Formato: número mínimo - número máximo
-                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">
+                          Mínimo
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="0"
+                          value={filtrosProductos.precio_min}
+                          onChange={(e) => {
+                            setFiltrosProductos((prev) => ({
+                              ...prev,
+                              precio_min: e.target.value,
+                            }));
+                            setErrorPrecio("");
+                          }}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400"
+                          min="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-gray-500 mb-1">
+                          Máximo
+                        </label>
+                        <input
+                          type="number"
+                          placeholder="∞"
+                          value={filtrosProductos.precio_max}
+                          onChange={(e) => {
+                            setFiltrosProductos((prev) => ({
+                              ...prev,
+                              precio_max: e.target.value,
+                            }));
+                            setErrorPrecio("");
+                          }}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400"
+                          min="0"
+                        />
+                      </div>
+                    </div>
+                    {errorPrecio && (
+                      <p className="text-red-500 text-xs mt-2">{errorPrecio}</p>
+                    )}
                   </div>
 
                   {/* Botones de acción */}

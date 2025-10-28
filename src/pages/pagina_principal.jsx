@@ -35,12 +35,16 @@ export default function PaginaPrincipal() {
   const [filtrosRestaurantes, setFiltrosRestaurantes] = useState({
     distancia_orden: "ASC",
     distancia_rango: 25,
+    tipo: "", // nuevo campo
   });
+
   const [filtrosAplicadosRestaurantes, setFiltrosAplicadosRestaurantes] =
     useState({
       distancia_orden: "ASC",
       distancia_rango: 25,
+      tipo: "", // nuevo campo
     });
+  const [mostrarTipo, setMostrarTipo] = useState(false);
 
   // Estados para los dropdowns personalizados
   const [mostrarCategorias, setMostrarCategorias] = useState(false);
@@ -305,6 +309,7 @@ export default function PaginaPrincipal() {
         usuario_locacion: ubicacionUsuario,
         distancia_orden: filtrosAplicadosRestaurantes.distancia_orden,
         distancia_rango: filtrosAplicadosRestaurantes.distancia_rango,
+        membresia: filtrosAplicadosRestaurantes.tipo,
       };
 
       const response = await fetch(
@@ -531,6 +536,7 @@ export default function PaginaPrincipal() {
     const filtrosPorDefecto = {
       distancia_orden: "ASC",
       distancia_rango: 25,
+      tipo: "", // nuevo campo
     };
     setFiltrosRestaurantes(filtrosPorDefecto);
     setFiltrosAplicadosRestaurantes(filtrosPorDefecto);
@@ -1109,6 +1115,17 @@ export default function PaginaPrincipal() {
 
                 {/* Mostrar filtros aplicados actualmente */}
                 <div className="flex items-center gap-2 text-sm text-gray-600">
+                  {filtrosAplicadosRestaurantes.tipo && (
+                    <>
+                      <span>
+                        Tipo:{" "}
+                        {filtrosAplicadosRestaurantes.tipo === "ambulante"
+                          ? "Ambulante"
+                          : "Restaurante"}
+                      </span>
+                      <span>•</span>
+                    </>
+                  )}
                   <span>
                     Orden:{" "}
                     {filtrosAplicadosRestaurantes.distancia_orden === "ASC"
@@ -1225,6 +1242,87 @@ export default function PaginaPrincipal() {
                     <div className="flex justify-between text-xs text-gray-500 mt-1">
                       <span>1 km</span>
                       <span>25 km</span>
+                    </div>
+                  </div>
+
+                  {/* Filtro de tipo de negocio */}
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Tipo
+                    </label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setMostrarTipo(!mostrarTipo)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center"
+                      >
+                        <span>
+                          {filtrosRestaurantes.tipo === "ambulante"
+                            ? "Ambulante"
+                            : filtrosRestaurantes.tipo === "restaurante"
+                            ? "Restaurante"
+                            : "Todos los tipos"}
+                        </span>
+                        <svg
+                          className={`h-4 w-4 text-gray-500 transition-transform ${
+                            mostrarTipo ? "rotate-180" : ""
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+
+                      {/* Lista desplegable de tipos */}
+                      {mostrarTipo && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg">
+                          <div
+                            className="px-3 py-2 hover:bg-green-50 cursor-pointer border-b border-gray-100"
+                            onClick={() => {
+                              setFiltrosRestaurantes((prev) => ({
+                                ...prev,
+                                tipo: "",
+                              }));
+                              setMostrarTipo(false);
+                            }}
+                          >
+                            <span className="text-gray-700">
+                              Todos los tipos
+                            </span>
+                          </div>
+                          <div
+                            className="px-3 py-2 hover:bg-green-50 cursor-pointer border-b border-gray-100"
+                            onClick={() => {
+                              setFiltrosRestaurantes((prev) => ({
+                                ...prev,
+                                tipo: "restaurante",
+                              }));
+                              setMostrarTipo(false);
+                            }}
+                          >
+                            <span className="text-gray-700">Restaurante</span>
+                          </div>
+                          <div
+                            className="px-3 py-2 hover:bg-green-50 cursor-pointer"
+                            onClick={() => {
+                              setFiltrosRestaurantes((prev) => ({
+                                ...prev,
+                                tipo: "ambulante",
+                              }));
+                              setMostrarTipo(false);
+                            }}
+                          >
+                            <span className="text-gray-700">Ambulante</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 

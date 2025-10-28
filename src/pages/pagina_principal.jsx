@@ -63,6 +63,13 @@ export default function PaginaPrincipal() {
   });
   const [errorPrecio, setErrorPrecio] = useState("");
 
+  // Estados para cambiar contraseña
+  const [mostrarPopupCambiarContrasena, setMostrarPopupCambiarContrasena] =
+    useState(false);
+  const [cargandoCambioContrasena, setCargandoCambioContrasena] =
+    useState(false);
+  const [mensajeCambioContrasena, setMensajeCambioContrasena] = useState("");
+
   // seguimiento del estado de la peticion de datos
   const reqNegociosActivo = useRef(false);
   const reqProductosActivo = useRef(false);
@@ -84,6 +91,19 @@ export default function PaginaPrincipal() {
     "Bebidas",
     "Otras",
   ];
+
+  // Efecto para deshabilitar scroll cuando el popup está abierto
+  useEffect(() => {
+    if (mostrarPopupCambiarContrasena) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [mostrarPopupCambiarContrasena]);
 
   // Cerrar filtros y dropdowns al hacer clic fuera
   useEffect(() => {
@@ -384,9 +404,11 @@ export default function PaginaPrincipal() {
         categoria: filtrosAplicadosProductos.categoria,
         precio_orden: filtrosAplicadosProductos.precio_orden,
         precio_rango:
-          filtrosAplicadosProductos.precio_min &&
+          filtrosAplicadosProductos.precio_min ||
           filtrosAplicadosProductos.precio_max
-            ? `${filtrosAplicadosProductos.precio_min}-${filtrosAplicadosProductos.precio_max}`
+            ? `${filtrosAplicadosProductos.precio_min || "0"}-${
+                filtrosAplicadosProductos.precio_max || "999999"
+              }`
             : "",
       };
 
@@ -528,8 +550,20 @@ export default function PaginaPrincipal() {
       }
     }
 
+    // Si solo se llena mínimo, establecer máximo como un valor muy alto
+    // Si solo se llena máximo, establecer mínimo como 0
+    const filtrosAplicar = { ...filtrosProductos };
+
+    if (filtrosAplicar.precio_min && !filtrosAplicar.precio_max) {
+      // Mínimo lleno, máximo vacío: usar un valor muy alto como máximo
+      filtrosAplicar.precio_max = "999999";
+    } else if (!filtrosAplicar.precio_min && filtrosAplicar.precio_max) {
+      // Máximo lleno, mínimo vacío: establecer mínimo como 0
+      filtrosAplicar.precio_min = "0";
+    }
+
     setErrorPrecio("");
-    setFiltrosAplicadosProductos({ ...filtrosProductos });
+    setFiltrosAplicadosProductos(filtrosAplicar);
     setMostrarFiltrosProductos(false);
   };
 
@@ -588,6 +622,55 @@ export default function PaginaPrincipal() {
     ultimoTokenRestaurantes,
     ultimoTokenProductos,
   ]);
+
+  // Función para solicitar cambio de contraseña
+  const handleSolicitarCambioContrasena = async () => {
+    if (!usuario || !usuario.correo) {
+      setMensajeCambioContrasena(
+        "No se pudo obtener la información del usuario"
+      );
+      return;
+    }
+
+    setCargandoCambioContrasena(true);
+    setMensajeCambioContrasena("");
+
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/usuarios/peticion-cambiar-contrasena",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ correo: usuario.correo }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok && result.exito) {
+        setMensajeCambioContrasena(
+          "Se ha enviado un correo para cambiar tu contraseña"
+        );
+
+        // Cerrar el popup después de 3 segundos
+        setTimeout(() => {
+          setMostrarPopupCambiarContrasena(false);
+          setMensajeCambioContrasena("");
+        }, 3000);
+      } else {
+        setMensajeCambioContrasena(
+          result.message || "Error al enviar la solicitud"
+        );
+      }
+    } catch (error) {
+      console.error("Error al solicitar cambio de contraseña:", error);
+      setMensajeCambioContrasena("Error al conectar con el servidor");
+    } finally {
+      setCargandoCambioContrasena(false);
+    }
+  };
 
   const filtrarItems = () => {
     if (categoriaActiva === "Restaurantes") {
@@ -781,7 +864,6 @@ export default function PaginaPrincipal() {
         </div>
 
         {/* Botón de Favoritos en la esquina superior izquierda */}
-
         {(usuario || verificandoSesion) && (
           <div className="absolute top-6 left-6 z-20">
             <button
@@ -814,6 +896,14 @@ export default function PaginaPrincipal() {
             </div>
           ) : usuario ? (
             <div className="flex items-center gap-3">
+              {/* Botón Cambiar Contraseña */}
+              <button
+                onClick={() => setMostrarPopupCambiarContrasena(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full transition"
+              >
+                Cambiar contraseña
+              </button>
+
               {usuario.tipo == "usuario" ? (
                 <span className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30">
                   {usuario.correo}
@@ -1239,7 +1329,9 @@ export default function PaginaPrincipal() {
                     filtrosAplicadosProductos.precio_max) && (
                     <span>
                       Rango: {filtrosAplicadosProductos.precio_min || "0"} -{" "}
-                      {filtrosAplicadosProductos.precio_max || "∞"}
+                      {filtrosAplicadosProductos.precio_max === "999999"
+                        ? "∞"
+                        : filtrosAplicadosProductos.precio_max || "∞"}
                     </span>
                   )}
                   {!filtrosAplicadosProductos.categoria &&
@@ -1624,6 +1716,67 @@ export default function PaginaPrincipal() {
           <p>Tipografía e íconos pertenecen a sus respectivos autores.</p>
         </div>
       </footer>
+
+      {/* Popup para cambiar contraseña */}
+      {mostrarPopupCambiarContrasena && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md">
+            <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
+              Cambiar Contraseña
+            </h3>
+
+            {!mensajeCambioContrasena ? (
+              <>
+                <p className="text-gray-600 mb-6 text-center">
+                  ¿Estás seguro de que quieres cambiar tu contraseña? Se enviará
+                  un enlace de recuperación a tu correo electrónico.
+                </p>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setMostrarPopupCambiarContrasena(false);
+                      setMensajeCambioContrasena("");
+                    }}
+                    disabled={cargandoCambioContrasena}
+                    className="flex-1 bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-full hover:bg-gray-400 transition disabled:bg-gray-200 disabled:cursor-not-allowed"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleSolicitarCambioContrasena}
+                    disabled={cargandoCambioContrasena}
+                    className={`flex-1 text-white font-medium py-2 px-4 rounded-full transition ${
+                      cargandoCambioContrasena
+                        ? "bg-blue-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                  >
+                    {cargandoCambioContrasena ? "Enviando..." : "Continuar"}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                  <p className="text-green-700 text-sm font-medium">
+                    {mensajeCambioContrasena}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setMostrarPopupCambiarContrasena(false);
+                    setMensajeCambioContrasena("");
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-full transition"
+                >
+                  Cerrar
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Estilos para el slider */}
       {/* <style jsx>{`

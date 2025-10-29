@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Ban
 } from "lucide-react";
+import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
 
 export default function AgregarProducto() {
   const [formData, setFormData] = useState({
@@ -178,7 +179,7 @@ export default function AgregarProducto() {
 
       // Enviar datos al backend
       const response = await fetch(
-        `http://localhost:3000/api/productos/crear/${negocioId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.PRODUCTOS.CREAR(negocioId)}`,
         {
           method: "POST",
           credentials: "include", // Incluir cookies para autenticación

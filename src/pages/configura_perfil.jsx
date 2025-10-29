@@ -1,6 +1,7 @@
 // src/pages/ConfigurarPerfil.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
 
 export default function ConfigurarPerfil() {
   const navigate = useNavigate();
@@ -67,7 +68,8 @@ export default function ConfigurarPerfil() {
       try {
         setLoading(true);
         const response = await fetch(
-          `http://localhost:3000/api/negocios/perfil/${negocioId}`,
+          `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.PERFIL(negocioId)}`,
+          
           { credentials: "include" }
         );
 
@@ -265,7 +267,7 @@ export default function ConfigurarPerfil() {
       }
 
       const response = await fetch(
-        `http://localhost:3000/api/negocios/perfil/${negocioId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.PERFIL(negocioId)}`,
         {
           method: "PUT",
           credentials: "include",

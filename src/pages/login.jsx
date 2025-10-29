@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 
 export default function Login() {
   const [correo, setCorreo] = useState("");
@@ -21,18 +22,18 @@ export default function Login() {
 
     setIsLoading(true);
     setErrorMessage("");
-    
-    const url = "http://localhost:3000/api/usuarios/login";
+
+    const url = `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.LOGIN}`;
     const data = { correo, contrasena };
 
     try {
       const response = await fetch(url, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       const result = await response.json();
@@ -43,29 +44,28 @@ export default function Login() {
       }
 
       setErrorMessage("");
-      
+
       // ✅ NUEVA LÓGICA DE REDIRECCIÓN
       if (result.exito && result.datos) {
         const usuario = result.datos;
-        
+
         // Guardar datos del usuario en localStorage para uso posterior
-        localStorage.setItem('usuario', JSON.stringify(usuario));
-        
+        localStorage.setItem("usuario", JSON.stringify(usuario));
+
         if (usuario.tipo === "negocio") {
           // Usuario es un negocio - verificar si tiene perfil completo
           await verificarPerfilNegocio(usuario);
         } else if (usuario.tipo === "usuario") {
           // Usuario normal - redirigir a página principal
-          navigate('/');
+          navigate("/");
         } else {
           // Tipo no reconocido - redirigir a principal
-          navigate('/');
+          navigate("/");
         }
       } else {
         // Fallback si no hay datos
-        navigate('/');
+        navigate("/");
       }
-      
     } catch (error) {
       console.error("Error al hacer fetch:", error);
       setErrorMessage("Error al conectar con el servidor");
@@ -78,43 +78,46 @@ export default function Login() {
   const verificarPerfilNegocio = async (usuario) => {
     try {
       // Verificar si el negocio ya tiene perfil configurado
-      const response = await fetch(`http://localhost:3000/api/negocios/perfil/${usuario.negocioId}`, {
-        credentials: "include"
-      });
+      const response = await fetch(
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.PERFIL(usuario.negocioId)}`,
+        {
+          credentials: "include",
+        }
+      );
 
       if (response.ok) {
         const perfil = await response.json();
-        
+
         // Verificar si el perfil tiene información básica (nombre)
         if (perfil.datos.nombre && perfil.datos.nombre.trim() !== "") {
           // ✅ Perfil completo - redirigir a perfil_restaurante
-          navigate('/');
+          navigate("/");
         } else {
           // ❌ Perfil incompleto - redirigir a configura_perfil
-          navigate('/configura_perfil', { 
-            state: { 
+          navigate("/configura_perfil", {
+            state: {
               negocioId: usuario.negocioId,
-              usuario: usuario
-            } 
+              usuario: usuario,
+            },
           });
         }
       } else {
         // Si no puede cargar el perfil, asumir que no existe
-        navigate('/configura_perfil', { 
-          state: { 
+        navigate("/configura_perfil", {
+          state: {
             negocioId: usuario.negocioId,
-            usuario: usuario
-          } 
+            usuario: usuario,
+          },
         });
       }
     } catch (error) {
       console.error("Error al verificar perfil:", error);
       // En caso de error, redirigir a configura_perfil
-      navigate('/configura_perfil', { 
-        state: { 
+      navigate("/configura_perfil", {
+        state: {
           negocioId: usuario.negocioId,
-          usuario: usuario
-        } 
+          usuario: usuario,
+        },
       });
     }
   };
@@ -130,25 +133,32 @@ export default function Login() {
     setRecoveryMessage("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/usuarios/peticion-cambiar-contrasena", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ correo: recoveryEmail })
-      });
+      const response = await fetch(
+        `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.PETICION_CAMBIAR_CONTRASENA}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ correo: recoveryEmail }),
+        }
+      );
 
       const result = await response.json();
 
       if (response.ok && result.exito) {
-        setRecoveryMessage("Se ha enviado un enlace de recuperación a tu correo electrónico");
+        setRecoveryMessage(
+          "Se ha enviado un enlace de recuperación a tu correo electrónico"
+        );
         setTimeout(() => {
           setShowPasswordRecovery(false);
           setRecoveryEmail("");
           setRecoveryMessage("");
         }, 3000);
       } else {
-        setRecoveryMessage(result.message || "Error al enviar la solicitud de recuperación");
+        setRecoveryMessage(
+          result.message || "Error al enviar la solicitud de recuperación"
+        );
       }
     } catch (error) {
       console.error("Error al recuperar contraseña:", error);
@@ -160,26 +170,26 @@ export default function Login() {
 
   // Manejar envío del formulario con Enter
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       loginUsuario();
     }
   };
 
   // Manejar Enter en el popup de recuperación
   const handleRecoveryKeyPress = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handlePasswordRecovery();
     }
   };
 
   // Función para redirigir a registro de usuario
   const redirectToUserRegister = () => {
-    navigate('/registro_usuario');
+    navigate("/registro_usuario");
   };
 
   // Función para redirigir a registro de anunciante
   const redirectToAdvertiserRegister = () => {
-    navigate('/registro_anunciante');
+    navigate("/registro_anunciante");
   };
 
   // Función para cerrar el popup
@@ -193,16 +203,16 @@ export default function Login() {
     <div className="relative min-h-screen flex items-center justify-center bg-cover bg-center px-4 py-8">
       {/* Imagen de fondo con capa de oscurecimiento */}
       <div className="absolute inset-0">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: "url('/images/fondoLogin.jpg')"
+            backgroundImage: "url('/images/fondoLogin.jpg')",
           }}
         ></div>
         {/* Capa oscura superpuesta */}
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
-      
+
       {/* Contenido */}
       <div className="relative w-full max-w-md p-6 md:p-8 rounded-2xl shadow-lg z-10 bg-white bg-opacity-90">
         {/* Título */}
@@ -243,7 +253,7 @@ export default function Login() {
               className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 text-black"
               disabled={isLoading}
             />
-            
+
             {/* Enlace "Olvidé mi contraseña" */}
             <div className="text-right mt-2">
               <button
@@ -259,7 +269,9 @@ export default function Login() {
 
           {/* Mensaje de error */}
           {errorMessage && (
-            <p className="mt-2 text-red-600 text-sm font-medium text-center">{errorMessage}</p>
+            <p className="mt-2 text-red-600 text-sm font-medium text-center">
+              {errorMessage}
+            </p>
           )}
 
           {/* Botón iniciar sesión */}
@@ -267,8 +279,8 @@ export default function Login() {
             onClick={loginUsuario}
             disabled={isLoading}
             className={`w-full text-white font-semibold py-3 rounded-full transition mt-2 ${
-              isLoading 
-                ? "bg-green-400 cursor-not-allowed" 
+              isLoading
+                ? "bg-green-400 cursor-not-allowed"
                 : "bg-green-600 hover:bg-green-700"
             }`}
           >
@@ -285,16 +297,18 @@ export default function Login() {
 
         {/* Botones registro */}
         <div className="text-center">
-          <p className="text-gray-700 mb-4">¿No tienes cuenta? Regístrate como:</p>
+          <p className="text-gray-700 mb-4">
+            ¿No tienes cuenta? Regístrate como:
+          </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button 
+            <button
               onClick={redirectToAdvertiserRegister}
               disabled={isLoading}
               className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition flex-1 disabled:bg-red-400 disabled:cursor-not-allowed"
             >
               Anunciante
             </button>
-            <button 
+            <button
               onClick={redirectToUserRegister}
               disabled={isLoading}
               className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition flex-1 disabled:bg-red-400 disabled:cursor-not-allowed"
@@ -305,8 +319,8 @@ export default function Login() {
         </div>
 
         <div className="text-center mt-4">
-          <button 
-            onClick={() => navigate('/')}
+          <button
+            onClick={() => navigate("/")}
             className="text-sm text-green-600 hover:text-green-700 underline"
             disabled={isLoading}
           >
@@ -318,16 +332,17 @@ export default function Login() {
       {/* Popup de recuperación de contraseña */}
       {showPasswordRecovery && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50 p-4">
-          <div 
+          <div
             className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md"
             onKeyPress={handleRecoveryKeyPress}
           >
             <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">
               Recuperar contraseña
             </h3>
-            
+
             <p className="text-gray-600 mb-4 text-center">
-              Ingresa tu correo electrónico para recibir un enlace de recuperación
+              Ingresa tu correo electrónico para recibir un enlace de
+              recuperación
             </p>
 
             <div className="mb-4">
@@ -346,11 +361,14 @@ export default function Login() {
             </div>
 
             {recoveryMessage && (
-              <p className={`text-sm font-medium text-center mb-4 ${
-                recoveryMessage.includes("Error") || recoveryMessage.includes("ingresa") 
-                  ? "text-red-600" 
-                  : "text-green-600"
-              }`}>
+              <p
+                className={`text-sm font-medium text-center mb-4 ${
+                  recoveryMessage.includes("Error") ||
+                  recoveryMessage.includes("ingresa")
+                    ? "text-red-600"
+                    : "text-green-600"
+                }`}
+              >
                 {recoveryMessage}
               </p>
             )}

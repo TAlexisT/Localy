@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Loader, CheckCircle, AlertCircle } from "lucide-react";
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 
 export default function RenovacionExitosa() {
   const [searchParams] = useSearchParams();
@@ -18,7 +19,7 @@ export default function RenovacionExitosa() {
         console.error("❌ No se encontró tramite_id en la URL");
         setEstado("error");
         setMensaje("No se pudo identificar el trámite de renovación");
-        
+
         // Redirigir después de 3 segundos
         setTimeout(() => {
           navigate("/");
@@ -30,13 +31,16 @@ export default function RenovacionExitosa() {
         setEstado("procesando");
         setMensaje("Verificando el estado de tu renovación...");
 
-        const response = await fetch(`http://localhost:3000/api/tramites/${tramiteId}`, {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await fetch(
+          `${API_BASE_URL}${API_ENDPOINTS.TRAMITES.OBTENER_TRAMITE(tramiteId)}`,
+          {
+            method: "GET",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         console.log("📋 Status de respuesta:", response.status);
 
@@ -53,7 +57,7 @@ export default function RenovacionExitosa() {
 
           // Obtener el ID del negocio desde los datos del trámite
           const negocioId = data.datos.negocioId || data.datos.negocio_id;
-          
+
           if (negocioId) {
             // Redirigir al perfil del negocio después de 2 segundos
             setTimeout(() => {
@@ -68,12 +72,13 @@ export default function RenovacionExitosa() {
         } else {
           throw new Error(data.mensaje || "Error en la respuesta del servidor");
         }
-
       } catch (error) {
         console.error("❌ Error al procesar renovación:", error);
         setEstado("error");
-        setMensaje("Error al verificar la renovación. Serás redirigido al inicio.");
-        
+        setMensaje(
+          "Error al verificar la renovación. Serás redirigido al inicio."
+        );
+
         // Redirigir después de 3 segundos
         setTimeout(() => {
           navigate("/");
@@ -90,7 +95,9 @@ export default function RenovacionExitosa() {
         {estado === "procesando" && (
           <>
             <Loader className="w-16 h-16 animate-spin text-blue-600 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Procesando renovación</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Procesando renovación
+            </h2>
             <p className="text-gray-600">{mensaje}</p>
           </>
         )}
@@ -100,7 +107,9 @@ export default function RenovacionExitosa() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">¡Renovación Exitosa!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              ¡Renovación Exitosa!
+            </h2>
             <p className="text-gray-600 mb-6">{mensaje}</p>
             <div className="flex justify-center">
               <Loader className="w-6 h-6 animate-spin text-green-600" />
@@ -113,7 +122,9 @@ export default function RenovacionExitosa() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <AlertCircle className="w-10 h-10 text-red-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Error en la renovación</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Error en la renovación
+            </h2>
             <p className="text-gray-600 mb-6">{mensaje}</p>
             <p className="text-sm text-gray-500">Redirigiendo al inicio...</p>
           </>

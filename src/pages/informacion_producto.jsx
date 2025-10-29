@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
 import {
   MapPin,
   X,
@@ -67,7 +68,7 @@ const InformacionProducto = () => {
   const verificarSesionUsuario = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/usuarios/autenticar-sesion",
+        `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.AUTENTICAR_SESION}`,
         {
           method: "POST",
           credentials: "include",
@@ -101,7 +102,7 @@ const InformacionProducto = () => {
       if (esFavorito) {
         // Remover de favoritos
         const response = await fetch(
-          `http://localhost:3000/api/usuarios/borrar-favorito/${usuario.id}/${productoId}/producto`,
+          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.BORRAR_FAVORITO(usuario.id, productoId, 'producto')}`,
           {
             method: "DELETE",
             credentials: "include",
@@ -124,7 +125,7 @@ const InformacionProducto = () => {
         };
 
         const response = await fetch(
-          `http://localhost:3000/api/usuarios/crear-favorito/${usuario.id}`,
+          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.CREAR_FAVORITO(usuario.id)}`,  
           {
             method: "POST",
             credentials: "include",
@@ -220,7 +221,7 @@ const InformacionProducto = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/productos/eliminar/${negocioId}/${productoId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.PRODUCTOS.ELIMINAR(negocioId, productoId)}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -254,7 +255,7 @@ const InformacionProducto = () => {
       setVerificandoPropietario(true);
 
       const response = await fetch(
-        `http://localhost:3000/api/usuarios/autenticar-negocio/${negocioId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.AUTENTICAR_NEGOCIO(negocioId)}`,
         {
           method: "POST",
           credentials: "include",
@@ -282,7 +283,7 @@ const InformacionProducto = () => {
       setCargandoProducto(true);
 
       const response = await fetch(
-        `http://localhost:3000/api/productos/obtener-producto/${id}`,
+        `${API_BASE_URL}${API_ENDPOINTS.PRODUCTOS.OBTENER_PRODUCTO(id)}`,
         {
           method: "GET",
           credentials: "include",
@@ -365,7 +366,7 @@ const InformacionProducto = () => {
       }
 
       const response = await fetch(
-        `http://localhost:3000/api/productos/actualizar/${negocioId}/${productoId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.PRODUCTOS.ACTUALIZAR(negocioId, productoId)}`,
         {
           method: "PUT",
           credentials: "include",

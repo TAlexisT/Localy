@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
 
 export default function CambiarContrasena() {
   const [nuevaContrasena, setNuevaContrasena] = useState("");
@@ -54,7 +55,7 @@ export default function CambiarContrasena() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/usuarios/cambiar-contrasena?tramite=${tramite}&token=${token}`,
+        `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.CONFIRMAR_CAMBIO_CONTRASENA(tramite, token)}`,
         {
           method: "POST",
           headers: {

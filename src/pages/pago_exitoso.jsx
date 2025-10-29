@@ -1,6 +1,7 @@
 // src/pages/PagoExito.jsx
 import { useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 
 export default function PagoExito() {
   const [searchParams] = useSearchParams();
@@ -18,13 +19,16 @@ export default function PagoExito() {
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/api/tramites/${tramiteId}`, {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const response = await fetch(
+          `${API_BASE_URL}${API_ENDPOINTS.TRAMITES.OBTENER_TRAMITE(tramiteId)}`,
+          {
+            method: "GET",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         console.log("📋 Status de respuesta:", response.status);
 
@@ -37,7 +41,6 @@ export default function PagoExito() {
 
         // Redirigir a la página de configuración
         navigate("/configura_perfil", { state: { negocio: data } });
-
       } catch (error) {
         console.error("❌ Error al procesar pago:", error);
         navigate("/");

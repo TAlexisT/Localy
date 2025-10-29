@@ -40,6 +40,7 @@ import {
 } from "lucide-react";
 
 import MapaUbicacion from "../components/MapaUbicacion";
+import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
 
 // Definir los price_ids
 const PRICE_IDS = {
@@ -147,7 +148,7 @@ export default function PerfilRestaurante() {
         // 1. Primero verificar sesión del usuario
         try {
           const sesionRes = await fetch(
-            "http://localhost:3000/api/usuarios/autenticar-sesion",
+            `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.AUTENTICAR_SESION}`,
             {
               method: "POST",
               credentials: "include",
@@ -231,7 +232,7 @@ export default function PerfilRestaurante() {
         PRICE_IDS[tipoNegocio][pagoRecurrente ? "recurrente" : "puntual"];
 
       const response = await fetch(
-        `http://localhost:3000/api/negocios/reactivar-sesion-pago/${negocioId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.REACTIVAR_SESION_PAGO(negocioId)}`,
         {
           method: "POST",
           credentials: "include",
@@ -301,7 +302,7 @@ export default function PerfilRestaurante() {
     setCargandoSugerencias(true);
     try {
       const response = await fetch(
-        `http://localhost:3000/api/sugerencias/obtener-sugerencias/${negocioId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.SUGERENCIAS.OBTENER_SUGERENCIAS(negocioId)}`,  
         {
           method: "GET",
           credentials: "include",
@@ -365,7 +366,7 @@ export default function PerfilRestaurante() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/sugerencias/crear-sugerencia/${negocioId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.SUGERENCIAS.CREAR_SUGERENCIA(negocioId)}`,
         {
           method: "POST",
           credentials: "include",
@@ -428,7 +429,7 @@ export default function PerfilRestaurante() {
       if (esFavorito) {
         // Remover de favoritos
         const response = await fetch(
-          `http://localhost:3000/api/usuarios/borrar-favorito/${usuario.id}/${negocioId}/negocio`,
+          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.BORRAR_FAVORITO(usuario.id, negocioId, 'negocio')}`,
           {
             method: "DELETE",
             credentials: "include",
@@ -450,7 +451,7 @@ export default function PerfilRestaurante() {
         };
 
         const response = await fetch(
-          `http://localhost:3000/api/usuarios/crear-favorito/${usuario.id}`,
+          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.CREAR_FAVORITO(usuario.id)}`,
           {
             method: "POST",
             credentials: "include",
@@ -481,7 +482,7 @@ export default function PerfilRestaurante() {
   const cargarPerfilYMenu = async () => {
     try {
       const perfilRes = await fetch(
-        `http://localhost:3000/api/negocios/perfil/${negocioId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.PERFIL(negocioId)}`,
         {
           credentials: "include",
         }
@@ -549,7 +550,7 @@ export default function PerfilRestaurante() {
     try {
       setCargandoProductos(true);
       const response = await fetch(
-        `http://localhost:3000/api/productos/obtener-productos/${negocioId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.PRODUCTOS.OBTENER_PRODUCTOS(negocioId)}`,
         {
           method: "GET",
           credentials: "include",
@@ -704,7 +705,7 @@ export default function PerfilRestaurante() {
       formData.append("imagen", file); // Campo debe llamarse "imagen"
 
       const response = await fetch(
-        `http://localhost:3000/api/negocios/subir-menu/${negocioId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.SUBIR_MENU(negocioId)}`,
         {
           method: "POST",
           credentials: "include",
@@ -758,7 +759,7 @@ export default function PerfilRestaurante() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/negocios/borrar-menu/${negocioId}/${imagenAEliminar}`,
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.BORRAR_MENU(negocioId, imagenAEliminar)}`,
         {
           method: "DELETE",
           credentials: "include",
@@ -786,7 +787,7 @@ export default function PerfilRestaurante() {
   const handleCerrarSesion = async () => {
     try {
       const logoutRes = await fetch(
-        "http://localhost:3000/api/usuarios/logout",
+        `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.LOGOUT}`,
         {
           method: "POST",
           credentials: "include",

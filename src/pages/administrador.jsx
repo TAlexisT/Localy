@@ -1,3 +1,4 @@
+import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
 // src/pages/Administrador.jsx
 import React, { useState, useEffect } from "react";
 import {
@@ -11,6 +12,8 @@ import {
   Shield,
   X,
 } from "lucide-react";
+
+
 
 const Administrador = () => {
   const [sugerencias, setSugerencias] = useState([]);
@@ -34,7 +37,8 @@ const Administrador = () => {
 
       // Obtener todos los negocios primero para luego obtener sus sugerencias
       const negociosRes = await fetch(
-        "http://localhost:3000/api/negocios/obtener-cada-negocio",
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.OBTENER_CADA_NEGOCIO}`,
+        
         {
           method: "GET",
           credentials: "include",
@@ -56,7 +60,7 @@ const Administrador = () => {
 
       try {
         const sugerenciasRes = await fetch(
-          `http://localhost:3000/api/sugerencias/obtener-toda-sugerencia`,
+          `${API_BASE_URL}${API_ENDPOINTS.SUGERENCIAS.OBTENER_TODA_SUGERENCIA}`,
           {
             method: "GET",
             credentials: "include",
@@ -95,7 +99,7 @@ const Administrador = () => {
       setError("");
 
       const response = await fetch(
-        "http://localhost:3000/api/negocios/obtener-cada-negocio",
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.OBTENER_CADA_NEGOCIO}`,
         {
           method: "GET",
           credentials: "include",
@@ -141,7 +145,7 @@ const Administrador = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/sugerencias/borrar-sugerencia/${sugerenciaAEliminar}`,
+        `${API_BASE_URL}${API_ENDPOINTS.SUGERENCIAS.BORRAR_SUGERENCIA(sugerenciaAEliminar)}`,
         {
           method: "DELETE",
           credentials: "include",

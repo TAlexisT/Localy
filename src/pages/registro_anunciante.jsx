@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
 
 export default function RegistroAnunciante() {
   const [formData, setFormData] = useState({
@@ -82,7 +83,7 @@ export default function RegistroAnunciante() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/negocios/crear-sesion-pago",
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.CREAR_SESION_PAGO}`,
         {
           method: "POST",
           headers: {

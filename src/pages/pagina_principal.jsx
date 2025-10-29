@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import TarjetaRestaurante from "../components/tarjeta_restaurante";
 import TarjetaProducto from "../components/tarjeta_producto";
+import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
 
 export default function PaginaPrincipal() {
   const [restaurantes, setRestaurantes] = useState([]);
@@ -259,7 +260,7 @@ export default function PaginaPrincipal() {
         setVerificandoSesion(true);
 
         const response = await fetch(
-          "http://localhost:3000/api/usuarios/autenticar-sesion",
+          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.AUTENTICAR_SESION}`,
           {
             method: "POST",
             credentials: "include",
@@ -313,7 +314,7 @@ export default function PaginaPrincipal() {
       };
 
       const response = await fetch(
-        "http://localhost:3000/api/negocios/mostrar",
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.MOSTRAR}`,
         {
           method: "POST",
           headers: {
@@ -418,7 +419,7 @@ export default function PaginaPrincipal() {
       };
 
       const response = await fetch(
-        "http://localhost:3000/api/productos/mostrar",
+        `${API_BASE_URL}${API_ENDPOINTS.PRODUCTOS.MOSTRAR}`,
         {
           method: "POST",
           headers: {
@@ -643,7 +644,7 @@ export default function PaginaPrincipal() {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/usuarios/peticion-cambiar-contrasena",
+        `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.PETICION_CAMBIAR_CONTRASENA}`,
         {
           method: "POST",
           headers: {
@@ -762,7 +763,7 @@ export default function PaginaPrincipal() {
   const handleCerrarSesion = async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/usuarios/logout",
+        `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.LOGOUT}`,
         {
           method: "POST",
           credentials: "include",

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Heart, MapPin, Star, Clock } from "lucide-react";
 import TarjetaProducto from "../components/tarjeta_producto"; // Ajusta la ruta según tu estructura
 import TarjetaRestaurante from "../components/tarjeta_restaurante"; // Ajusta la ruta según tu estructura
+import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
 
 const Favoritos = () => {
   const [usuario, setUsuario] = useState(null);
@@ -64,7 +65,7 @@ const Favoritos = () => {
     const verificarSesion = async () => {
       try {
         const response = await fetch(
-          "http://localhost:3000/api/usuarios/autenticar-sesion",
+          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.AUTENTICAR_SESION}`,
           {
             method: "POST",
             credentials: "include",
@@ -100,7 +101,7 @@ const Favoritos = () => {
     try {
       setCargando(true);
       const response = await fetch(
-        `http://localhost:3000/api/usuarios/favoritos/${usuarioId}`,
+        `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.FAVORITOS(usuarioId)}`,
         {
           method: "POST",
           credentials: "include",
@@ -136,7 +137,7 @@ const Favoritos = () => {
       setEliminandoId(favoritoId);
 
       // Construir el endpoint según el tipo
-      const endpoint = `http://localhost:3000/api/usuarios/borrar-favorito/${usuario.id}/${favoritoId}/${tipo}`;
+      const endpoint = `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.BORRAR_FAVORITO(usuario.id, favoritoId, tipo)}`;
 
       const response = await fetch(endpoint, {
         method: "DELETE",

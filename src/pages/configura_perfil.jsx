@@ -1,7 +1,7 @@
 // src/pages/ConfigurarPerfil.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 
 export default function ConfigurarPerfil() {
   const navigate = useNavigate();
@@ -69,7 +69,7 @@ export default function ConfigurarPerfil() {
         setLoading(true);
         const response = await fetch(
           `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.PERFIL(negocioId)}`,
-          
+
           { credentials: "include" }
         );
 
@@ -241,29 +241,30 @@ export default function ConfigurarPerfil() {
     }
 
     try {
-      // ✅ Crear FormData como espera el backend
       const formDataToSend = new FormData();
 
-      // Agregar campos individuales (el backend espera en req.body)
+      // ✅ Campos normales como strings
       formDataToSend.append("nombre", formData.nombre);
       formDataToSend.append("descripcion", formData.descripcion || "");
       formDataToSend.append("ubicacion", JSON.stringify(formData.ubicacion));
       formDataToSend.append("horario", JSON.stringify(formData.horario));
       formDataToSend.append("redes", JSON.stringify(formData.redes));
+
+      // ✅ CORREGIDO: Enviar como string simple, no como JSON
       formDataToSend.append(
         "borrar_logo",
-        JSON.stringify(formData.borrar_logo && !fileInput?.files[0])
+        (formData.borrar_logo && !fileInput?.files[0]).toString()
       );
 
-      // Agregar imagen si existe (el backend espera en req.file)
+      // Agregar imagen si existe
       if (fileInput?.files[0]) {
         formDataToSend.append("imagen", fileInput.files[0]);
-        console.log("📁 Archivo seleccionado:", fileInput.files[0]);
       }
 
-      // Debug: mostrar contenido del FormData
+      // Debug
+      console.log("=== CONTENIDO FormData ===");
       for (let [key, value] of formDataToSend.entries()) {
-        console.log(key, value);
+        console.log(`${key}:`, value, `(tipo: ${typeof value})`);
       }
 
       const response = await fetch(
@@ -389,13 +390,11 @@ export default function ConfigurarPerfil() {
     <div className="min-h-screen bg-gray-50 py-6">
       <div className="max-w-4xl mx-auto px-4">
         <div className=" my-5">
-          <h1 className="text-3xl font-bold">
-            Configura tu perfil ⋅ Negocio
-          </h1>
+          <h1 className="text-3xl font-bold">Configura tu perfil ⋅ Negocio</h1>
           <h1 className="text-sm text-gray-500 font-semibold mt-2">
-           ✓ Esta es una configuración de tu perfil, la podras modificar en cualquier momento.
+            ✓ Esta es una configuración de tu perfil, la podras modificar en
+            cualquier momento.
           </h1>
-          
         </div>
 
         <form
@@ -446,7 +445,9 @@ export default function ConfigurarPerfil() {
 
           {/* Sección de Imagen */}
           <div>
-            <h2 className="text-xl font-semibold mb-4">Selecciona una imagen o logotipo de tu restaurante para tu perfil.</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              Selecciona una imagen o logotipo de tu restaurante para tu perfil.
+            </h2>
             <div className="flex items-center gap-4">
               <input
                 id="imagen"
@@ -494,9 +495,12 @@ export default function ConfigurarPerfil() {
           <div className="py-5">
             <div className="flex space-x-2 items-center align-center">
               <h2 className="text-xl font-semibold mb-4">Ubicación</h2>
-              <h2 className="text-base font-semibold mb-4 text-gray-500"> - Selecciona "Obtener ubicación  actual"</h2>
+              <h2 className="text-base font-semibold mb-4 text-gray-500">
+                {" "}
+                - Selecciona "Obtener ubicación actual"
+              </h2>
             </div>
-            
+
             <div className="flex items-center gap-4 mb-4">
               <button
                 type="button"
@@ -515,7 +519,6 @@ export default function ConfigurarPerfil() {
               actual.
             </p>
           </div>
-
 
           {/* Sección de Redes Sociales */}
           <div>
@@ -636,8 +639,6 @@ export default function ConfigurarPerfil() {
               Formato: HH:MM (24 horas)
             </p>
           </div>
-
-          
 
           {/* Mensajes de error y éxito */}
           {error && (

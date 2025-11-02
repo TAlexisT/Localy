@@ -9,6 +9,7 @@ export default function CambiarContrasena() {
   const [mostrarConfirmarContrasena, setMostrarConfirmarContrasena] =
     useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [errorDetalles, setErrorDetalles] = useState([]); // NUEVO: para errores específicos
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
@@ -28,6 +29,10 @@ export default function CambiarContrasena() {
     !tramite;
 
   const handleCambiarContrasena = async () => {
+    // Limpiar errores anteriores
+    setErrorMessage("");
+    setErrorDetalles([]);
+
     // Validaciones (por si acaso se llama la función directamente)
     if (!nuevaContrasena || !confirmarContrasena) {
       setErrorMessage("Por favor, completa todos los campos");
@@ -50,8 +55,6 @@ export default function CambiarContrasena() {
     }
 
     setIsLoading(true);
-    setErrorMessage("");
-    setSuccessMessage("");
 
     try {
       const response = await fetch(
@@ -73,13 +76,20 @@ export default function CambiarContrasena() {
         setSuccessMessage("Contraseña cambiada exitosamente");
         setNuevaContrasena("");
         setConfirmarContrasena("");
+        setErrorDetalles([]);
 
         // Redirigir al login después de 2 segundos
         setTimeout(() => {
           navigate("/login");
         }, 2000);
       } else {
-        setErrorMessage(result.message || "Error al cambiar la contraseña");
+        // Manejar errores específicos del servidor
+        if (result.errores && Array.isArray(result.errores)) {
+          setErrorDetalles(result.errores);
+          setErrorMessage("Error en la validación de la contraseña");
+        } else {
+          setErrorMessage(result.message || "Error al cambiar la contraseña");
+        }
       }
     } catch (error) {
       console.error("Error al cambiar contraseña:", error);
@@ -145,7 +155,16 @@ export default function CambiarContrasena() {
                   type={mostrarNuevaContrasena ? "text" : "password"}
                   placeholder="Ingresa tu nueva contraseña"
                   value={nuevaContrasena}
-                  onChange={(e) => setNuevaContrasena(e.target.value)}
+                  onChange={(e) => {
+                    setNuevaContrasena(e.target.value);
+                    // Limpiar errores cuando el usuario empiece a escribir
+                    if (errorDetalles.length > 0) {
+                      setErrorDetalles([]);
+                    }
+                    if (errorMessage) {
+                      setErrorMessage("");
+                    }
+                  }}
                   className="w-full px-4 py-3 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition text-black"
                   disabled={isLoading}
                 />
@@ -207,7 +226,16 @@ export default function CambiarContrasena() {
                   type={mostrarConfirmarContrasena ? "text" : "password"}
                   placeholder="Confirma tu nueva contraseña"
                   value={confirmarContrasena}
-                  onChange={(e) => setConfirmarContrasena(e.target.value)}
+                  onChange={(e) => {
+                    setConfirmarContrasena(e.target.value);
+                    // Limpiar errores cuando el usuario empiece a escribir
+                    if (errorDetalles.length > 0) {
+                      setErrorDetalles([]);
+                    }
+                    if (errorMessage) {
+                      setErrorMessage("");
+                    }
+                  }}
                   className="w-full px-4 py-3 pr-12 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition text-black"
                   disabled={isLoading}
                 />
@@ -259,9 +287,20 @@ export default function CambiarContrasena() {
             {/* Mensajes de estado */}
             {errorMessage && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-700 text-sm font-medium text-center">
+                <p className="text-red-700 text-sm font-medium text-center mb-2">
                   {errorMessage}
                 </p>
+                
+                {/* Mostrar detalles específicos de errores */}
+                {errorDetalles.length > 0 && (
+                  <div className="mt-2">
+                    {errorDetalles.map((error, index) => (
+                      <p key={index} className="text-red-600 text-xs text-left">
+                        {error.mensaje}
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 

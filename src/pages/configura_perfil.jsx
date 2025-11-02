@@ -252,7 +252,7 @@ export default function ConfigurarPerfil() {
       formDataToSend.append("redes", JSON.stringify(formData.redes));
       formDataToSend.append(
         "borrar_logo",
-        formData.borrar_logo && !fileInput?.files[0]
+        JSON.stringify(formData.borrar_logo && !fileInput?.files[0])
       );
 
       // Agregar imagen si existe (el backend espera en req.file)

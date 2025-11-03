@@ -213,7 +213,7 @@ export default function ConfigurarPerfil() {
     setError("");
     setSuccess("");
 
-    // ✅ Validación del formulario según esquema Joi
+    // Validación del formulario
     const errorValidacion = validarFormulario();
     if (errorValidacion) {
       setError(errorValidacion);
@@ -221,50 +221,35 @@ export default function ConfigurarPerfil() {
       return;
     }
 
-    // Validación de imagen (opcional)
-    const fileInput = document.getElementById("imagen");
-    if (fileInput?.files[0]) {
-      const file = fileInput.files[0];
-      const allowedTypes = ["image/jpeg", "image/png"];
-
-      if (!allowedTypes.includes(file.type)) {
-        setError("Por favor selecciona un archivo JPG o PNG");
-        setLoading(false);
-        return;
-      }
-
-      if (file.size > 2 * 1024 * 1024) {
-        setError("El tamaño del archivo debe ser menor a 2MB");
-        setLoading(false);
-        return;
-      }
-    }
-
     try {
       const formDataToSend = new FormData();
 
-      // ✅ Campos normales como strings
-      formDataToSend.append("nombre", formData.nombre);
-      formDataToSend.append("descripcion", formData.descripcion || "");
+      // ✅ Agrega los campos de manera más simple
+      formDataToSend.append("nombre", formData.nombre.trim());
+      formDataToSend.append("descripcion", formData.descripcion.trim());
+
+      // Para objetos, usa JSON.stringify
       formDataToSend.append("ubicacion", JSON.stringify(formData.ubicacion));
       formDataToSend.append("horario", JSON.stringify(formData.horario));
       formDataToSend.append("redes", JSON.stringify(formData.redes));
 
-      // ✅ CORREGIDO: Enviar como string simple, no como JSON
-      formDataToSend.append(
-        "borrar_logo",
-        (formData.borrar_logo && !fileInput?.files[0]).toString()
-      );
+      // Boolean como string simple
+      formDataToSend.append("borrar_logo", formData.borrar_logo.toString());
 
       // Agregar imagen si existe
+      const fileInput = document.getElementById("imagen");
       if (fileInput?.files[0]) {
         formDataToSend.append("imagen", fileInput.files[0]);
       }
 
-      // Debug
+      // Debug mejorado
       console.log("=== CONTENIDO FormData ===");
       for (let [key, value] of formDataToSend.entries()) {
-        console.log(`${key}:`, value, `(tipo: ${typeof value})`);
+        if (key === "imagen") {
+          console.log(`${key}:`, value, `(File, size: ${value.size} bytes)`);
+        } else {
+          console.log(`${key}:`, value);
+        }
       }
 
       const response = await fetch(
@@ -273,29 +258,29 @@ export default function ConfigurarPerfil() {
           method: "PUT",
           credentials: "include",
           body: formDataToSend,
+          // NO agregues Content-Type header - Fetch lo hará automáticamente con boundary
         }
       );
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("❌ Error response:", errorText);
-
+        let errorText;
         try {
+          errorText = await response.text();
           const errorData = JSON.parse(errorText);
           throw new Error(
             errorData.mensaje || errorData.error || "Error al actualizar perfil"
           );
         } catch {
-          throw new Error(errorText || "Error al actualizar perfil");
+          throw new Error(
+            errorText || `Error ${response.status}: ${response.statusText}`
+          );
         }
       }
 
       const result = await response.json();
       console.log("✅ Success:", result);
-
       setSuccess("¡Perfil actualizado exitosamente!");
 
-      // Redirigir después de éxito
       setTimeout(() => {
         navigate(`/perfil_restaurante/${negocioId}`);
       }, 2000);

@@ -253,7 +253,7 @@ export default function AgregarProducto() {
         <div className="flex items-center gap-4 mb-8">
           <button
             onClick={handleVolver}
-            className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition duration-300"
+            className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition hover:scale-105 duration-300"
             title="Atrás"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -310,7 +310,7 @@ export default function AgregarProducto() {
                 <button
                   type="button"
                   onClick={handleRemoveImage}
-                  className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center"
+                  className="absolute top-2 right-2 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center hover:scale-105 duration-300"
                 >
                   ×
                 </button>
@@ -403,7 +403,7 @@ export default function AgregarProducto() {
               <button
                 type="button"
                 onClick={() => setIsSelectOpen(!isSelectOpen)}
-                className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left bg-white flex items-center justify-between ${
+                className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left bg-white flex items-center justify-between hover:scale-105 duration-300 ${
                   !formData.categoria ? 'text-gray-400' : 'text-gray-900'
                 }`}
               >
@@ -423,7 +423,7 @@ export default function AgregarProducto() {
                       key={categoria}
                       type="button"
                       onClick={() => handleCategoriaSelect(categoria)}
-                      className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+                      className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors hover:scale-105 duration-300 ${
                         formData.categoria === categoria 
                           ? 'bg-blue-50 text-blue-600 font-medium' 
                           : 'text-gray-900'
@@ -457,7 +457,7 @@ export default function AgregarProducto() {
             <button
               type="submit"
               disabled={loading || !camposCompletos || botonDeshabilitado}
-              className={`flex items-center gap-2 text-white px-8 py-3 rounded-lg transition ${
+              className={`flex items-center gap-2 text-white px-8 py-3 rounded-lg transition hover:scale-105 duration-300 ${
                 camposCompletos && !botonDeshabilitado
                   ? "bg-[#12B400] hover:bg-[#0F9A00]" 
                   : "bg-[#9B9B9B] cursor-not-allowed"

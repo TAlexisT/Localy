@@ -900,13 +900,13 @@ export default function PerfilRestaurante() {
           <div className="flex gap-3 justify-center flex-wrap">
             <button
               onClick={() => navigate("/")}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition hover:scale-105 duration-300"
             >
               Ir al Inicio
             </button>
             <button
               onClick={handleVolver}
-              className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition"
+              className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition hover:scale-105 duration-300"
             >
               Volver Atrás
             </button>
@@ -930,7 +930,7 @@ export default function PerfilRestaurante() {
               <button
                 onClick={cerrarModalReactivacion}
                 disabled={reactivando}
-                className="text-gray-400 hover:text-gray-600 transition duration-200 disabled:opacity-50"
+                className="text-gray-400 hover:text-gray-600 transition duration-200 disabled:opacity-50 hover:scale-105"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -951,7 +951,7 @@ export default function PerfilRestaurante() {
                       className={`p-4 border-2 rounded-lg text-center transition duration-200 ${
                         tipoNegocio === "ambulante"
                           ? "border-blue-500 bg-blue-50 text-blue-700"
-                          : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                          : "border-gray-300 bg-white text-gray-700 hover:border-gray-400 cursor-pointer"
                       }`}
                     >
                       <ClockIcon className="w-6 h-6 mx-auto mb-2" />
@@ -966,7 +966,7 @@ export default function PerfilRestaurante() {
                       className={`p-4 border-2 rounded-lg text-center transition duration-200 ${
                         tipoNegocio === "restaurante"
                           ? "border-blue-500 bg-blue-50 text-blue-700"
-                          : "border-gray-300 bg-white text-gray-700 hover:border-gray-400"
+                          : "border-gray-300 bg-white text-gray-700 hover:border-gray-400 cursor-pointer"
                       }`}
                     >
                       <Store className="w-6 h-6 mx-auto mb-2" />
@@ -1042,14 +1042,14 @@ export default function PerfilRestaurante() {
                 <button
                   onClick={cerrarModalReactivacion}
                   disabled={reactivando}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto hover:scale-105"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleReactivarSuscripcion}
                   disabled={reactivando || !tipoNegocio}
-                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto"
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-green-400 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto hover:scale-105"
                 >
                   {reactivando ? (
                     <>
@@ -1076,7 +1076,7 @@ export default function PerfilRestaurante() {
             {/* Botón cerrar */}
             <button
               onClick={closeLogoPreview}
-              className="absolute top-4 right-4 z-50 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition"
+              className="absolute top-4 right-4 z-50 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition hover:scale-105 duration-300"
             >
               <X className="w-6 h-6" />
             </button>
@@ -1105,7 +1105,7 @@ export default function PerfilRestaurante() {
             {/* Botón cerrar */}
             <button
               onClick={closeImagePreview}
-              className="absolute top-4 right-4 z-50 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition"
+              className="absolute top-4 right-4 z-50 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition hover:scale-105 duration-300"
             >
               <X className="w-6 h-6" />
             </button>
@@ -1114,7 +1114,7 @@ export default function PerfilRestaurante() {
             {currentImageIndex > 0 && (
               <button
                 onClick={goToPrevImage}
-                className="absolute left-4 z-50 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition"
+                className="absolute left-4 z-50 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition hover:scale-105 duration-300"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
@@ -1133,7 +1133,7 @@ export default function PerfilRestaurante() {
             {currentImageIndex < menuImages.length - 1 && (
               <button
                 onClick={goToNextImage}
-                className="absolute right-4 z-50 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition"
+                className="absolute right-4 z-50 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-70 transition hover:scale-105 duration-300"
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
@@ -1159,7 +1159,7 @@ export default function PerfilRestaurante() {
               <button
                 onClick={cerrarModalEliminar}
                 disabled={eliminandoImagen}
-                className="text-gray-400 hover:text-gray-600 transition duration-200 disabled:opacity-50"
+                className="text-gray-400 hover:text-gray-600 transition duration-200 disabled:opacity-50 hover:scale-105"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1186,14 +1186,14 @@ export default function PerfilRestaurante() {
                 <button
                   onClick={cerrarModalEliminar}
                   disabled={eliminandoImagen}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto order-2 sm:order-1"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto order-2 sm:order-1 hover:scale-105"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleDeleteMenuImage}
                   disabled={eliminandoImagen}
-                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto order-1 sm:order-2"
+                  className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed rounded-lg transition duration-200 w-full sm:w-auto order-1 sm:order-2 hover:scale-105"
                 >
                   {eliminandoImagen ? (
                     <>
@@ -1219,7 +1219,7 @@ export default function PerfilRestaurante() {
           <div className="flex space-x-2">
             <button
               onClick={handleVolver}
-              className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition duration-300"
+              className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition duration-300 hover:scale-105"
               title="Atrás"
             >
               <svg
@@ -1254,7 +1254,7 @@ export default function PerfilRestaurante() {
                     <button
                       onClick={handleEditarPerfil}
                       disabled={!negocioActivo}
-                      className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition text-sm sm:text-base ${
+                      className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition text-sm sm:text-base hover:scale-105 duration-300 ${
                         negocioActivo
                           ? "bg-green-600 text-white hover:bg-blue-700"
                           : "bg-gray-400 text-gray-200 cursor-not-allowed"
@@ -1273,7 +1273,7 @@ export default function PerfilRestaurante() {
                     {!negocioActivo && (
                       <button
                         onClick={abrirModalReactivacion}
-                        className="flex items-center gap-2 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base"
+                        className="flex items-center gap-2 bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition text-sm sm:text-base hover:scale-105 duration-300"
                       >
                         <RotateCcw className="w-4 h-4" />
                         <span className="hidden sm:inline">
@@ -1286,7 +1286,7 @@ export default function PerfilRestaurante() {
                 )}
                 <button
                   onClick={handleCerrarSesion}
-                  className="flex items-center gap-2 bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm sm:text-base"
+                  className="flex items-center gap-2 bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm sm:text-base hover:scale-105 duration-300"
                 >
                   <LogOut className="w-4 h-4" />
                   <span className="hidden sm:inline">Cerrar Sesión</span>
@@ -1297,16 +1297,16 @@ export default function PerfilRestaurante() {
               <div className="flex gap-3">
                 <button
                   onClick={handleLogin}
-                  className="flex items-center gap-2 bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm sm:text-base"
+                  className="flex items-center gap-2 bg-green-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm sm:text-base hover:scale-105 duration-300"
                 >
                   <span className="hidden sm:inline">Iniciar Sesión</span>
                   <span className="sm:hidden">Entrar</span>
                 </button>
                 <button
                   onClick={handleRegistrar}
-                  className="flex items-center gap-2 bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm sm:text-base"
+                  className="flex items-center gap-2 bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 transition text-sm sm:text-base hover:scale-105 duration-300"
                 >
-                  <span className="hidden sm:inline">Registrarse</span>
+                  <span className="hidden sm:inline ">Registrarse</span>
                   <span className="sm:hidden">Registro</span>
                 </button>
               </div>
@@ -1342,7 +1342,7 @@ export default function PerfilRestaurante() {
                       className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg shadow-md transition duration-200 text-sm sm:text-base ${
                         esFavorito
                           ? "bg-red-600 hover:bg-red-700 text-white"
-                          : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
+                          : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 hover:scale-105 duration-300"
                       } ${
                         cargandoFavorito ? "opacity-50 cursor-not-allowed" : ""
                       }`}
@@ -1441,7 +1441,7 @@ export default function PerfilRestaurante() {
                         <Mail className="w-4 h-4 text-gray-500" />
                         <a
                           href={`https://mail.google.com/mail/?view=cm&to=${perfil.correo}`}
-                          className="text-green-600 hover:text-green-800 break-all underline text-sm sm:text-base"
+                          className="text-green-600 hover:text-green-800 break-all underline text-sm sm:text-base hover:scale-105 duration-300"
                         >
                           {perfil.correo}
                         </a>
@@ -1452,7 +1452,7 @@ export default function PerfilRestaurante() {
                         <Phone className="w-4 h-4 text-gray-500" />
                         <a
                           href={`tel:${perfil.telefono}`}
-                          className="text-green-600 hover:text-gray-800 underline text-sm sm:text-base"
+                          className="text-green-600 hover:text-gray-800 underline text-sm sm:text-base hover:scale-105 duration-300"
                         >
                           {perfil.telefono}
                         </a>
@@ -1515,7 +1515,7 @@ export default function PerfilRestaurante() {
                                 href={enlace}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition text-sm sm:text-base"
+                                className="flex items-center gap-2 bg-gray-100 hover:bg-green-500 hover:text-white px-3 py-2 rounded-lg transition text-sm sm:text-base hover:scale-105 duration-300"
                               >
                                 <Icono className="w-4 h-4" />
                                 <span>{plataforma}</span>
@@ -1595,7 +1595,7 @@ export default function PerfilRestaurante() {
               {esPropietario && (
                 <div className="flex items-center gap-3">
                   <label
-                    className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition cursor-pointer text-sm sm:text-base w-full sm:w-auto ${
+                    className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition cursor-pointer text-sm sm:text-base w-full sm:w-auto hover:scale-105 duration-300 ${
                       uploadingMenu
                         ? "bg-gray-400 text-white cursor-not-allowed"
                         : !negocioActivo
@@ -1648,13 +1648,13 @@ export default function PerfilRestaurante() {
                 {menuImages.map((image, index) => (
                   <div key={image.id} className="relative group">
                     <div
-                      className="cursor-pointer"
+                      className="cursor-pointer hover:scale-105 duration-300"
                       onClick={() => openImagePreview(image, index)}
                     >
                       <img
                         src={image.url?.logo || image.url}
                         alt={image.nombre || "Imagen del menú"}
-                        className="w-full h-64 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                        className="w-full h-64 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow "
                       />
                       <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg flex items-center justify-center">
                         <div className="opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 text-white px-3 py-2 rounded-lg transition-opacity duration-300">
@@ -1667,7 +1667,7 @@ export default function PerfilRestaurante() {
                         <button
                           onClick={(e) => confirmarEliminarImagen(image.id, e)}
                           disabled={!negocioActivo}
-                          className={`text-white transition ${
+                          className={`text-white transition hover:scale-105 duration-300 ${
                             negocioActivo
                               ? "hover:text-red-300"
                               : "opacity-50 cursor-not-allowed"
@@ -1710,7 +1710,7 @@ export default function PerfilRestaurante() {
                 <button
                   onClick={handleAgregarProducto}
                   disabled={!negocioActivo}
-                  className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition text-sm sm:text-base w-full sm:w-auto ${
+                  className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition text-sm sm:text-base w-full sm:w-auto hover:scale-105 duration-300 ${
                     negocioActivo
                       ? "bg-green-600 text-white hover:bg-green-700"
                       : "bg-gray-400 text-gray-200 cursor-not-allowed"
@@ -1750,7 +1750,7 @@ export default function PerfilRestaurante() {
                         },
                       })
                     }
-                    className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+                    className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg  cursor-pointer hover:scale-105 duration-300"
                   >
                     {/* Imagen grande arriba */}
                     {producto.imagen_URL && (
@@ -1820,7 +1820,7 @@ export default function PerfilRestaurante() {
                       : setMostrarFormSugerencia(!mostrarFormSugerencia)
                   }
                   disabled={!negocioActivo}
-                  className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition w-full sm:w-auto text-sm sm:text-base ${
+                  className={`flex items-center justify-center gap-2 px-3 sm:px-4 py-2 rounded-lg transition w-full sm:w-auto text-sm sm:text-base hover:scale-105 duration-300 ${
                     negocioActivo
                       ? "bg-green-600 text-white hover:bg-green-700"
                       : "bg-gray-400 text-gray-200 cursor-not-allowed"
@@ -1922,14 +1922,14 @@ export default function PerfilRestaurante() {
                     <button
                       type="button"
                       onClick={() => setMostrarFormSugerencia(false)}
-                      className="px-4 py-2 sm:px-6 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm sm:text-base w-full sm:w-auto"
+                      className="px-4 py-2 sm:px-6 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm sm:text-base w-full sm:w-auto hover:scale-105 duration-300"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
                       disabled={enviandoSugerencia}
-                      className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm sm:text-base w-full sm:w-auto"
+                      className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm sm:text-base w-full sm:w-auto hover:scale-105 duration-300"
                     >
                       {enviandoSugerencia ? (
                         <>
@@ -1951,7 +1951,7 @@ export default function PerfilRestaurante() {
             {/* Lista de sugerencias enviadas (solo visible para el propietario) */}
             {esPropietario && (
               <div>
-                <h4 className="text-lg font-semibold mb-4 text-base sm:text-lg">
+                <h4 className="text-lg font-semibold mb-4 sm:text-lg">
                   Mis Sugerencias Enviadas ({sugerencias.length})
                 </h4>
 
@@ -2030,7 +2030,7 @@ export default function PerfilRestaurante() {
                 </p>
                 <button
                   onClick={handleLogin}
-                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition text-sm sm:text-base"
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition text-sm sm:text-base hover:scale-105 duration-300"
                 >
                   Iniciar Sesión
                 </button>

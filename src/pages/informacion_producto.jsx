@@ -464,7 +464,7 @@ const InformacionProducto = () => {
           </p>
           <button
             onClick={() => window.history.back()}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition duration-200 text-sm"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition duration-200 text-sm hover:scale-105"
           >
             Volver Atrás
           </button>
@@ -482,7 +482,7 @@ const InformacionProducto = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={handleVolver}
-                className="bg-gray-300 text-white p-2 sm:p-3 rounded-full hover:bg-gray-700 transition duration-300 flex-shrink-0"
+                className="bg-gray-300 text-white p-2 sm:p-3 rounded-full hover:bg-gray-700 transition duration-300 flex-shrink-0 hover:scale-105"
                 title="Atrás"
               >
                 <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -530,10 +530,10 @@ const InformacionProducto = () => {
                   <button
                     onClick={toggleFavorito}
                     disabled={agregandoFavorito}
-                    className={`flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md transition duration-200 text-xs sm:text-sm ${
+                    className={`flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md transition duration-200 text-xs sm:text-sm hover:scale-105 ${
                       esFavorito
                         ? "bg-red-600 hover:bg-red-700 text-white"
-                        : "bg-white hover:bg-gray-100 text-gray-700 border border-gray-300"
+                        : "bg-white hover:bg-red-300 text-gray-700 hover:text-black "
                     } ${
                       agregandoFavorito ? "opacity-50 cursor-not-allowed" : ""
                     }`}
@@ -561,14 +561,14 @@ const InformacionProducto = () => {
                     <>
                       <button
                         onClick={() => setEditando(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm hover:scale-105"
                       >
                         <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span>Editar</span>
                       </button>
                       <button
                         onClick={abrirModalEliminar}
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow-md transition duration-200 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm hover:scale-105"
                       >
                         <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                         <span>Eliminar</span>
@@ -754,11 +754,11 @@ const InformacionProducto = () => {
                     <button
                       type="submit"
                       disabled={cargando}
-                      className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white py-2 px-4 rounded-md transition duration-200 flex items-center justify-center gap-2 text-sm"
+                      className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white py-2 px-4 rounded-md transition duration-200 flex items-center justify-center gap-2 text-sm hover:scale-105"
                     >
                       {cargando ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin hover:scale-105 duration-300"></div>
                           Guardando...
                         </>
                       ) : (
@@ -784,7 +784,7 @@ const InformacionProducto = () => {
                       type="button"
                       onClick={cancelarEdicion}
                       disabled={cargando}
-                      className="flex-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white py-2 px-4 rounded-md transition duration-200 text-sm"
+                      className="flex-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white py-2 px-4 rounded-md transition duration-200 text-sm hover:scale-105"
                     >
                       Cancelar
                     </button>
@@ -874,13 +874,13 @@ const InformacionProducto = () => {
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:items-center gap-1 sm:gap-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center  gap-1 sm:gap-2">
                         <span className="font-medium text-gray-700 text-sm sm:text-xl">
                           Nombre del restaurante:
                         </span>
                         <button
                           onClick={irAPerfilRestaurante}
-                          className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition duration-200 text-sm sm:text-xl text-left"
+                          className="text-blue-600 hover:text-blue-800 font-medium hover:underline transition duration-200 text-sm sm:text-xl text-left hover:scale-105"
                         >
                           {negocioNombre}
                         </button>
@@ -940,13 +940,13 @@ const InformacionProducto = () => {
             {/* Botón cerrar */}
             <button
               onClick={cerrarModalImagen}
-              className="absolute -top-10 sm:-top-12 right-0 text-white hover:text-gray-300 transition duration-200 z-10"
+              className="absolute -top-10 sm:-top-12 right-0 text-white hover:text-gray-300 transition duration-200 z-10 hover:scale-105"
             >
               <X className="w-6 h-6 sm:w-8 sm:h-8" />
             </button>
 
             {/* Imagen en grande */}
-            <div className="relative">
+            <div className="relative flex items-center justify-center min-h-[60vh]">
               <img
                 src={producto.imagen_URL}
                 alt={producto.nombre}
@@ -1015,14 +1015,14 @@ const InformacionProducto = () => {
                 <button
                   onClick={cerrarModalEliminar}
                   disabled={eliminando}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white py-2 sm:py-3 px-4 rounded-lg transition duration-200 font-medium text-sm sm:text-base"
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white py-2 sm:py-3 px-4 rounded-lg transition duration-200 font-medium text-sm sm:text-base hover:scale-105"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={eliminarProducto}
                   disabled={eliminando}
-                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white py-2 sm:py-3 px-4 rounded-lg transition duration-200 font-medium flex items-center justify-center gap-2 text-sm sm:text-base"
+                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white py-2 sm:py-3 px-4 rounded-lg transition duration-200 font-medium flex items-center justify-center gap-2 text-sm sm:text-base hover:scale-105"
                 >
                   {eliminando ? (
                     <>

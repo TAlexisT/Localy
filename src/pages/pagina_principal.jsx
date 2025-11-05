@@ -829,15 +829,18 @@ export default function PaginaPrincipal() {
         <>
           <button
             onClick={() => navigate("/registro_anunciante")}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full transition"
+            className="relative bg-gradient-to-r from-red-800 to-red-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 overflow-hidden group"
           >
-            Anunciate ahora
+            <span className="relative z-10">Anunciate ahora</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </button>
+
           <button
             onClick={() => navigate("/registro_usuario")}
-            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full transition"
+            className="relative bg-green-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 overflow-hidden group hover:scale-105"
           >
-            Registrate como usuario
+            <span className="relative z-10">Registrate como usuario</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </button>
         </>
       );
@@ -848,9 +851,10 @@ export default function PaginaPrincipal() {
       return (
         <button
           onClick={() => navigate("/registro_usuario")}
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full transition"
+          className="relative bg-green-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 overflow-hidden group hover:scale-105"
         >
-          Registrate como usuario
+          <span className="relative z-10">Registrate como usuario</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </button>
       );
     }
@@ -860,9 +864,10 @@ export default function PaginaPrincipal() {
       return (
         <button
           onClick={() => navigate("/registro_anunciante")}
-          className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full transition"
+          className="relative bg-gradient-to-r from-red-800 to-red-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 overflow-hidden group"
         >
-          Anunciate ahora
+          <span className="relative z-10">Anunciate ahora</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </button>
       );
     }
@@ -872,15 +877,17 @@ export default function PaginaPrincipal() {
       <>
         <button
           onClick={() => navigate("/registro_anunciante")}
-          className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full transition"
+          className="relative bg-gradient-to-r from-red-800 to-red-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 hover:scale-105 overflow-hidden group"
         >
-          Anunciate ahora
+          <span className="relative z-10">Anunciate ahora</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-red-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </button>
         <button
           onClick={() => navigate("/registro_usuario")}
-          className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-full transition"
+          className="relative bg-green-600 text-white font-bold py-3 px-6 rounded-full transition-all duration-300 overflow-hidden group hover:scale-105"
         >
-          Registrate como usuario
+          <span className="relative z-10">Registrate como usuario</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 to-green-700 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </button>
       </>
     );
@@ -907,7 +914,7 @@ export default function PaginaPrincipal() {
           <div className="absolute top-6 left-6 z-20">
             <button
               onClick={() => navigate("/favoritos")}
-              className="flex items-center gap-2 bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30 hover:bg-opacity-30 transition"
+              className="flex items-center gap-2 bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30 hover:bg-opacity-30 transition hover:scale-105 duration-300"
             >
               <svg
                 className="w-5 h-5"
@@ -940,7 +947,7 @@ export default function PaginaPrincipal() {
                 {/* Botón Cambiar Contraseña */}
                 <button
                   onClick={() => setMostrarPopupCambiarContrasena(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full transition"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full transition hover:scale-105 duration-300"
                 >
                   Cambiar contraseña
                 </button>
@@ -951,7 +958,7 @@ export default function PaginaPrincipal() {
                   </span>
                 ) : usuario.tipo == "negocio" ? (
                   <button
-                    className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30"
+                    className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30 hover:scale-105 duration-300"
                     onClick={handlePerfil}
                   >
                     Perfil
@@ -959,7 +966,7 @@ export default function PaginaPrincipal() {
                 ) : (
                   usuario.tipo == "admin" && (
                     <button
-                      className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30"
+                      className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30 hover:scale-105 duration-300"
                       onClick={handleAdmin}
                     >
                       Administrador
@@ -969,7 +976,7 @@ export default function PaginaPrincipal() {
 
                 <button
                   onClick={handleCerrarSesion}
-                  className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full transition"
+                  className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full transition hover:scale-105 duration-300"
                 >
                   Cerrar sesión
                 </button>
@@ -1118,7 +1125,6 @@ export default function PaginaPrincipal() {
                         Cerrar sesión
                       </button>
                     </div>
-                    
                   </div>
                 )}
               </div>
@@ -1126,7 +1132,7 @@ export default function PaginaPrincipal() {
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-semibold py-2 px-6 rounded-full transition backdrop-blur-sm border border-white border-opacity-30"
+              className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white font-semibold py-2 px-6 rounded-full transition backdrop-blur-sm border border-white border-opacity-30 hover:scale-105 duration-300"
             >
               Iniciar sesión
             </button>
@@ -1147,7 +1153,7 @@ export default function PaginaPrincipal() {
 
       {/* Estado de ubicación */}
       {solicitandoUbicacion && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg mx-6 mt-4 p-4">
+        <div className="rounded-lg mx-6 mt-4 p-4">
           <div className="flex items-center justify-center gap-3">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
             <p className="text-blue-700 text-sm">
@@ -1163,7 +1169,7 @@ export default function PaginaPrincipal() {
             <p className="text-yellow-700 text-sm">{errorUbicacion}</p>
             <button
               onClick={handleReintentarUbicacion}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-3 py-1 rounded transition ml-2"
+              className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-3 py-1 rounded transition ml-2 hover:scale-105 duration-300"
             >
               Reintentar
             </button>
@@ -1186,7 +1192,7 @@ export default function PaginaPrincipal() {
               />
               <button
                 onClick={aplicarBusqueda}
-                className="border border-green-600 bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition"
+                className="border border-green-600 bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition hover:scale-105 duration-300"
               >
                 <svg
                   className="w-5 h-5 md:w-6 md:h-6"
@@ -1212,7 +1218,7 @@ export default function PaginaPrincipal() {
           <div className="flex justify-center space-x-4 mb-6">
             <button
               onClick={() => setCategoriaActiva("Productos")}
-              className={`px-6 py-3 rounded-full transition font-medium ${
+              className={`px-6 py-3 rounded-full transition font-medium hover:scale-105 duration-300 ${
                 categoriaActiva === "Productos"
                   ? "bg-green-600 text-white"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -1222,7 +1228,7 @@ export default function PaginaPrincipal() {
             </button>
             <button
               onClick={() => setCategoriaActiva("Restaurantes")}
-              className={`px-6 py-3 rounded-full transition font-medium ${
+              className={`px-6 py-3 rounded-full transition font-medium hover:scale-105 duration-300 ${
                 categoriaActiva === "Restaurantes"
                   ? "bg-green-600 text-white"
                   : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -1250,7 +1256,7 @@ export default function PaginaPrincipal() {
                   onClick={() =>
                     setMostrarFiltrosRestaurantes(!mostrarFiltrosRestaurantes)
                   }
-                  className="flex items-center gap-2 bg-white border border-green-600 text-green-600 px-4 py-2 rounded-full hover:bg-green-50 transition z-20"
+                  className="flex items-center gap-2 bg-white border border-green-600 text-green-600 px-4 py-2 rounded-full hover:bg-green-50 transition z-20 hover:scale-105 duration-300"
                 >
                   <svg
                     className="w-4 h-4"
@@ -1344,7 +1350,7 @@ export default function PaginaPrincipal() {
                         onClick={() =>
                           setMostrarOrdenDistancia(!mostrarOrdenDistancia)
                         }
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center hover:scale-105 duration-300"
                       >
                         <span>
                           {filtrosRestaurantes.distancia_orden === "ASC"
@@ -1438,7 +1444,7 @@ export default function PaginaPrincipal() {
                       <button
                         type="button"
                         onClick={() => setMostrarTipo(!mostrarTipo)}
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center hover:scale-105 duration-300"
                       >
                         <span>
                           {filtrosRestaurantes.tipo === "ambulante"
@@ -1514,13 +1520,13 @@ export default function PaginaPrincipal() {
                   <div className="flex gap-3">
                     <button
                       onClick={aplicarFiltrosRestaurantes}
-                      className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition font-medium"
+                      className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition font-medium hover:scale-105 duration-300"
                     >
                       Aplicar Filtros
                     </button>
                     <button
                       onClick={resetearFiltrosRestaurantes}
-                      className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition font-medium"
+                      className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition font-medium hover:scale-105 duration-300"
                     >
                       Restablecer
                     </button>
@@ -1539,7 +1545,7 @@ export default function PaginaPrincipal() {
                   onClick={() =>
                     setMostrarFiltrosProductos(!mostrarFiltrosProductos)
                   }
-                  className="flex items-center gap-2 bg-white border border-green-600 text-green-600 px-4 py-2 rounded-full hover:bg-green-50 transition z-20"
+                  className="flex items-center gap-2 bg-white border border-green-600 text-green-600 px-4 py-2 rounded-full hover:bg-green-50 transition z-20 hover:scale-105 duration-300"
                 >
                   <svg
                     className="w-4 h-4"
@@ -1647,7 +1653,7 @@ export default function PaginaPrincipal() {
                           onClick={() =>
                             setMostrarCategorias(!mostrarCategorias)
                           }
-                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center"
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center hover:scale-105 duration-300"
                         >
                           <span>
                             {filtrosProductos.categoria ||
@@ -1722,7 +1728,7 @@ export default function PaginaPrincipal() {
                           onClick={() =>
                             setMostrarOrdenPrecio(!mostrarOrdenPrecio)
                           }
-                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center"
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-green-400 bg-white text-left flex justify-between items-center hover:scale-105 duration-300"
                         >
                           <span>
                             {filtrosProductos.precio_orden === ""
@@ -1853,13 +1859,13 @@ export default function PaginaPrincipal() {
                   <div className="flex gap-3">
                     <button
                       onClick={aplicarFiltrosProductos}
-                      className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition font-medium"
+                      className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition font-medium hover:scale-105 duration-300"
                     >
                       Aplicar Filtros
                     </button>
                     <button
                       onClick={resetearFiltrosProductos}
-                      className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition font-medium"
+                      className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition font-medium hover:scale-105 duration-300"
                     >
                       Restablecer
                     </button>
@@ -1890,7 +1896,7 @@ export default function PaginaPrincipal() {
                 <p>{errorRestaurantes}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition"
+                  className="mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition hover:scale-105 duration-300"
                 >
                   Reintentar
                 </button>
@@ -1902,7 +1908,7 @@ export default function PaginaPrincipal() {
                 <p>{errorProductos}</p>
                 <button
                   onClick={() => window.location.reload()}
-                  className="mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition"
+                  className="mt-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition hover:scale-105 duration-300"
                 >
                   Reintentar
                 </button>
@@ -1992,10 +1998,9 @@ export default function PaginaPrincipal() {
       </section>
 
       {/* Footer */}
-      <footer className="py-6 px-6 bg-gray-100 shadow-lg border-t border-green-100 border-t-[5px]">
+      <footer className="py-6 px-6 bg-gray-200">
         <div className="container mx-auto text-center text-gray-600">
           <p>&copy; 2025 LOCALY. Todos los derechos reservados.</p>
-          <p>Tipografía e íconos pertenecen a sus respectivos autores.</p>
         </div>
       </footer>
 
@@ -2021,14 +2026,14 @@ export default function PaginaPrincipal() {
                       setMensajeCambioContrasena("");
                     }}
                     disabled={cargandoCambioContrasena}
-                    className="flex-1 bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-full hover:bg-gray-400 transition disabled:bg-gray-200 disabled:cursor-not-allowed"
+                    className="flex-1 bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-full hover:bg-gray-400 transition disabled:bg-gray-200 disabled:cursor-not-allowed hover:scale-105 duration-300"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={handleSolicitarCambioContrasena}
                     disabled={cargandoCambioContrasena}
-                    className={`flex-1 text-white font-medium py-2 px-4 rounded-full transition ${
+                    className={`flex-1 text-white font-medium py-2 px-4 rounded-full transition hover:scale-105 duration-300 ${
                       cargandoCambioContrasena
                         ? "bg-blue-400 cursor-not-allowed"
                         : "bg-blue-600 hover:bg-blue-700"
@@ -2050,7 +2055,7 @@ export default function PaginaPrincipal() {
                     setMostrarPopupCambiarContrasena(false);
                     setMensajeCambioContrasena("");
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-full transition"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-full transition hover:scale-105 duration-300"
                 >
                   Cerrar
                 </button>

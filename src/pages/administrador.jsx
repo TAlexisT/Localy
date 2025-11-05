@@ -206,7 +206,7 @@ const Administrador = () => {
             <nav className="-mb-px flex space-x-8">
               <button
                 onClick={() => setActivoTab("sugerencias")}
-                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap hover:scale-105 duration-300 ${
                   activoTab === "sugerencias"
                     ? "border-green-500 text-green-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -219,7 +219,7 @@ const Administrador = () => {
               </button>
               <button
                 onClick={() => setActivoTab("negocios")}
-                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
+                className={`py-2 px-1 border-b-2 font-medium text-sm whitespace-nowrap hover:scale-105 duration-300 ${
                   activoTab === "negocios"
                     ? "border-green-500 text-green-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -253,7 +253,7 @@ const Administrador = () => {
                 </h3>
                 <button
                   onClick={cerrarModal}
-                  className="text-gray-400 hover:text-gray-600 transition duration-200"
+                  className="text-gray-400 hover:text-gray-600 transition hover:scale-105 duration-300"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -270,14 +270,14 @@ const Administrador = () => {
                 <div className="flex gap-3 justify-end">
                   <button
                     onClick={cerrarModal}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition duration-200"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition hover:scale-105 duration-300"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={eliminarSugerencia}
                     disabled={eliminandoSugerencia}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 rounded-lg transition duration-200 flex items-center gap-2"
+                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 rounded-lg transition hover:scale-105 duration-300 flex items-center gap-2"
                   >
                     {eliminandoSugerencia ? (
                       <>
@@ -378,7 +378,7 @@ const Administrador = () => {
                             onClick={() =>
                               confirmarEliminarSugerencia(sugerencia.id)
                             }
-                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg transition duration-200 text-sm"
+                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg transition hover:scale-105 duration-300 text-sm"
                           >
                             <Trash2 className="w-4 h-4" />
                             <span className="hidden sm:inline">Eliminar</span>

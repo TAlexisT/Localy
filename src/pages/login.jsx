@@ -327,7 +327,7 @@ export default function Login() {
             className={`w-full text-white font-semibold py-3 rounded-full transition mt-2 ${
               isLoading
                 ? "bg-green-400 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700"
+                : "bg-green-600 hover:bg-white hover:border hover:text-green-600 hover:border-green-600 hover:scale-105 duration-500"
             }`}
           >
             {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
@@ -350,14 +350,14 @@ export default function Login() {
             <button
               onClick={redirectToAdvertiserRegister}
               disabled={isLoading}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition flex-1 disabled:bg-red-400 disabled:cursor-not-allowed"
+              className="bg-red-600 text-white font-medium hover:bg-red-800 px-4 py-2 rounded-full transition disabled:opacity-50 hover:scale-105 duration-300 flex-1 disabled:bg-red-400 disabled:cursor-not-allowed"
             >
               Anunciante
             </button>
             <button
               onClick={redirectToUserRegister}
               disabled={isLoading}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-full transition flex-1 disabled:bg-red-400 disabled:cursor-not-allowed"
+              className="bg-red-600 text-white font-medium hover:bg-red-800 px-4 py-2 rounded-full transition disabled:opacity-50 hover:scale-105 duration-300 flex-1 disabled:bg-red-400 disabled:cursor-not-allowed"
             >
               Usuario
             </button>
@@ -367,7 +367,7 @@ export default function Login() {
         <div className="text-center mt-4">
           <button
             onClick={() => navigate("/")}
-            className="text-sm text-green-600 hover:text-green-700 underline"
+            className="text-sm text-green-600 hover:text-green-700 underline hover:scale-105 duration-300"
             disabled={isLoading}
           >
             Volver a la página principal

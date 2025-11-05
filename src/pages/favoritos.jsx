@@ -211,7 +211,7 @@ const Favoritos = () => {
             <p className="text-gray-600 mb-4">{error}</p>
             <button
               onClick={() => window.history.back()}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition duration-200"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition hover:scale-105 duration-300"
             >
               Volver Atrás
             </button>
@@ -249,7 +249,7 @@ const Favoritos = () => {
             </p>
             <button
               onClick={() => navigate("/login")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition duration-200"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition hover:scale-105 duration-300"
             >
               Iniciar Sesión
             </button>
@@ -267,7 +267,7 @@ const Favoritos = () => {
           <div className="flex space-x-2">
               <button
                 onClick={handleVolver}
-                className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition duration-300"
+                className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition hover:scale-105 duration-300"
                 title="Atrás"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -297,7 +297,7 @@ const Favoritos = () => {
             </p>
             <button
               onClick={() => navigate("/")}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition duration-200 font-medium"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition hover:scale-105 duration-300 font-medium"
             >
               Explorar Ahora
             </button>
@@ -331,7 +331,7 @@ const Favoritos = () => {
                             eliminarFavorito(producto.producto_id, "producto");
                           }}
                           disabled={eliminandoId === producto.producto_id}
-                          className="bg-white p-2 rounded-full shadow-md hover:bg-red-50 transition-colors duration-200"
+                          className="bg-white p-2 rounded-full shadow-md hover:bg-red-50 transition-colors hover:scale-105 duration-300"
                         >
                           {eliminandoId === producto.producto_id ? (
                             <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
@@ -386,7 +386,7 @@ const Favoritos = () => {
                             eliminarFavorito(restaurante.negocio_id, "negocio");
                           }}
                           disabled={eliminandoId === restaurante.negocio_id}
-                          className="bg-white p-2 rounded-full shadow-md hover:bg-red-50 transition-colors duration-200"
+                          className="bg-white p-2 rounded-full shadow-md hover:bg-red-50 transition-colors dhover:scale-105 duration-300"
                         >
                           {eliminandoId === restaurante.negocio_id ? (
                             <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>

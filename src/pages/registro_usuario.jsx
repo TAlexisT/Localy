@@ -224,7 +224,7 @@ export default function RegistroUsuario() {
             className={`w-full text-white font-semibold py-3 rounded-full transition mt-2 ${
               isLoading || verificationSent
                 ? "bg-green-400 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700"
+                : "bg-green-600 hover:bg-white hover:border hover:text-green-600 hover:border-green-600 hover:scale-105 duration-500"
             }`}
           >
             {isLoading
@@ -260,7 +260,7 @@ export default function RegistroUsuario() {
         <div className="text-center mt-4">
           <button
             onClick={() => navigate("/")}
-            className="text-sm text-white font-semibold bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full transition"
+            className="text-sm text-white font-semibold bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full transition hover:scale-105 duration-300"
             disabled={isLoading}
           >
             Volver a la página principal

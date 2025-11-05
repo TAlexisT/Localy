@@ -134,7 +134,7 @@ export default function RegistroAnunciante() {
           <h2 className="text-xl md:text-2xl font-bold text-gray-800">
             Regístrate y anuncia tu
           </h2>
-          <h2 className="text-xl md:text-2xl font-bold text-green-600">
+          <h2 className="text-xl md:text-2xl font-bold text-green-600 hover:scale-105 duration-300">
             Restaurante
           </h2>
         </div>
@@ -229,7 +229,7 @@ export default function RegistroAnunciante() {
               <strong>Tamaño del local / restaurante</strong>
             </label>
             <div className="space-y-2">
-              <label className="flex items-center space-x-2">
+              <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
                   name="businessType"
@@ -243,7 +243,7 @@ export default function RegistroAnunciante() {
                   Ambulante (horario limitado)
                 </span>
               </label>
-              <label className="flex items-center space-x-2">
+              <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
                   name="businessType"
@@ -270,7 +270,7 @@ export default function RegistroAnunciante() {
               name="recurrente"
               checked={formData.recurrente}
               onChange={handleChange}
-              className="w-5 h-5 text-green-600 focus:ring-green-400 ml-3 disabled:opacity-50"
+              className="w-5 h-5 text-green-600 focus:ring-green-400 ml-3 disabled:opacity-50  cursor-pointer"
               disabled={isLoading || verificationSent}
             />
           </div>
@@ -281,8 +281,8 @@ export default function RegistroAnunciante() {
             disabled={isLoading || verificationSent}
             className={`w-full text-white font-semibold py-3 rounded-full transition mt-4 ${
               isLoading || verificationSent
-                ? "bg-green-400 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700"
+                ? "bg-green-400 cursor-not-allowed "
+                : "bg-green-600 hover:bg-white hover:border hover:text-green-600 hover:border-green-600 hover:scale-105 duration-500"
             }`}
           >
             {isLoading ? "Procesando..." : verificationSent ? "Registro Enviado" : "Regístrate"}
@@ -310,7 +310,7 @@ export default function RegistroAnunciante() {
         <div className="text-center mt-4">
           <button
             onClick={() => navigate("/")}
-            className="text-sm text-white font-semibold bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full transition disabled:opacity-50"
+            className="text-sm text-white font-semibold bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full transition disabled:opacity-50 hover:scale-105 duration-300"
             disabled={isLoading}
           >
             Volver a la página principal

@@ -443,7 +443,7 @@ export default function ConfigurarPerfil() {
               />
               <label
                 htmlFor="imagen"
-                className="px-4 py-2 bg-green-600 text-white rounded-full cursor-pointer hover:bg-blue-700 transition"
+                className="px-4 py-2 bg-green-600 text-white rounded-full cursor-pointer hover:bg-blue-700 transition  hover:scale-105 duration-300"
               >
                 {imagePreview ? "Cambiar Imagen" : "Seleccionar Imagen"}
               </label>
@@ -458,7 +458,7 @@ export default function ConfigurarPerfil() {
                   <button
                     type="button"
                     onClick={handleEliminarImagen}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:scale-105 duration-300"
                   >
                     ×
                   </button>
@@ -490,7 +490,7 @@ export default function ConfigurarPerfil() {
               <button
                 type="button"
                 onClick={obtenerUbicacionActual}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 hover:scale-105 duration-300"
               >
                 Obtener Ubicación Actual
               </button>
@@ -643,14 +643,14 @@ export default function ConfigurarPerfil() {
               type="button"
               onClick={() => navigate(-1)}
               disabled={loading}
-              className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50 transition"
+              className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 disabled:opacity-50 transition hover:scale-105 duration-300"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition"
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition hover:scale-105 duration-300"
             >
               {loading ? "Guardando..." : "Guardar Cambios"}
             </button>

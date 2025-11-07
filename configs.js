@@ -7,12 +7,12 @@ const config = {
   },
   // Producción
   production: {
-    apiUrl: "https://localymx.com/api",
+    apiUrl: "https://localy-mx-b.vercel.app/api",
   },
 };
 
 // Determinar el entorno actual
-const environment = import.meta.env.MODE || "development";
+const environment = import.meta.env.MODE || "production";
 
 // Exportar la configuración según el entorno
 export const API_BASE_URL = config[environment].apiUrl;

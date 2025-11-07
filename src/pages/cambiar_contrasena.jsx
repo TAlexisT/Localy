@@ -80,7 +80,7 @@ export default function CambiarContrasena() {
 
         // Redirigir al login después de 2 segundos
         setTimeout(() => {
-          navigate("/login");
+          navigate("/");
         }, 2000);
       } else {
         // Manejar errores específicos del servidor
@@ -310,7 +310,7 @@ export default function CambiarContrasena() {
                   {successMessage}
                 </p>
                 <p className="text-green-600 text-xs text-center mt-1">
-                  Redirigiendo al login...
+                  Redirigiendo a la página principal...
                 </p>
               </div>
             )}

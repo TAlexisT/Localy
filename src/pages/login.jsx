@@ -83,7 +83,7 @@ export default function Login() {
         `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.PERFIL(usuario.negocioId)}`,
         {
           credentials: "include",
-        }
+        },
       );
 
       if (response.ok) {
@@ -142,14 +142,14 @@ export default function Login() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ correo: recoveryEmail }),
-        }
+        },
       );
 
       const result = await response.json();
 
       if (response.ok && result.exito) {
         setRecoveryMessage(
-          "Se ha enviado un enlace de recuperación a tu correo electrónico"
+          "Se ha enviado un enlace de recuperación a tu correo electrónico",
         );
         setTimeout(() => {
           setShowPasswordRecovery(false);
@@ -158,7 +158,7 @@ export default function Login() {
         }, 3000);
       } else {
         setRecoveryMessage(
-          result.message || "Error al enviar la solicitud de recuperación"
+          result.message || "Error al enviar la solicitud de recuperación",
         );
       }
     } catch (error) {

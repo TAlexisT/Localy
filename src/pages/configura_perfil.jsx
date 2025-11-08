@@ -58,7 +58,7 @@ export default function ConfigurarPerfil() {
 
     if (usuario.negocioId && usuario.negocioId !== negocioId) {
       setError(
-        "No tienes permisos para configurar este perfil. Redirigiendo..."
+        "No tienes permisos para configurar este perfil. Redirigiendo...",
       );
       setTimeout(() => navigate("/login"), 2000);
       return;
@@ -70,7 +70,7 @@ export default function ConfigurarPerfil() {
         const response = await fetch(
           `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.PERFIL(negocioId)}`,
 
-          { credentials: "include" }
+          { credentials: "include" },
         );
 
         if (response.ok) {
@@ -259,7 +259,7 @@ export default function ConfigurarPerfil() {
           credentials: "include",
           body: formDataToSend,
           // NO agregues Content-Type header - Fetch lo hará automáticamente con boundary
-        }
+        },
       );
 
       if (!response.ok) {
@@ -268,11 +268,13 @@ export default function ConfigurarPerfil() {
           errorText = await response.text();
           const errorData = JSON.parse(errorText);
           throw new Error(
-            errorData.mensaje || errorData.error || "Error al actualizar perfil"
+            errorData.mensaje ||
+              errorData.error ||
+              "Error al actualizar perfil",
           );
         } catch {
           throw new Error(
-            errorText || `Error ${response.status}: ${response.statusText}`
+            errorText || `Error ${response.status}: ${response.statusText}`,
           );
         }
       }
@@ -332,7 +334,7 @@ export default function ConfigurarPerfil() {
         },
         (error) => {
           setError("No se pudo obtener la ubicación: " + error.message);
-        }
+        },
       );
     } else {
       setError("Geolocalización no es soportada por este navegador");

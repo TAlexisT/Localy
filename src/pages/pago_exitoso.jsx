@@ -27,7 +27,7 @@ export default function PagoExito() {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         console.log("📋 Status de respuesta:", response.status);

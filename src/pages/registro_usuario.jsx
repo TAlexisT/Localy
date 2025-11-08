@@ -56,7 +56,7 @@ export default function RegistroUsuario() {
           },
           credentials: "include",
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       const data = await response.json();
@@ -81,7 +81,7 @@ export default function RegistroUsuario() {
     } catch (error) {
       // Error de conexión
       setMessage(
-        "Error de conexión. Verifica tu internet o intenta más tarde."
+        "Error de conexión. Verifica tu internet o intenta más tarde.",
       );
       setMessageType("error");
       setVerificationSent(false);
@@ -230,8 +230,8 @@ export default function RegistroUsuario() {
             {isLoading
               ? "Registrando..."
               : verificationSent
-              ? "Verificación Enviada"
-              : "Regístrate"}
+                ? "Verificación Enviada"
+                : "Regístrate"}
           </button>
         </form>
 

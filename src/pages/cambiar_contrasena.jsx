@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 
 export default function CambiarContrasena() {
   const [nuevaContrasena, setNuevaContrasena] = useState("");
@@ -67,7 +67,7 @@ export default function CambiarContrasena() {
           body: JSON.stringify({
             contrasena: nuevaContrasena,
           }),
-        }
+        },
       );
 
       const result = await response.json();
@@ -290,7 +290,7 @@ export default function CambiarContrasena() {
                 <p className="text-red-700 text-sm font-medium text-center mb-2">
                   {errorMessage}
                 </p>
-                
+
                 {/* Mostrar detalles específicos de errores */}
                 {errorDetalles.length > 0 && (
                   <div className="mt-2">

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 
 export default function RegistroAnunciante() {
   const [formData, setFormData] = useState({
@@ -18,19 +18,19 @@ export default function RegistroAnunciante() {
   const [messageType, setMessageType] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
-  
+
   const navigate = useNavigate();
 
   // 🔹 Aquí defines tus price IDs de Stripe
   const PRICE_IDS = {
     ambulante: {
-      recurrente: "price_1S8W421rnZa5ePTMqg8QtLWm",
-      puntual: "price_1S8W4V1rnZa5ePTMuLtfNJXM"
+      recurrente: "price_1SNPRBC0yYHfNuR2tz1yyBsT",
+      puntual: "price_1SNPQ8C0yYHfNuR2mxUDdyXm",
     },
     restaurante: {
-      recurrente: "price_1S8W4q1rnZa5ePTMI7llDwgK",
-      puntual: "price_1S8W5A1rnZa5ePTM3nz80AnR"
-    }
+      recurrente: "price_1SNPTOC0yYHfNuR2tSp0Dism",
+      puntual: "price_1SNPSlC0yYHfNuR2D0PZnjRM",
+    },
   };
 
   const updatePriceId = (tipo, recurrente) => {
@@ -90,7 +90,7 @@ export default function RegistroAnunciante() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       if (!response.ok) {
@@ -103,10 +103,11 @@ export default function RegistroAnunciante() {
       // 🔹 Cambiado: No redirigir a Stripe, mostrar mensaje de verificación
       setMessageType("success");
       setVerificationSent(true);
-
     } catch (error) {
       console.error("Error al crear la sesión de pago:", error);
-      setMessage("Hubo un problema al procesar tu registro. Intenta nuevamente.");
+      setMessage(
+        "Hubo un problema al procesar tu registro. Intenta nuevamente.",
+      );
       setMessageType("error");
     } finally {
       setIsLoading(false);
@@ -178,13 +179,38 @@ export default function RegistroAnunciante() {
                 disabled={isLoading || verificationSent}
               >
                 {showPassword ? (
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
                   </svg>
                 ) : (
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m9.02 9.02l3.83 3.83" />
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m9.02 9.02l3.83 3.83"
+                    />
                   </svg>
                 )}
               </button>
@@ -239,7 +265,13 @@ export default function RegistroAnunciante() {
                   className="text-green-600 focus:ring-green-400 disabled:opacity-50"
                   disabled={isLoading || verificationSent}
                 />
-                <span className={`text-sm ${isLoading || verificationSent ? 'text-gray-400' : 'text-gray-700'}`}>
+                <span
+                  className={`text-sm ${
+                    isLoading || verificationSent
+                      ? "text-gray-400"
+                      : "text-gray-700"
+                  }`}
+                >
                   Ambulante (horario limitado)
                 </span>
               </label>
@@ -253,7 +285,13 @@ export default function RegistroAnunciante() {
                   className="text-green-600 focus:ring-green-400 disabled:opacity-50"
                   disabled={isLoading || verificationSent}
                 />
-                <span className={`text-sm ${isLoading || verificationSent ? 'text-gray-400' : 'text-gray-700'}`}>
+                <span
+                  className={`text-sm ${
+                    isLoading || verificationSent
+                      ? "text-gray-400"
+                      : "text-gray-700"
+                  }`}
+                >
                   Restaurante
                 </span>
               </label>
@@ -262,7 +300,13 @@ export default function RegistroAnunciante() {
 
           {/* Pago recurrente */}
           <div className="flex items-center mt-4">
-            <label className={`text-sm font-medium ${isLoading || verificationSent ? 'text-gray-400' : 'text-gray-700'}`}>
+            <label
+              className={`text-sm font-medium ${
+                isLoading || verificationSent
+                  ? "text-gray-400"
+                  : "text-gray-700"
+              }`}
+            >
               Pago recurrente
             </label>
             <input
@@ -285,17 +329,23 @@ export default function RegistroAnunciante() {
                 : "bg-green-600 hover:bg-white hover:border hover:text-green-600 hover:border-green-600 hover:scale-105 duration-500"
             }`}
           >
-            {isLoading ? "Procesando..." : verificationSent ? "Registro Enviado" : "Regístrate"}
+            {isLoading
+              ? "Procesando..."
+              : verificationSent
+                ? "Registro Enviado"
+                : "Regístrate"}
           </button>
         </form>
 
         {/* Mensaje de retroalimentación */}
         {message && (
-          <div className={`mt-4 p-3 rounded-lg text-center ${
-            messageType === "success" 
-              ? "bg-green-100 text-green-700" 
-              : "bg-red-100 text-red-700"
-          }`}>
+          <div
+            className={`mt-4 p-3 rounded-lg text-center ${
+              messageType === "success"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
             {message}
           </div>
         )}
@@ -303,7 +353,8 @@ export default function RegistroAnunciante() {
         {/* Mensaje específico de verificación */}
         {verificationSent && (
           <div className="mt-4 p-3 rounded-lg text-center bg-blue-100 text-blue-700">
-            Hemos enviado un enlace de verificación a tu correo. Ábrelo para continuar con el proceso.
+            Hemos enviado un enlace de verificación a tu correo. Ábrelo para
+            continuar con el proceso.
           </div>
         )}
 

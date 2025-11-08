@@ -39,7 +39,7 @@ export default function RenovacionExitosa() {
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
 
         console.log("📋 Status de respuesta:", response.status);
@@ -76,7 +76,7 @@ export default function RenovacionExitosa() {
         console.error("❌ Error al procesar renovación:", error);
         setEstado("error");
         setMensaje(
-          "Error al verificar la renovación. Serás redirigido al inicio."
+          "Error al verificar la renovación. Serás redirigido al inicio.",
         );
 
         // Redirigir después de 3 segundos

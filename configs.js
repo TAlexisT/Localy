@@ -23,7 +23,7 @@ export const API_ENDPOINTS = {
     MOSTRAR: "/negocios/mostrar",
     OBTENER_CADA_NEGOCIO: "/negocios/obtener-cada-negocio",
     PERFIL: (negocioId) => `/negocios/perfil/${negocioId}`,
-    
+
     REACTIVAR_SESION_PAGO: (negocioId) =>
       `/negocios/reactivar-sesion-pago/${negocioId}`,
     SUBIR_MENU: (negocioId) => `/negocios/subir-menu/${negocioId}`,

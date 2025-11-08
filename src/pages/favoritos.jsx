@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Heart, MapPin, Star, Clock } from "lucide-react";
 import TarjetaProducto from "../components/tarjeta_producto"; // Ajusta la ruta según tu estructura
 import TarjetaRestaurante from "../components/tarjeta_restaurante"; // Ajusta la ruta según tu estructura
-import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 
 const Favoritos = () => {
   const [usuario, setUsuario] = useState(null);
@@ -54,7 +54,7 @@ const Favoritos = () => {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 60000,
-      }
+      },
     );
   }, []);
 
@@ -70,7 +70,7 @@ const Favoritos = () => {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
-          }
+          },
         );
 
         if (response.ok) {
@@ -109,7 +109,7 @@ const Favoritos = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ ubicacion: usuarioUbicacion }), // shorthand works fine
-        }
+        },
       );
 
       if (response.ok) {
@@ -150,11 +150,11 @@ const Favoritos = () => {
         // Actualizar lista localmente según el tipo
         if (tipo === "producto") {
           setProductosFavoritos((prev) =>
-            prev.filter((producto) => producto.producto_id !== favoritoId)
+            prev.filter((producto) => producto.producto_id !== favoritoId),
           );
         } else if (tipo === "negocio") {
           setRestaurantesFavoritos((prev) =>
-            prev.filter((restaurante) => restaurante.negocio_id !== favoritoId)
+            prev.filter((restaurante) => restaurante.negocio_id !== favoritoId),
           );
         }
       } else {
@@ -265,19 +265,29 @@ const Favoritos = () => {
         {/* Header */}
         <div className="mb-8">
           <div className="flex space-x-2">
-              <button
-                onClick={handleVolver}
-                className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition hover:scale-105 duration-300"
-                title="Atrás"
+            <button
+              onClick={handleVolver}
+              className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition hover:scale-105 duration-300"
+              title="Atrás"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-              </button>
-              
-              <h1 className="text-3xl font-bold text-gray-900">Mis Favoritos</h1>
-            </div>
-          
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
+              </svg>
+            </button>
+
+            <h1 className="text-3xl font-bold text-gray-900">Mis Favoritos</h1>
+          </div>
+
           <p className="text-gray-600">
             Gestiona tus productos y restaurantes favoritos
           </p>

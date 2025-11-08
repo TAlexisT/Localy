@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 import {
   MapPin,
   X,
@@ -75,7 +75,7 @@ const InformacionProducto = () => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -102,11 +102,11 @@ const InformacionProducto = () => {
       if (esFavorito) {
         // Remover de favoritos
         const response = await fetch(
-          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.BORRAR_FAVORITO(usuario.id, productoId, 'producto')}`,
+          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.BORRAR_FAVORITO(usuario.id, productoId, "producto")}`,
           {
             method: "DELETE",
             credentials: "include",
-          }
+          },
         );
 
         const resultado = await response.json();
@@ -125,7 +125,7 @@ const InformacionProducto = () => {
         };
 
         const response = await fetch(
-          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.CREAR_FAVORITO(usuario.id)}`,  
+          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.CREAR_FAVORITO(usuario.id)}`,
           {
             method: "POST",
             credentials: "include",
@@ -133,7 +133,7 @@ const InformacionProducto = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(body),
-          }
+          },
         );
 
         const resultado = await response.json();
@@ -225,7 +225,7 @@ const InformacionProducto = () => {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
 
       const resultado = await response.json();
@@ -259,7 +259,7 @@ const InformacionProducto = () => {
         {
           method: "POST",
           credentials: "include",
-        }
+        },
       );
 
       const resultado = await response.json();
@@ -287,7 +287,7 @@ const InformacionProducto = () => {
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
       const resultado = await response.json();
 
@@ -371,7 +371,7 @@ const InformacionProducto = () => {
           method: "PUT",
           credentials: "include",
           body: formDataToSend,
-        }
+        },
       );
 
       const resultado = await response.json();

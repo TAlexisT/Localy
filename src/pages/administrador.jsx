@@ -1,4 +1,4 @@
-import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 // src/pages/Administrador.jsx
 import React, { useState, useEffect } from "react";
 import {
@@ -12,8 +12,6 @@ import {
   Shield,
   X,
 } from "lucide-react";
-
-
 
 const Administrador = () => {
   const [sugerencias, setSugerencias] = useState([]);
@@ -38,11 +36,11 @@ const Administrador = () => {
       // Obtener todos los negocios primero para luego obtener sus sugerencias
       const negociosRes = await fetch(
         `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.OBTENER_CADA_NEGOCIO}`,
-        
+
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
 
       if (!negociosRes.ok) {
@@ -64,7 +62,7 @@ const Administrador = () => {
           {
             method: "GET",
             credentials: "include",
-          }
+          },
         );
 
         if (sugerenciasRes.ok) {
@@ -74,7 +72,7 @@ const Administrador = () => {
             const sugerenciasConNegocio = sugerenciasData.datos.map(
               (sugerencia) => ({
                 ...sugerencia,
-              })
+              }),
             );
             todasSugerencias.push(...sugerenciasConNegocio);
           }
@@ -103,7 +101,7 @@ const Administrador = () => {
         {
           method: "GET",
           credentials: "include",
-        }
+        },
       );
 
       if (!response.ok) {
@@ -149,7 +147,7 @@ const Administrador = () => {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
 
       const result = await response.json();
@@ -157,7 +155,7 @@ const Administrador = () => {
       if (response.ok && result.exito) {
         // CORREGIDO: Eliminar la sugerencia del estado local correctamente
         setSugerencias((prev) =>
-          prev.filter((s) => s.id !== sugerenciaAEliminar)
+          prev.filter((s) => s.id !== sugerenciaAEliminar),
         );
         cerrarModal();
       } else {
@@ -173,7 +171,7 @@ const Administrador = () => {
 
   // Filtrar negocios por búsqueda
   const negociosFiltrados = negocios.filter((negocio) =>
-    negocio.nombre?.toLowerCase().includes(busqueda.toLowerCase())
+    negocio.nombre?.toLowerCase().includes(busqueda.toLowerCase()),
   );
 
   useEffect(() => {

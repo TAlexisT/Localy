@@ -40,17 +40,17 @@ import {
 } from "lucide-react";
 
 import MapaUbicacion from "../components/MapaUbicacion";
-import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 
 // Definir los price_ids
 const PRICE_IDS = {
   ambulante: {
-    recurrente: "price_1S8W421rnZa5ePTMqg8QtLWm",
-    puntual: "price_1S8W4V1rnZa5ePTMuLtfNJXM",
+    recurrente: "price_1SNPRBC0yYHfNuR2tz1yyBsT",
+    puntual: "price_1SNPQ8C0yYHfNuR2mxUDdyXm",
   },
   restaurante: {
-    recurrente: "price_1S8W4q1rnZa5ePTMI7llDwgK",
-    puntual: "price_1S8W5A1rnZa5ePTM3nz80AnR",
+    recurrente: "price_1SNPTOC0yYHfNuR2tSp0Dism",
+    puntual: "price_1SNPSlC0yYHfNuR2D0PZnjRM",
   },
 };
 
@@ -155,7 +155,7 @@ export default function PerfilRestaurante() {
               headers: {
                 "Content-Type": "application/json",
               },
-            }
+            },
           );
 
           if (sesionRes.ok) {
@@ -243,14 +243,14 @@ export default function PerfilRestaurante() {
             price_id: priceId,
             recurrente: pagoRecurrente,
           }),
-        }
+        },
       );
 
       const result = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          result.mensaje || `Error ${response.status}: ${response.statusText}`
+          result.mensaje || `Error ${response.status}: ${response.statusText}`,
         );
       }
 
@@ -269,8 +269,6 @@ export default function PerfilRestaurante() {
           (stripeUrl.startsWith("https://") ||
             stripeUrl.startsWith("http://localhost"))
         ) {
-          
-
           // Redirigir a la URL de Stripe
           window.location.href = stripeUrl;
         } else {
@@ -302,14 +300,14 @@ export default function PerfilRestaurante() {
     setCargandoSugerencias(true);
     try {
       const response = await fetch(
-        `${API_BASE_URL}${API_ENDPOINTS.SUGERENCIAS.OBTENER_SUGERENCIAS(negocioId)}`,  
+        `${API_BASE_URL}${API_ENDPOINTS.SUGERENCIAS.OBTENER_SUGERENCIAS(negocioId)}`,
         {
           method: "GET",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -377,14 +375,14 @@ export default function PerfilRestaurante() {
             titulo: formSugerencia.titulo.trim(),
             descripcion: formSugerencia.descripcion.trim(),
           }),
-        }
+        },
       );
 
       const result = await response.json();
 
       if (!response.ok) {
         throw new Error(
-          result.mensaje || `Error ${response.status}: ${response.statusText}`
+          result.mensaje || `Error ${response.status}: ${response.statusText}`,
         );
       }
 
@@ -393,7 +391,7 @@ export default function PerfilRestaurante() {
       }
 
       setSuccessSugerencia(
-        "¡Sugerencia enviada exitosamente a los administradores!"
+        "¡Sugerencia enviada exitosamente a los administradores!",
       );
       setFormSugerencia({ titulo: "", descripcion: "" });
       setMostrarFormSugerencia(false);
@@ -429,11 +427,11 @@ export default function PerfilRestaurante() {
       if (esFavorito) {
         // Remover de favoritos
         const response = await fetch(
-          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.BORRAR_FAVORITO(usuario.id, negocioId, 'negocio')}`,
+          `${API_BASE_URL}${API_ENDPOINTS.USUARIOS.BORRAR_FAVORITO(usuario.id, negocioId, "negocio")}`,
           {
             method: "DELETE",
             credentials: "include",
-          }
+          },
         );
 
         const resultado = await response.json();
@@ -459,7 +457,7 @@ export default function PerfilRestaurante() {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(body),
-          }
+          },
         );
 
         const resultado = await response.json();
@@ -485,7 +483,7 @@ export default function PerfilRestaurante() {
         `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.PERFIL(negocioId)}`,
         {
           credentials: "include",
-        }
+        },
       );
 
       if (!perfilRes.ok) {
@@ -502,7 +500,7 @@ export default function PerfilRestaurante() {
 
       if (!perfilData.exito) {
         throw new Error(
-          perfilData.mensaje || "Error al cargar los datos del negocio"
+          perfilData.mensaje || "Error al cargar los datos del negocio",
         );
       }
 
@@ -518,7 +516,7 @@ export default function PerfilRestaurante() {
           ([id, url]) => ({
             id: id,
             url: url,
-          })
+          }),
         );
         setMenuImages(imagenesMenu);
       } else {
@@ -557,7 +555,7 @@ export default function PerfilRestaurante() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -678,7 +676,7 @@ export default function PerfilRestaurante() {
   const handleUploadMenu = async (event) => {
     if (usuario?.negocioActivo === false) {
       alert(
-        "Tu negocio está inactivo. Activa tu suscripción para agregar imágenes del menú."
+        "Tu negocio está inactivo. Activa tu suscripción para agregar imágenes del menú.",
       );
       return;
     }
@@ -710,7 +708,7 @@ export default function PerfilRestaurante() {
           method: "POST",
           credentials: "include",
           body: formData,
-        }
+        },
       );
 
       const result = await response.json();
@@ -763,7 +761,7 @@ export default function PerfilRestaurante() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
 
       const result = await response.json();
@@ -794,7 +792,7 @@ export default function PerfilRestaurante() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (logoutRes.ok) {
@@ -1380,7 +1378,7 @@ export default function PerfilRestaurante() {
                       e.target.parentElement.classList.add(
                         "bg-gradient-to-br",
                         "from-blue-100",
-                        "to-purple-100"
+                        "to-purple-100",
                       );
                     }}
                   />
@@ -1496,18 +1494,18 @@ export default function PerfilRestaurante() {
 
                             const enlace = generarEnlaceRedSocial(
                               plataforma,
-                              valor
+                              valor,
                             );
                             const Icono =
                               plataforma === "WhatsApp"
                                 ? MessageCircle
                                 : plataforma === "Facebook"
-                                ? Facebook
-                                : plataforma === "Instagram"
-                                ? Instagram
-                                : plataforma === "X"
-                                ? Twitter
-                                : Globe;
+                                  ? Facebook
+                                  : plataforma === "Instagram"
+                                    ? Instagram
+                                    : plataforma === "X"
+                                      ? Twitter
+                                      : Globe;
 
                             return (
                               <a
@@ -1521,7 +1519,7 @@ export default function PerfilRestaurante() {
                                 <span>{plataforma}</span>
                               </a>
                             );
-                          }
+                          },
                         )}
                       </div>
                     </div>
@@ -1599,8 +1597,8 @@ export default function PerfilRestaurante() {
                       uploadingMenu
                         ? "bg-gray-400 text-white cursor-not-allowed"
                         : !negocioActivo
-                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                        : "bg-green-600 text-white hover:bg-green-700"
+                          ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                          : "bg-green-600 text-white hover:bg-green-700"
                     }`}
                   >
                     {uploadingMenu ? (

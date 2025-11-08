@@ -1,17 +1,17 @@
 // src/pages/AgregarProducto.jsx
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { 
-  ArrowLeft, 
-  Upload, 
+import {
+  ArrowLeft,
+  Upload,
   Save,
   Loader,
   AlertCircle,
   CheckCircle2,
   ChevronDown,
-  Ban
+  Ban,
 } from "lucide-react";
-import { API_BASE_URL, API_ENDPOINTS } from '../../configs.js';
+import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 
 export default function AgregarProducto() {
   const [formData, setFormData] = useState({
@@ -19,7 +19,7 @@ export default function AgregarProducto() {
     precio: "",
     categoria: "",
     descripcion: "",
-    en_oferta: false
+    en_oferta: false,
   });
   const [imagen, setImagen] = useState(null);
   const [imagenPreview, setImagenPreview] = useState(null);
@@ -34,7 +34,7 @@ export default function AgregarProducto() {
 
   const categorias = [
     "Mexicana",
-    "China", 
+    "China",
     "Italiana",
     "Americana",
     "Internacional",
@@ -44,7 +44,7 @@ export default function AgregarProducto() {
     "Mariscos",
     "Postres",
     "Bebidas",
-    "Otras"
+    "Otras",
   ];
 
   // Obtener negocioId del state de navegación
@@ -63,28 +63,28 @@ export default function AgregarProducto() {
   // Efecto para verificar si todos los campos requeridos están llenos
   useEffect(() => {
     const { nombre, precio, categoria, descripcion } = formData;
-    const todosCamposLlenos = 
-      nombre.trim() !== "" && 
-      precio !== "" && 
-      categoria !== "" && 
-      descripcion.trim() !== "" && 
+    const todosCamposLlenos =
+      nombre.trim() !== "" &&
+      precio !== "" &&
+      categoria !== "" &&
+      descripcion.trim() !== "" &&
       imagen !== null;
-    
+
     setCamposCompletos(todosCamposLlenos);
   }, [formData, imagen]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleCategoriaSelect = (categoria) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      categoria
+      categoria,
     }));
     setIsSelectOpen(false);
   };
@@ -94,8 +94,10 @@ export default function AgregarProducto() {
     if (!image) return;
 
     // Validar tipo de archivo
-    if (!image.type.startsWith('image/')) {
-      setError("Por favor selecciona un archivo de imagen válido (JPG, PNG, etc.)");
+    if (!image.type.startsWith("image/")) {
+      setError(
+        "Por favor selecciona un archivo de imagen válido (JPG, PNG, etc.)",
+      );
       return;
     }
 
@@ -145,7 +147,7 @@ export default function AgregarProducto() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // ⬇️⬇️⬇️ DESHABILITAR EL BOTÓN INMEDIATAMENTE ⬇️⬇️⬇️
     setBotonDeshabilitado(true);
     setLoading(true);
@@ -164,7 +166,7 @@ export default function AgregarProducto() {
     try {
       // Crear FormData para enviar imagen y datos
       const formDataToSend = new FormData();
-      
+
       // Agregar campos del formulario
       formDataToSend.append("nombre", formData.nombre);
       formDataToSend.append("precio", formData.precio.toString());
@@ -184,13 +186,15 @@ export default function AgregarProducto() {
           method: "POST",
           credentials: "include", // Incluir cookies para autenticación
           body: formDataToSend,
-        }
+        },
       );
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.mensaje || `Error ${response.status}: ${response.statusText}`);
+        throw new Error(
+          result.mensaje || `Error ${response.status}: ${response.statusText}`,
+        );
       }
 
       if (!result.exito) {
@@ -198,16 +202,15 @@ export default function AgregarProducto() {
       }
 
       setSuccess("¡Producto creado exitosamente!");
-      
+
       // Redirigir después de 2 segundos
       setTimeout(() => {
         navigate(`/perfil_restaurante/${negocioId}`);
       }, 2000);
-
     } catch (err) {
       console.error("Error al crear producto:", err);
       setError(err.message || "Error de conexión al servidor");
-      
+
       // ⬇️⬇️⬇️ REHABILITAR EL BOTÓN EN CASO DE ERROR ⬇️⬇️⬇️
       setBotonDeshabilitado(false);
     } finally {
@@ -222,14 +225,17 @@ export default function AgregarProducto() {
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isSelectOpen && !event.target.closest('.categoria-select-container')) {
+      if (
+        isSelectOpen &&
+        !event.target.closest(".categoria-select-container")
+      ) {
         setIsSelectOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isSelectOpen]);
 
@@ -256,27 +262,42 @@ export default function AgregarProducto() {
             className="bg-gray-300 text-white p-3 rounded-full hover:bg-gray-700 transition hover:scale-105 duration-300"
             title="Atrás"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
             </svg>
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Agrega tu producto</h1>
-            
+            <h1 className="text-3xl font-bold text-gray-900">
+              Agrega tu producto
+            </h1>
           </div>
         </div>
 
         {/* Información */}
         <div className="bg-gray-100 border border-gray-200 rounded-lg p-4 mb-6">
           <p className="text-gray-600">
-            Los datos que introduzca serán vistos por las personas que visiten la página.
+            Los datos que introduzca serán vistos por las personas que visiten
+            la página.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Nombre del platillo */}
           <div>
-            <label htmlFor="nombre" className="block text-lg font-semibold text-gray-900 mb-2">
+            <label
+              htmlFor="nombre"
+              className="block text-lg font-semibold text-gray-900 mb-2"
+            >
               Nombre del platillo
             </label>
             <input
@@ -299,7 +320,7 @@ export default function AgregarProducto() {
             <label className="block text-lg font-semibold text-gray-900 mb-2">
               Selecciona una imagen para mostrar tu platillo
             </label>
-            
+
             {imagenPreview ? (
               <div className="relative">
                 <img
@@ -318,7 +339,9 @@ export default function AgregarProducto() {
             ) : (
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors">
                 <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                <span className="text-gray-600 font-medium">Seleccionar imagen</span>
+                <span className="text-gray-600 font-medium">
+                  Seleccionar imagen
+                </span>
                 <input
                   type="file"
                   accept="image/*"
@@ -335,11 +358,16 @@ export default function AgregarProducto() {
           {/* Precio y Oferta */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="precio" className="block text-lg font-semibold text-gray-900 mb-2">
+              <label
+                htmlFor="precio"
+                className="block text-lg font-semibold text-gray-900 mb-2"
+              >
                 Introduce el precio del producto
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                  $
+                </span>
                 <input
                   type="number"
                   id="precio"
@@ -363,17 +391,24 @@ export default function AgregarProducto() {
                   onChange={handleInputChange}
                   className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
                 />
-                <span className="text-lg font-semibold text-gray-900">Oferta</span>
+                <span className="text-lg font-semibold text-gray-900">
+                  Oferta
+                </span>
               </label>
             </div>
           </div>
 
           {/* Descripción */}
           <div>
-            <label htmlFor="descripcion" className="block text-lg font-semibold text-gray-900 mb-2">
+            <label
+              htmlFor="descripcion"
+              className="block text-lg font-semibold text-gray-900 mb-2"
+            >
               Descripción general
             </label>
-            <p className="text-gray-600 mb-3">Introduce una pequeña descripción sobre el platillo.</p>
+            <p className="text-gray-600 mb-3">
+              Introduce una pequeña descripción sobre el platillo.
+            </p>
             <textarea
               id="descripcion"
               name="descripcion"
@@ -397,21 +432,21 @@ export default function AgregarProducto() {
             <label className="block text-lg font-semibold text-gray-900 mb-2">
               Selecciona la categoría a la que pertenece
             </label>
-            
+
             <div className="relative">
               {/* Botón que simula el select */}
               <button
                 type="button"
                 onClick={() => setIsSelectOpen(!isSelectOpen)}
                 className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left bg-white flex items-center justify-between hover:scale-105 duration-300 ${
-                  !formData.categoria ? 'text-gray-400' : 'text-gray-900'
+                  !formData.categoria ? "text-gray-400" : "text-gray-900"
                 }`}
               >
                 <span>{formData.categoria || "Selecciona una categoría"}</span>
-                <ChevronDown 
+                <ChevronDown
                   className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${
-                    isSelectOpen ? 'transform rotate-180' : ''
-                  }`} 
+                    isSelectOpen ? "transform rotate-180" : ""
+                  }`}
                 />
               </button>
 
@@ -424,9 +459,9 @@ export default function AgregarProducto() {
                       type="button"
                       onClick={() => handleCategoriaSelect(categoria)}
                       className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors hover:scale-105 duration-300 ${
-                        formData.categoria === categoria 
-                          ? 'bg-blue-50 text-blue-600 font-medium' 
-                          : 'text-gray-900'
+                        formData.categoria === categoria
+                          ? "bg-blue-50 text-blue-600 font-medium"
+                          : "text-gray-900"
                       } first:rounded-t-lg last:rounded-b-lg`}
                     >
                       {categoria}
@@ -459,7 +494,7 @@ export default function AgregarProducto() {
               disabled={loading || !camposCompletos || botonDeshabilitado}
               className={`flex items-center gap-2 text-white px-8 py-3 rounded-lg transition hover:scale-105 duration-300 ${
                 camposCompletos && !botonDeshabilitado
-                  ? "bg-[#12B400] hover:bg-[#0F9A00]" 
+                  ? "bg-[#12B400] hover:bg-[#0F9A00]"
                   : "bg-[#9B9B9B] cursor-not-allowed"
               } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
@@ -485,13 +520,24 @@ export default function AgregarProducto() {
 
         {/* Información adicional */}
         <div className="mt-8 p-4 bg-gray-100 rounded-lg">
-          <h3 className="font-semibold text-gray-900 mb-2">Información importante:</h3>
+          <h3 className="font-semibold text-gray-900 mb-2">
+            Información importante:
+          </h3>
           <ul className="text-sm text-gray-600 space-y-1">
             <li>• Todos los campos marcados con * son obligatorios</li>
-            <li>• La imagen debe ser de buena calidad y representativa del platillo</li>
+            <li>
+              • La imagen debe ser de buena calidad y representativa del
+              platillo
+            </li>
             <li>• El precio debe ser en la moneda local</li>
-            <li>• Los productos en oferta se mostrarán de manera especial en la página</li>
-            <li>• Haz clic solo una vez en "Guardar platillo" para evitar duplicados</li>
+            <li>
+              • Los productos en oferta se mostrarán de manera especial en la
+              página
+            </li>
+            <li>
+              • Haz clic solo una vez en "Guardar platillo" para evitar
+              duplicados
+            </li>
           </ul>
         </div>
 
@@ -502,8 +548,8 @@ export default function AgregarProducto() {
               <Loader className="w-5 h-5 text-blue-600 animate-spin" />
               <div>
                 <p className="text-blue-800 font-medium text-sm">
-                  {botonDeshabilitado && !loading 
-                    ? "✅ Producto guardado. Redirigiendo..." 
+                  {botonDeshabilitado && !loading
+                    ? "✅ Producto guardado. Redirigiendo..."
                     : "⏳ Procesando tu solicitud, por favor espera..."}
                 </p>
                 <p className="text-blue-700 text-xs mt-1">

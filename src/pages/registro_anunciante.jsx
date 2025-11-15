@@ -292,7 +292,7 @@ export default function RegistroAnunciante() {
                       : "text-gray-700"
                   }`}
                 >
-                  Ambulante (horario limitado)
+                  Ambulante
                 </span>
               </label>
               <label className="flex items-center space-x-2 cursor-pointer">

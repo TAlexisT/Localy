@@ -187,7 +187,7 @@ export default function PrivacyPolicy() {
           <ul className="list-disc list-inside text-gray-700">
             <li>
               Tipos de acceso dentro del sistema: invitado, usuario,
-              administrador, negocio (ambulante) y negocio (restaurante).
+              administrador, negocio.
             </li>
             <li>
               No hay devolución de dinero de forma general; se procesarán

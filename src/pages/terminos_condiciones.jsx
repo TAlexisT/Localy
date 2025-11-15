@@ -48,7 +48,7 @@ export default function TermsAndConditions() {
           <h2 className="text-2xl font-bold">3. Servicios y alcance</h2>
           <p className="text-gray-700">
             Localy ofrece una plataforma para la creación y gestión de cuentas
-            de usuario y cuentas de negocio (ambulante y restaurante), además de
+            de usuario y cuentas de negocio, además de
             funcionalidades de publicación, gestión de catálogos y procesado de
             pagos mediante pasarelas externas.
           </p>
@@ -68,8 +68,7 @@ export default function TermsAndConditions() {
             contraseña.
           </p>
           <p className="text-gray-700">
-            Tipos de acceso: invitado, usuario, administrador, negocio
-            (ambulante) y negocio (restaurante). Al crear una cuenta aceptas
+            Tipos de acceso: invitado, usuario, administrador, negocio. Al crear una cuenta aceptas
             recibir comunicaciones operativas y de seguridad.
           </p>
         </section>

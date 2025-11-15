@@ -11,6 +11,7 @@ import {
   AlertCircle,
   Shield,
   X,
+  Play,
 } from "lucide-react";
 
 const Administrador = () => {
@@ -27,6 +28,10 @@ const Administrador = () => {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [sugerenciaAEliminar, setSugerenciaAEliminar] = useState(null);
 
+  // Estados para el modal de jobs
+  const [mostrarModalJobs, setMostrarModalJobs] = useState(false);
+  const [ejecutandoJobs, setEjecutandoJobs] = useState(false);
+
   // Cargar sugerencias
   const cargarSugerencias = async () => {
     try {
@@ -40,7 +45,7 @@ const Administrador = () => {
         {
           method: "GET",
           credentials: "include",
-        },
+        }
       );
 
       if (!negociosRes.ok) {
@@ -62,7 +67,7 @@ const Administrador = () => {
           {
             method: "GET",
             credentials: "include",
-          },
+          }
         );
 
         if (sugerenciasRes.ok) {
@@ -72,7 +77,7 @@ const Administrador = () => {
             const sugerenciasConNegocio = sugerenciasData.datos.map(
               (sugerencia) => ({
                 ...sugerencia,
-              }),
+              })
             );
             todasSugerencias.push(...sugerenciasConNegocio);
           }
@@ -101,7 +106,7 @@ const Administrador = () => {
         {
           method: "GET",
           credentials: "include",
-        },
+        }
       );
 
       if (!response.ok) {
@@ -121,6 +126,36 @@ const Administrador = () => {
     } finally {
       setCargandoNegocios(false);
     }
+  };
+
+  // Ejecutar jobs
+  const ejecutarJobs = async () => {
+    setEjecutandoJobs(true);
+    try {
+      const response = await fetch(
+        "https://localymxb-production.up.railway.app/api/admin/disparar-subscripcion-jobs",
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      if (response.ok) {
+        setMostrarModalJobs(true);
+      } else {
+        throw new Error("Error al ejecutar los jobs");
+      }
+    } catch (error) {
+      console.error("Error al ejecutar jobs:", error);
+      setError("Error al ejecutar los jobs: " + error.message);
+    } finally {
+      setEjecutandoJobs(false);
+    }
+  };
+
+  // Cerrar modal de jobs
+  const cerrarModalJobs = () => {
+    setMostrarModalJobs(false);
   };
 
   // Abrir modal de confirmación para eliminar
@@ -143,11 +178,13 @@ const Administrador = () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}${API_ENDPOINTS.SUGERENCIAS.BORRAR_SUGERENCIA(sugerenciaAEliminar)}`,
+        `${API_BASE_URL}${API_ENDPOINTS.SUGERENCIAS.BORRAR_SUGERENCIA(
+          sugerenciaAEliminar
+        )}`,
         {
           method: "DELETE",
           credentials: "include",
-        },
+        }
       );
 
       const result = await response.json();
@@ -155,7 +192,7 @@ const Administrador = () => {
       if (response.ok && result.exito) {
         // CORREGIDO: Eliminar la sugerencia del estado local correctamente
         setSugerencias((prev) =>
-          prev.filter((s) => s.id !== sugerenciaAEliminar),
+          prev.filter((s) => s.id !== sugerenciaAEliminar)
         );
         cerrarModal();
       } else {
@@ -171,7 +208,7 @@ const Administrador = () => {
 
   // Filtrar negocios por búsqueda
   const negociosFiltrados = negocios.filter((negocio) =>
-    negocio.nombre?.toLowerCase().includes(busqueda.toLowerCase()),
+    negocio.nombre?.toLowerCase().includes(busqueda.toLowerCase())
   );
 
   useEffect(() => {
@@ -183,15 +220,65 @@ const Administrador = () => {
   }, [activoTab]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6">
+    <div
+      className={`min-h-screen bg-gray-50 py-6 ${
+        mostrarModalJobs ? "overflow-hidden" : ""
+      }`}
+    >
+      {/* Modal de Jobs */}
+      {mostrarModalJobs && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-auto transform transition-all duration-300 scale-100">
+            <div className="p-8 text-center">
+              {/* Icono de éxito */}
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle className="w-10 h-10 text-green-600" />
+              </div>
+
+              {/* Título */}
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">¡Éxito!</h3>
+
+              {/* Mensaje */}
+              <p className="text-gray-700 mb-8 text-lg">
+                Los Jobs se ejecutaron de manera correcta
+              </p>
+
+              {/* Botón de cerrar */}
+              <button
+                onClick={cerrarModalJobs}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition hover:scale-105 duration-300"
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <Shield className="w-8 h-8 text-green-600" />
-            <h1 className="text-3xl font-bold text-gray-900">
-              Panel de Administración
-            </h1>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
+            <div className="flex items-center gap-3">
+              <Shield className="w-8 h-8 text-green-600" />
+              <h1 className="text-3xl font-bold text-gray-900">
+                Panel de Administración
+              </h1>
+            </div>
+
+            {/* Botón Ejecutar Jobs */}
+            <button
+              onClick={ejecutarJobs}
+              disabled={ejecutandoJobs}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-semibold py-2 px-4 rounded-lg transition hover:scale-105 duration-300"
+            >
+              {ejecutandoJobs ? (
+                <Loader className="w-4 h-4 animate-spin" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+              {ejecutandoJobs ? "Ejecutando..." : "Ejecutar Jobs"}
+            </button>
           </div>
           <p className="text-gray-600">
             Gestiona las sugerencias y restaurantes de la plataforma

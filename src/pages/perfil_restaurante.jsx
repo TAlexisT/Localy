@@ -45,8 +45,8 @@ import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 // Definir los price_ids
 const PRICE_IDS = {
   ambulante: {
-    recurrente: "price_1SNPRBC0yYHfNuR2tz1yyBsT",
-    puntual: "price_1SNPQ8C0yYHfNuR2mxUDdyXm",
+    recurrente: "price_1STF5iCRgr9HG3VZQLVpwPO3",
+    puntual: "price_1SPx5yCRgr9HG3VZEEFVHVHc",
   },
   restaurante: {
     recurrente: "price_1SNPTOC0yYHfNuR2tSp0Dism",

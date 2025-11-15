@@ -24,8 +24,8 @@ export default function RegistroAnunciante() {
   // 🔹 Aquí defines tus price IDs de Stripe
   const PRICE_IDS = {
     ambulante: {
-      recurrente: "price_1SNPRBC0yYHfNuR2tz1yyBsT",
-      puntual: "price_1SNPQ8C0yYHfNuR2mxUDdyXm",
+      recurrente: "price_1STF5iCRgr9HG3VZQLVpwPO3",
+      puntual: "price_1SPx5yCRgr9HG3VZEEFVHVHc",
     },
     restaurante: {
       recurrente: "price_1SNPTOC0yYHfNuR2tSp0Dism",
@@ -90,7 +90,7 @@ export default function RegistroAnunciante() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        },
+        }
       );
 
       if (!response.ok) {
@@ -106,7 +106,7 @@ export default function RegistroAnunciante() {
     } catch (error) {
       console.error("Error al crear la sesión de pago:", error);
       setMessage(
-        "Hubo un problema al procesar tu registro. Intenta nuevamente.",
+        "Hubo un problema al procesar tu registro. Intenta nuevamente."
       );
       setMessageType("error");
     } finally {
@@ -332,8 +332,8 @@ export default function RegistroAnunciante() {
             {isLoading
               ? "Procesando..."
               : verificationSent
-                ? "Registro Enviado"
-                : "Regístrate"}
+              ? "Registro Enviado"
+              : "Regístrate"}
           </button>
         </form>
 

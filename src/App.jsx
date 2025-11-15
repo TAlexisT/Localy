@@ -12,6 +12,8 @@ import Favoritos from "./pages/favoritos";
 import Administrador from "./pages/administrador";
 import RenovacionExitosa from "./pages/renovacion_exitosa";
 import CambiarContrasena from "./pages/cambiar_contrasena";
+import PrivacyPolicy from "./pages/politica_privacidad";
+import TerminosCondiciones from "./pages/terminos_condiciones";
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
         <Route path="/administrador" element={<Administrador />} />
         <Route path="/renovacion_exitosa" element={<RenovacionExitosa />} />
         <Route path="/cambiar_contrasena" element={<CambiarContrasena />} />
+        <Route path="/politica_privacidad" element={<PrivacyPolicy />} />
+        <Route path="/terminos_condiciones" element={<TerminosCondiciones />} />
 
         {/* Otras rutas de tu aplicación */}
       </Routes>

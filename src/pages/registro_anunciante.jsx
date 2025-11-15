@@ -11,6 +11,7 @@ export default function RegistroAnunciante() {
     price_id: "",
     recurrente: false,
     businessType: "",
+    termsAccepted: false,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -18,6 +19,7 @@ export default function RegistroAnunciante() {
   const [messageType, setMessageType] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const navigate = useNavigate();
 
@@ -45,7 +47,7 @@ export default function RegistroAnunciante() {
   };
 
   const handleChange = (e) => {
-    const { name, value, checked } = e.target;
+    const { name, value, checked, type } = e.target;
 
     setFormData((prev) => {
       let updated = { ...prev };
@@ -56,6 +58,8 @@ export default function RegistroAnunciante() {
       } else if (name === "recurrente") {
         updated.recurrente = checked;
         updated.price_id = updatePriceId(prev.businessType, checked);
+      } else if (name === "termsAccepted") {
+        updated.termsAccepted = checked;
       } else {
         updated[name] = value;
       }
@@ -215,6 +219,22 @@ export default function RegistroAnunciante() {
                 )}
               </button>
             </div>
+            {/* 🔹 AQUÍ AGREGA LA LEYENDA DE REQUISITOS */}
+            <p className="text-xs text-gray-500 mt-1 flex items-start">
+              <svg
+                className="w-4 h-4 mr-1 mt-0.5 flex-shrink-0 text-green-600"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              La contraseña debe tener al menos 8 caracteres, incluir una letra
+              minúscula, una mayúscula, un número y un signo especial.
+            </p>
           </div>
 
           {/* Correo */}
@@ -319,12 +339,53 @@ export default function RegistroAnunciante() {
             />
           </div>
 
+          {/* Términos y Condiciones */}
+          <div className="mt-4">
+            <label className="flex items-start space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="termsAccepted"
+                checked={formData.termsAccepted}
+                onChange={handleChange}
+                className="w-5 h-5 text-green-600 focus:ring-green-400 mt-0.5 flex-shrink-0 disabled:opacity-50 cursor-pointer"
+                disabled={isLoading || verificationSent}
+                required
+              />
+              <span
+                className={`text-sm ${
+                  isLoading || verificationSent
+                    ? "text-gray-400"
+                    : "text-gray-700"
+                }`}
+              >
+                Al registrarte, aceptas nuestros{" "}
+                <a
+                  href="/terminos_condiciones"
+                  className="text-green-600 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Términos y Condiciones
+                </a>{" "}
+                y{" "}
+                <a
+                  href="/politica_privacidad"
+                  className="text-green-600 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Política de Privacidad
+                </a>
+              </span>
+            </label>
+          </div>
+
           {/* Botón de registro */}
           <button
             type="submit"
-            disabled={isLoading || verificationSent}
+            disabled={isLoading || verificationSent || !formData.termsAccepted}
             className={`w-full text-white font-semibold py-3 rounded-full transition mt-4 ${
-              isLoading || verificationSent
+              isLoading || verificationSent || !formData.termsAccepted
                 ? "bg-green-400 cursor-not-allowed "
                 : "bg-green-600 hover:bg-white hover:border hover:text-green-600 hover:border-green-600 hover:scale-105 duration-500"
             }`}

@@ -7,6 +7,7 @@ export default function RegistroUsuario() {
     usuario: "",
     contrasena: "",
     correo: "",
+    termsAccepted: false,
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -18,10 +19,11 @@ export default function RegistroUsuario() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, checked, type } = e.target;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -56,7 +58,7 @@ export default function RegistroUsuario() {
           },
           credentials: "include",
           body: JSON.stringify(formData),
-        },
+        }
       );
 
       const data = await response.json();
@@ -71,6 +73,7 @@ export default function RegistroUsuario() {
           usuario: "",
           contrasena: "",
           correo: "",
+          termsAccepted: false,
         });
       } else {
         // Error del servidor
@@ -81,7 +84,7 @@ export default function RegistroUsuario() {
     } catch (error) {
       // Error de conexión
       setMessage(
-        "Error de conexión. Verifica tu internet o intenta más tarde.",
+        "Error de conexión. Verifica tu internet o intenta más tarde."
       );
       setMessageType("error");
       setVerificationSent(false);
@@ -133,7 +136,7 @@ export default function RegistroUsuario() {
               placeholder="Ingresa tu nombre de usuario"
               value={formData.usuario}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
               required
               disabled={isLoading || verificationSent}
             />
@@ -151,14 +154,14 @@ export default function RegistroUsuario() {
                 placeholder="Crea una contraseña segura"
                 value={formData.contrasena}
                 onChange={handleChange}
-                className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 pr-10"
+                className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 pr-10 disabled:bg-gray-100 disabled:cursor-not-allowed"
                 required
                 disabled={isLoading || verificationSent}
               />
               <button
                 type="button"
                 onClick={togglePasswordVisibility}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-600 disabled:opacity-50"
                 disabled={isLoading || verificationSent}
               >
                 {showPassword ? (
@@ -198,6 +201,22 @@ export default function RegistroUsuario() {
                 )}
               </button>
             </div>
+            {/* Leyenda de requisitos de contraseña */}
+            <p className="text-xs text-gray-500 mt-1 flex items-start">
+              <svg
+                className="w-4 h-4 mr-1 mt-0.5 text-green-600 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              La contraseña debe tener al menos 8 caracteres, incluir una letra
+              minúscula, una mayúscula, un número y un signo especial.
+            </p>
           </div>
 
           {/* Correo electrónico */}
@@ -211,18 +230,59 @@ export default function RegistroUsuario() {
               placeholder="Ingresa tu correo electrónico"
               value={formData.correo}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-400 disabled:bg-gray-100 disabled:cursor-not-allowed"
               required
               disabled={isLoading || verificationSent}
             />
           </div>
 
+          {/* Términos y Condiciones */}
+          <div className="mt-2">
+            <label className="flex items-start space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="termsAccepted"
+                checked={formData.termsAccepted}
+                onChange={handleChange}
+                className="w-5 h-5 text-green-600 focus:ring-green-400 mt-0.5 flex-shrink-0 disabled:opacity-50 cursor-pointer"
+                disabled={isLoading || verificationSent}
+                required
+              />
+              <span
+                className={`text-sm ${
+                  isLoading || verificationSent
+                    ? "text-gray-400"
+                    : "text-gray-700"
+                }`}
+              >
+                Al registrarte, aceptas nuestros{" "}
+                <a
+                  href="/terminos_condiciones"
+                  className="text-green-600 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Términos y Condiciones
+                </a>{" "}
+                y{" "}
+                <a
+                  href="/politica_privacidad"
+                  className="text-green-600 hover:underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Política de Privacidad
+                </a>
+              </span>
+            </label>
+          </div>
+
           {/* Botón de registro */}
           <button
             type="submit"
-            disabled={isLoading || verificationSent}
+            disabled={isLoading || verificationSent || !formData.termsAccepted}
             className={`w-full text-white font-semibold py-3 rounded-full transition mt-2 ${
-              isLoading || verificationSent
+              isLoading || verificationSent || !formData.termsAccepted
                 ? "bg-green-400 cursor-not-allowed"
                 : "bg-green-600 hover:bg-white hover:border hover:text-green-600 hover:border-green-600 hover:scale-105 duration-500"
             }`}
@@ -230,8 +290,8 @@ export default function RegistroUsuario() {
             {isLoading
               ? "Registrando..."
               : verificationSent
-                ? "Verificación Enviada"
-                : "Regístrate"}
+              ? "Verificación Enviada"
+              : "Regístrate"}
           </button>
         </form>
 
@@ -260,7 +320,7 @@ export default function RegistroUsuario() {
         <div className="text-center mt-4">
           <button
             onClick={() => navigate("/")}
-            className="text-sm text-white font-semibold bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full transition hover:scale-105 duration-300"
+            className="text-sm text-white font-semibold bg-red-700 hover:bg-red-800 px-4 py-2 rounded-full transition hover:scale-105 duration-300 disabled:opacity-50"
             disabled={isLoading}
           >
             Volver a la página principal

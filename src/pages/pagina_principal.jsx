@@ -5,6 +5,7 @@ import TarjetaProducto from "../components/tarjeta_producto";
 import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
 
 export default function PaginaPrincipal() {
+  // #region Parametros
   const [restaurantes, setRestaurantes] = useState([]);
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
@@ -99,6 +100,8 @@ export default function PaginaPrincipal() {
 
   // Estados para el menú desplegable móvil
   const [mostrarMenuMobile, setMostrarMenuMobile] = useState(false);
+ // #endregion
+
 
   // Efecto para deshabilitar scroll cuando el popup está abierto O el menú móvil está abierto
   useEffect(() => {

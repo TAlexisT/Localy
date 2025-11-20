@@ -103,11 +103,17 @@ export default function PaginaPrincipal() {
 
   // Estados para el menú desplegable móvil
   const [mostrarMenuMobile, setMostrarMenuMobile] = useState(false);
+  // NUEVO: Estado para el menú desktop
+  const [mostrarMenuDesktop, setMostrarMenuDesktop] = useState(false);
   // #endregion
 
-  // Efecto para deshabilitar scroll cuando el popup está abierto O el menú móvil está abierto
+  // Efecto para deshabilitar scroll cuando el popup está abierto O los menús están abiertos
   useEffect(() => {
-    if (mostrarPopupCambiarContrasena || mostrarMenuMobile) {
+    if (
+      mostrarPopupCambiarContrasena ||
+      mostrarMenuMobile ||
+      mostrarMenuDesktop
+    ) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -116,7 +122,7 @@ export default function PaginaPrincipal() {
     return () => {
       document.body.style.overflow = "unset";
     };
-  }, [mostrarPopupCambiarContrasena, mostrarMenuMobile]);
+  }, [mostrarPopupCambiarContrasena, mostrarMenuMobile, mostrarMenuDesktop]);
 
   // Efecto para deshabilitar scroll cuando el popup está abierto
   useEffect(() => {
@@ -165,6 +171,21 @@ export default function PaginaPrincipal() {
           !botonMenuMobile.contains(event.target)
         ) {
           setMostrarMenuMobile(false);
+        }
+      }
+
+      // Para el menú desktop
+      if (mostrarMenuDesktop) {
+        const menuDesktopElement = document.getElementById("menu-desktop");
+        const botonMenuDesktop = document.getElementById("boton-menu-desktop");
+
+        if (
+          menuDesktopElement &&
+          botonMenuDesktop &&
+          !menuDesktopElement.contains(event.target) &&
+          !botonMenuDesktop.contains(event.target)
+        ) {
+          setMostrarMenuDesktop(false);
         }
       }
 
@@ -231,6 +252,7 @@ export default function PaginaPrincipal() {
     mostrarOrdenPrecio,
     mostrarOrdenDistancia,
     mostrarMenuMobile,
+    mostrarMenuDesktop,
   ]);
 
   // Obtener ubicación del usuario
@@ -903,6 +925,13 @@ export default function PaginaPrincipal() {
     }
   };
 
+  // Función para cancelar suscripción
+  const handleCancelarSuscripcion = () => {
+    if (usuario && usuario.negocioId) {
+      navigate(`/mostrar-facturacion-portal/${usuario.negocioId}`);
+    }
+  };
+
   // Función para determinar qué botones mostrar según el tipo de usuario
   const renderizarBotonesRegistro = () => {
     // Si no hay usuario o está verificando, mostrar ambos botones
@@ -1024,44 +1053,177 @@ export default function PaginaPrincipal() {
             </div>
           ) : usuario ? (
             <>
-              {/* Versión Desktop - visible en pantallas medianas y grandes */}
-              <div className="hidden md:flex items-center gap-3">
-                {/* Botón Cambiar Contraseña */}
+              {/* Versión Desktop - ahora con menú desplegable */}
+              <div className="hidden md:flex relative">
                 <button
-                  onClick={() => setMostrarPopupCambiarContrasena(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full transition hover:scale-105 duration-300"
+                  id="boton-menu-desktop"
+                  onClick={() => setMostrarMenuDesktop(!mostrarMenuDesktop)}
+                  className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30 hover:bg-opacity-30 transition flex items-center gap-2"
                 >
-                  Cambiar contraseña
-                </button>
-
-                {usuario.tipo == "usuario" ? (
-                  <span className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30">
-                    {usuario.correo}
-                  </span>
-                ) : usuario.tipo == "negocio" ? (
-                  <button
-                    className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30 hover:scale-105 duration-300"
-                    onClick={handlePerfil}
+                  <span>Mi cuenta</span>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    Perfil
-                  </button>
-                ) : (
-                  usuario.tipo == "admin" && (
-                    <button
-                      className="bg-white bg-opacity-20 text-white font-semibold py-2 px-4 rounded-full backdrop-blur-sm border border-white border-opacity-30 hover:scale-105 duration-300"
-                      onClick={handleAdmin}
-                    >
-                      Administrador
-                    </button>
-                  )
-                )}
-
-                <button
-                  onClick={handleCerrarSesion}
-                  className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-full transition hover:scale-105 duration-300"
-                >
-                  Cerrar sesión
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
                 </button>
+
+                {/* Menú desplegable desktop */}
+                {mostrarMenuDesktop && (
+                  <div
+                    id="menu-desktop"
+                    className="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-200 py-2 z-50"
+                  >
+                    {/* Mismo contenido que el menú móvil */}
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm text-gray-500">Sesión activa</p>
+                      <p className="text-gray-800 font-medium truncate">
+                        {usuario.correo}
+                      </p>
+                      <p className="text-xs text-gray-500 capitalize">
+                        {usuario.tipo}
+                      </p>
+                    </div>
+
+                    <div className="py-1">
+                      <button
+                        onClick={() => {
+                          setMostrarPopupCambiarContrasena(true);
+                          setMostrarMenuDesktop(false);
+                        }}
+                        className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
+                      >
+                        <svg
+                          className="w-5 h-5 text-blue-600"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
+                          />
+                        </svg>
+                        Cambiar contraseña
+                      </button>
+
+                      {usuario.tipo === "negocio" && (
+                        <>
+                          <button
+                            onClick={() => {
+                              handlePerfil();
+                              setMostrarMenuDesktop(false);
+                            }}
+                            className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
+                          >
+                            <svg
+                              className="w-5 h-5 text-green-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                              />
+                            </svg>
+                            Perfil del negocio
+                          </button>
+
+                          {/* NUEVO BOTÓN - Cancelar suscripción */}
+                          <button
+                            onClick={() => {
+                              handleCancelarSuscripcion();
+                              setMostrarMenuDesktop(false);
+                            }}
+                            className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
+                          >
+                            <svg
+                              className="w-5 h-5 text-orange-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                              />
+                            </svg>
+                            Cancelar suscripción
+                          </button>
+                        </>
+                      )}
+
+                      {usuario.tipo === "admin" && (
+                        <button
+                          onClick={() => {
+                            handleAdmin();
+                            setMostrarMenuDesktop(false);
+                          }}
+                          className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
+                        >
+                          <svg
+                            className="w-5 h-5 text-purple-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          Panel de administrador
+                        </button>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          handleCerrarSesion();
+                          setMostrarMenuDesktop(false);
+                        }}
+                        className="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition flex items-center gap-3 border-t border-gray-100 mt-1"
+                      >
+                        <svg
+                          className="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                          />
+                        </svg>
+                        Cerrar sesión
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Versión Mobile - menú hamburguesa */}
@@ -1129,28 +1291,54 @@ export default function PaginaPrincipal() {
                       </button>
 
                       {usuario.tipo === "negocio" && (
-                        <button
-                          onClick={() => {
-                            handlePerfil();
-                            setMostrarMenuMobile(false);
-                          }}
-                          className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
-                        >
-                          <svg
-                            className="w-5 h-5 text-green-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
+                        <>
+                          <button
+                            onClick={() => {
+                              handlePerfil();
+                              setMostrarMenuMobile(false);
+                            }}
+                            className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            />
-                          </svg>
-                          Perfil del negocio
-                        </button>
+                            <svg
+                              className="w-5 h-5 text-green-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                              />
+                            </svg>
+                            Perfil del negocio
+                          </button>
+
+                          {/* BOTÓN CANCELAR SUSCRIPCIÓN */}
+                          <button
+                            onClick={() => {
+                              handleCancelarSuscripcion();
+                              setMostrarMenuMobile(false);
+                            }}
+                            className="w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 transition flex items-center gap-3"
+                          >
+                            <svg
+                              className="w-5 h-5 text-orange-600"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                              />
+                            </svg>
+                            Cancelar suscripción
+                          </button>
+                        </>
                       )}
 
                       {usuario.tipo === "admin" && (

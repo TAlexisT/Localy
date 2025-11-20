@@ -82,6 +82,9 @@ export default function PaginaPrincipal() {
 
   const navigate = useNavigate();
 
+  // Semilla para aleatoriedad en paginación
+  const semillaRef = useRef(Math.random());
+
   // Categorías disponibles para productos
   const categoriasDisponibles = [
     "Mexicana",
@@ -100,8 +103,7 @@ export default function PaginaPrincipal() {
 
   // Estados para el menú desplegable móvil
   const [mostrarMenuMobile, setMostrarMenuMobile] = useState(false);
- // #endregion
-
+  // #endregion
 
   // Efecto para deshabilitar scroll cuando el popup está abierto O el menú móvil está abierto
   useEffect(() => {
@@ -135,10 +137,10 @@ export default function PaginaPrincipal() {
       // Para filtros de restaurantes
       if (mostrarFiltrosRestaurantes) {
         const filtrosRestaurantesElement = document.getElementById(
-          "filtros-restaurantes",
+          "filtros-restaurantes"
         );
         const botonFiltrosRestaurantes = document.getElementById(
-          "boton-filtros-restaurantes",
+          "boton-filtros-restaurantes"
         );
 
         if (
@@ -171,7 +173,7 @@ export default function PaginaPrincipal() {
         const filtrosProductosElement =
           document.getElementById("filtros-productos");
         const botonFiltrosProductos = document.getElementById(
-          "boton-filtros-productos",
+          "boton-filtros-productos"
         );
 
         if (
@@ -187,7 +189,7 @@ export default function PaginaPrincipal() {
       // Para dropdown de categorías
       if (mostrarCategorias) {
         const categoriasElement = document.querySelector(
-          '[data-dropdown="categorias"]',
+          '[data-dropdown="categorias"]'
         );
         if (categoriasElement && !categoriasElement.contains(event.target)) {
           setMostrarCategorias(false);
@@ -197,7 +199,7 @@ export default function PaginaPrincipal() {
       // Para dropdown de orden precio
       if (mostrarOrdenPrecio) {
         const ordenPrecioElement = document.querySelector(
-          '[data-dropdown="orden-precio"]',
+          '[data-dropdown="orden-precio"]'
         );
         if (ordenPrecioElement && !ordenPrecioElement.contains(event.target)) {
           setMostrarOrdenPrecio(false);
@@ -207,7 +209,7 @@ export default function PaginaPrincipal() {
       // Para dropdown de orden distancia
       if (mostrarOrdenDistancia) {
         const ordenDistanciaElement = document.querySelector(
-          '[data-dropdown="orden-distancia"]',
+          '[data-dropdown="orden-distancia"]'
         );
         if (
           ordenDistanciaElement &&
@@ -236,7 +238,7 @@ export default function PaginaPrincipal() {
     const obtenerUbicacion = () => {
       if (!navigator.geolocation) {
         setErrorUbicacion(
-          "La geolocalización no es soportada por este navegador",
+          "La geolocalización no es soportada por este navegador"
         );
         return;
       }
@@ -280,13 +282,32 @@ export default function PaginaPrincipal() {
           enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 60000,
-        },
+        }
       );
     };
 
     // Solicitar ubicación al usuario
     obtenerUbicacion();
   }, []);
+
+  // Efecto para generar nueva semilla cuando cambian filtros o búsqueda
+  useEffect(() => {
+    // Solo generar nueva semilla cuando NO sea carga por scroll
+    if (!cargandoMasRestaurantes && !cargandoMasProductos) {
+      semillaRef.current = Math.random();
+
+      // Resetear paginación
+      setUltimoTokenRestaurantes(null);
+      setUltimoTokenProductos(null);
+      setHayMasRestaurantes(true);
+      setHayMasProductos(true);
+    }
+  }, [
+    busquedaAplicada,
+    categoriaActiva,
+    filtrosAplicadosRestaurantes,
+    filtrosAplicadosProductos,
+  ]);
 
   // Verificar sesión del usuario
   useEffect(() => {
@@ -302,7 +323,7 @@ export default function PaginaPrincipal() {
             headers: {
               "Content-Type": "application/json",
             },
-          },
+          }
         );
 
         if (response.ok) {
@@ -339,7 +360,7 @@ export default function PaginaPrincipal() {
       const body = {
         tamano: 8,
         direccion: "siguiente",
-        seed: 0.3,
+        seed: semillaRef.current, // Usar la referencia, no estado
         cursor: cargarMas ? ultimoTokenRestaurantes : null,
         general: busquedaAplicada,
         usuario_locacion: ubicacionUsuario,
@@ -356,7 +377,7 @@ export default function PaginaPrincipal() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
-        },
+        }
       );
 
       if (!response.ok) {
@@ -364,6 +385,11 @@ export default function PaginaPrincipal() {
       }
 
       const result = await response.json();
+      console.log("Respuesta restaurantes:", {
+        datos: result.datos,
+        ultimoToken: result.ultimoToken,
+        cargarMas: cargarMas,
+      });
 
       if (result.exito && result.datos && Array.isArray(result.datos)) {
         const restaurantesMapeados = result.datos.map((negocio) => ({
@@ -378,16 +404,35 @@ export default function PaginaPrincipal() {
           activo: negocio.activo || false,
         }));
 
+        // ✅ FILTRAR DUPLICADOS EN LA RESPUESTA ACTUAL
+        const restaurantesSinDuplicados = restaurantesMapeados.filter(
+          (restaurante, index, array) =>
+            array.findIndex((r) => r.id === restaurante.id) === index
+        );
+
         if (cargarMas) {
-          setRestaurantes((prev) => [...prev, ...restaurantesMapeados]);
+          // ✅ FILTRAR DUPLICADOS RESPECTO A LOS YA EXISTENTES
+          const nuevosSinDuplicados = restaurantesSinDuplicados.filter(
+            (nuevo) =>
+              !restaurantes.some((existente) => existente.id === nuevo.id)
+          );
+
+          if (nuevosSinDuplicados.length > 0) {
+            setRestaurantes((prev) => [...prev, ...nuevosSinDuplicados]);
+          } else {
+            // Si no hay elementos nuevos, no hay más datos
+            setHayMasRestaurantes(false);
+          }
         } else {
-          setRestaurantes(restaurantesMapeados);
+          setRestaurantes(restaurantesSinDuplicados);
         }
 
-        if (result.ultimoToken) {
+        if (result.ultimoToken && restaurantesSinDuplicados.length > 0) {
           setUltimoTokenRestaurantes(result.ultimoToken);
           setHayMasRestaurantes(true);
-        } else setHayMasRestaurantes(false);
+        } else {
+          setHayMasRestaurantes(false);
+        }
       } else {
         if (!cargarMas) {
           setRestaurantes([]);
@@ -395,14 +440,14 @@ export default function PaginaPrincipal() {
         setHayMasRestaurantes(false);
         console.warn(
           "No se pudieron obtener los restaurantes:",
-          result.mensaje,
+          result.mensaje
         );
       }
     } catch (error) {
       console.error("Error al cargar restaurantes:", error);
       if (!cargarMas) {
         setErrorRestaurantes(
-          "No se pudieron cargar los restaurantes. Intenta nuevamente.",
+          "No se pudieron cargar los restaurantes. Intenta nuevamente."
         );
         setRestaurantes([]);
       }
@@ -439,7 +484,7 @@ export default function PaginaPrincipal() {
       const body = {
         tamano: 8,
         direccion: "siguiente",
-        seed: 0.3,
+        seed: semillaRef.current, // Usar la referencia, no estado
         cursor: cargarMas ? ultimoTokenProductos : null,
         general: busquedaAplicada,
         categoria: filtrosAplicadosProductos.categoria,
@@ -461,7 +506,7 @@ export default function PaginaPrincipal() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify(body),
-        },
+        }
       );
 
       if (!response.ok) {
@@ -469,6 +514,12 @@ export default function PaginaPrincipal() {
       }
 
       const result = await response.json();
+
+      console.log("Respuesta productos:", {
+        datos: result.datos,
+        ultimoToken: result.ultimoToken,
+        cargarMas: cargarMas,
+      });
 
       if (result.exito && result.datos && Array.isArray(result.datos)) {
         const productosMapeados = result.datos.map((producto) => ({
@@ -484,16 +535,38 @@ export default function PaginaPrincipal() {
           en_oferta: producto.en_oferta || false,
         }));
 
+        // ✅ FILTRAR DUPLICADOS EN LA RESPUESTA ACTUAL
+        const productosSinDuplicados = productosMapeados.filter(
+          (producto, index, array) =>
+            array.findIndex((p) => p.producto_id === producto.producto_id) ===
+            index
+        );
+
         if (cargarMas) {
-          setProductos((prev) => [...prev, ...productosMapeados]);
+          // ✅ FILTRAR DUPLICADOS RESPECTO A LOS YA EXISTENTES
+          const nuevosSinDuplicados = productosSinDuplicados.filter(
+            (nuevo) =>
+              !productos.some(
+                (existente) => existente.producto_id === nuevo.producto_id
+              )
+          );
+
+          if (nuevosSinDuplicados.length > 0) {
+            setProductos((prev) => [...prev, ...nuevosSinDuplicados]);
+          } else {
+            // Si no hay elementos nuevos, no hay más datos
+            setHayMasProductos(false);
+          }
         } else {
-          setProductos(productosMapeados);
+          setProductos(productosSinDuplicados);
         }
 
-        if (result.ultimoToken) {
+        if (result.ultimoToken && productosSinDuplicados.length > 0) {
           setUltimoTokenProductos(result.ultimoToken);
           setHayMasProductos(true);
-        } else setHayMasProductos(false);
+        } else {
+          setHayMasProductos(false);
+        }
       } else {
         if (!cargarMas) {
           setProductos([]);
@@ -505,7 +578,7 @@ export default function PaginaPrincipal() {
       console.error("Error al cargar productos:", error);
       if (!cargarMas) {
         setErrorProductos(
-          "No se pudieron cargar los productos. Intenta nuevamente.",
+          "No se pudieron cargar los productos. Intenta nuevamente."
         );
         setProductos([]);
       }
@@ -628,12 +701,18 @@ export default function PaginaPrincipal() {
       if (
         !cargandoMasRestaurantes &&
         hayMasRestaurantes &&
-        ultimoTokenRestaurantes
+        ultimoTokenRestaurantes &&
+        restaurantes.length > 0 // ✅ EVITAR CARGA SI NO HAY ELEMENTOS INICIALES
       ) {
         obtenerRestaurantes(true);
       }
     } else {
-      if (!cargandoMasProductos && hayMasProductos && ultimoTokenProductos) {
+      if (
+        !cargandoMasProductos &&
+        hayMasProductos &&
+        ultimoTokenProductos &&
+        productos.length > 0 // ✅ EVITAR CARGA SI NO HAY ELEMENTOS INICIALES
+      ) {
         obtenerProductos(true);
       }
     }
@@ -669,7 +748,7 @@ export default function PaginaPrincipal() {
   const handleSolicitarCambioContrasena = async () => {
     if (!usuario || !usuario.correo) {
       setMensajeCambioContrasena(
-        "No se pudo obtener la información del usuario",
+        "No se pudo obtener la información del usuario"
       );
       return;
     }
@@ -686,14 +765,14 @@ export default function PaginaPrincipal() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ correo: usuario.correo }),
-        },
+        }
       );
 
       const result = await response.json();
 
       if (response.ok && result.exito) {
         setMensajeCambioContrasena(
-          "Se ha enviado un correo para cambiar tu contraseña",
+          "Se ha enviado un correo para cambiar tu contraseña"
         );
 
         // Cerrar el popup después de 3 segundos
@@ -703,7 +782,7 @@ export default function PaginaPrincipal() {
         }, 3000);
       } else {
         setMensajeCambioContrasena(
-          result.message || "Error al enviar la solicitud",
+          result.message || "Error al enviar la solicitud"
         );
       }
     } catch (error) {
@@ -765,7 +844,7 @@ export default function PaginaPrincipal() {
     const obtenerUbicacion = () => {
       if (!navigator.geolocation) {
         setErrorUbicacion(
-          "La geolocalización no es soportada por este navegador",
+          "La geolocalización no es soportada por este navegador"
         );
         return;
       }
@@ -784,10 +863,10 @@ export default function PaginaPrincipal() {
         (error) => {
           console.error("Error al obtener ubicación:", error);
           setErrorUbicacion(
-            "No se pudo obtener tu ubicación. Los restaurantes se mostrarán sin información de distancia.",
+            "No se pudo obtener tu ubicación. Los restaurantes se mostrarán sin información de distancia."
           );
           setSolicitandoUbicacion(false);
-        },
+        }
       );
     };
 
@@ -805,7 +884,7 @@ export default function PaginaPrincipal() {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       if (response.ok) {
@@ -1453,8 +1532,8 @@ export default function PaginaPrincipal() {
                           {filtrosRestaurantes.tipo === "ambulante"
                             ? "Ambulante"
                             : filtrosRestaurantes.tipo === "restaurante"
-                              ? "Restaurante"
-                              : "Todos los tipos"}
+                            ? "Restaurante"
+                            : "Todos los tipos"}
                         </span>
                         <svg
                           className={`h-4 w-4 text-gray-500 transition-transform ${
@@ -1737,8 +1816,8 @@ export default function PaginaPrincipal() {
                             {filtrosProductos.precio_orden === ""
                               ? "Sin orden específico"
                               : filtrosProductos.precio_orden === "ASC"
-                                ? "Menor a mayor"
-                                : "Mayor a menor"}
+                              ? "Menor a mayor"
+                              : "Mayor a menor"}
                           </span>
                           <svg
                             className={`h-4 w-4 text-gray-500 transition-transform ${

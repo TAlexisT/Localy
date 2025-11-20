@@ -31,6 +31,8 @@ export const API_ENDPOINTS = {
     BORRAR_MENU: (negocioId, imagenAEliminar) =>
       `/negocios/borrar-menu/${negocioId}/${imagenAEliminar}`,
     CREAR_SESION_PAGO: "/negocios/crear-sesion-pago",
+    MOSTRAR_FACTURACION_PORTAL: (negocioId) =>
+      `/negocios/mostrar-facturacion-portal/${negocioId}`,
   },
   PRODUCTOS: {
     MOSTRAR: "/productos/mostrar",

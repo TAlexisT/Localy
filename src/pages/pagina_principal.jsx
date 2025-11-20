@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import TarjetaRestaurante from "../components/tarjeta_restaurante";
 import TarjetaProducto from "../components/tarjeta_producto";
 import { API_BASE_URL, API_ENDPOINTS } from "../../configs.js";
@@ -926,9 +926,47 @@ export default function PaginaPrincipal() {
   };
 
   // Función para cancelar suscripción
-  const handleCancelarSuscripcion = () => {
-    if (usuario && usuario.negocioId) {
-      navigate(`/mostrar-facturacion-portal/${usuario.negocioId}`);
+  const handleCancelarSuscripcion = async () => {
+    if (!usuario || !usuario.negocioId) {
+      console.error("No se pudo obtener la información del negocio");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}${API_ENDPOINTS.NEGOCIOS.MOSTRAR_FACTURACION_PORTAL(usuario.negocioId)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // si necesitas enviar cookies/sesión
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Error ${response.status} al obtener el portal de facturación`
+        );
+      }
+
+      const result = await response.json();
+
+      if (result.exito && result.datos.url) {
+        console.log(
+          "Portal de facturación obtenido exitosamente:",
+          result.datos
+        );
+        // Redirigir a la URL en la misma pestaña
+        window.location.href = result.datos.url;
+      } else {
+        console.error(
+          "Error en la respuesta:",
+          result.mensaje || "No se pudo obtener la URL del portal"
+        );
+      }
+    } catch (error) {
+      console.error("Error al obtener el portal de facturación:", error);
     }
   };
 

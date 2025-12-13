@@ -12,7 +12,7 @@ const config = {
 };
 
 // Determinar el entorno actual
-const environment = import.meta.env.MODE || "development";
+const environment = import.meta.env.MODE || "production";
 console.log("Current environment:", environment);
 
 // Exportar la configuración según el entorno

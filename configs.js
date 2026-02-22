@@ -7,7 +7,7 @@ const config = {
   },
   // Producción
   production: {
-    apiUrl: "https://localymxb-production.up.railway.app/api",
+    apiUrl: "https://api.localymx.com/api",
   },
 };
 

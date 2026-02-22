@@ -268,9 +268,9 @@ export default function ConfigurarPerfil() {
           errorText = await response.text();
           const errorData = JSON.parse(errorText);
           throw new Error(
-            errorData.mensaje ||
-              errorData.error ||
-              "Error al actualizar perfil",
+            (errorData.mensaje + ". Desde el mensaje de error." ||
+              errorData.error + ". Desde el error directo." ||
+              "Error al actualizar perfil.") + " Contacte a soporte en caso de que el error persista.",
           );
         } catch {
           throw new Error(
